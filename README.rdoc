@@ -1,9 +1,44 @@
-= google_calendar
+= Google Calendar
 
-Description goes here.
+A fast lightweight and minimalist wrapper around the google calendar api.
+
+== Install
+  [sudo] gem install 'google_calendar'
+
+Note: Make sure to customize the APP_NAME constant in the Connection class.
+
+== Usage
+  require 'rubygems'
+  require 'google_calendar'
+
+  cal = Google::Calendar.new(:username => 'some.person@gmail.com', :password => 'super-secret')
+
+  event = cal.create_event do |e|
+    e.title = 'A Cool Event'
+    e.start_time = Time.now
+    e.end_time = Time.now + (60 * 60) # seconds * min
+  end
+
+  puts event
+
+  event = cal.find_or_create_event_by_id(event.id) do |e|
+    e.title = 'An Updated Cool Event'
+    e.end_time = Time.now + (60 * 60 * 2) # seconds * min * hours
+  end
+
+  puts event
+
+  # All events
+  puts cal.events
+
+  # Query events
+  puts cal.find_events('my search string')
+
+
+Note: This is not a complete implementation of the calendar api, it just includes the features I needed to support our internal calendar integration.
 
 == Contributing to google_calendar
- 
+
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
 * Fork the project
@@ -14,6 +49,4 @@ Description goes here.
 
 == Copyright
 
-Copyright (c) 2010 Steve. See LICENSE.txt for
-further details.
-
+Copyright (c) 2010 Steve Zich. See LICENSE.txt for further details.

@@ -1,7 +1,142 @@
 require 'helper'
 
 class TestGoogleCalendar < Test::Unit::TestCase
-  should "probably rename this file and start testing for real" do
-    flunk "hey buddy, you should probably rename this file and start testing for real"
+  include Google
+
+  context "Connected" do
+
+    setup do
+      @http_mock = mock('Net::HTTPResponse')
+      @http_mock.stubs(:code => '200', :kind_of? => false, :message => "OK")
+      @http_mock.stubs(:kind_of?).with(Net::HTTPSuccess).returns(true)
+      @http_mock.stubs(:body).returns(get_mock_body('successful_login.txt'))
+      @http_request_mock = mock('Net::HTTPS')
+      @http_request_mock.stubs(:set_form_data => '', :request => @http_mock)
+
+      Net::HTTPS.stubs(:new).returns(@http_request_mock)
+    end
+
+    context "Login" do
+
+      should "login properly" do
+        assert_nothing_thrown do
+          Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret')
+        end
+      end
+
+      should "catch login with invalid credentials" do
+        @http_mock.stubs(:kind_of?).with(Net::HTTPForbidden).returns(true)
+        @http_mock.stubs(:body).returns('Error=BadAuthentication')
+        assert_raise(HTTPAuthorizationFailed) do
+          Calendar.new(:username => 'some.one@gmail.com', :password => 'wrong-password')
+        end
+      end
+
+    end # login context
+
+    context "Logged on" do
+      setup do
+        @calendar = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret')
+      end
+
+      should "find all events" do
+        @http_mock.stubs(:body).returns( get_mock_body("events.xml") )
+        assert_equal @calendar.events.length, 3
+      end
+
+      should "query events" do
+        @http_mock.stubs(:body).returns( get_mock_body("query_events.xml") )
+        event = @calendar.find_events('Test&gsessionid=12345')
+        assert_equal event.title, 'Test'
+      end
+
+      should "find an event by id" do
+        @http_mock.stubs(:body).returns( get_mock_body("find_event_by_id.xml") )
+        event = @calendar.find_event_by_id('oj6fmpaulbvk9ouoj0lj4v6hio')
+        assert_equal event.id, 'oj6fmpaulbvk9ouoj0lj4v6hio'
+      end
+
+      should "throw NotFound with invalid event id" do
+        @http_mock.stubs(:kind_of?).with(Net::HTTPNotFound).returns(true)
+        assert_raise(HTTPNotFound) do
+          @calendar.find_event_by_id('1234')
+        end
+      end
+
+      should "create an event with block" do
+        @http_mock.stubs(:body).returns( get_mock_body("create_event.xml") )
+
+        event = @calendar.create_event do |e|
+          e.title = 'New Event'
+          e.start_time = Time.now + (60 * 60)
+          e.end_time = Time.now + (60 * 60 * 2)
+          e.content = "A new event"
+          e.where = "Joe's House"
+        end
+
+        assert_equal event.title, 'New Event'
+      end
+
+      should "format to_s properly" do
+        @http_mock.stubs(:body).returns( get_mock_body("query_events.xml") )
+        event = @calendar.find_events('Test')
+        assert_equal event.to_s, "Test (oj6fmpaulbvk9ouoj0lj4v6hio)\n\t2010-04-08\n\t2010-04-09\n\tAt School\n\t"
+      end
+
+      should "update an event by id" do
+        @http_mock.stubs(:body).returns( get_mock_body("find_event_by_id.xml") )
+
+        event = @calendar.find_or_create_event_by_id('oj6fmpaulbvk9ouoj0lj4v6hio') do |e|
+          e.title = 'New Event Update'
+        end
+
+        assert_equal event.title, 'New Event Update'
+      end
+
+      should "delete an event" do
+        @http_mock.stubs(:body).returns( get_mock_body("create_event.xml") )
+
+        event = @calendar.create_event do |e|
+          e.title = 'Delete Me'
+        end
+
+        assert_equal event.id, 'b1vq6rj4r4mg85kcickc7iomb0'
+
+        @http_mock.stubs(:body).returns("")
+        event.delete
+        assert_equal event.id, nil
+      end
+
+      should "not redirect forever" do
+        @http_mock.stubs(:kind_of?).with(Net::HTTPRedirection).returns(true)
+        @http_mock.stubs(:[]).with('location').returns('https://www.google.com')
+        assert_raise(HTTPTooManyRedirections) do
+          @calendar.events
+        end
+      end
+
+      should "throw exception on bad request" do
+        @http_mock.stubs(:kind_of?).with(Net::HTTPBadRequest).returns(true)
+        assert_raise(HTTPRequestFailed) do
+          @calendar.events
+        end
+      end
+
+    end # Logged on context
+
+  end # Connected context
+
+  def test_https_extension
+    assert_nothing_thrown do
+      uri = Addressable::URI.parse('https://www.google.com')
+      Net::HTTPS.new(uri.host, uri.port)
+    end
   end
+
+  protected
+
+  def get_mock_body(name)
+    File.open(@@mock_path + '/' + name).read
+  end
+
 end

@@ -1,0 +1,27 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    addressable (2.2.2)
+    git (1.2.5)
+    jeweler (1.5.1)
+      bundler (~> 1.0.0)
+      git (>= 1.2.5)
+      rake
+    mocha (0.9.10)
+      rake
+    nokogiri (1.4.4)
+    rake (0.8.7)
+    rcov (0.9.9)
+    shoulda (2.11.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  addressable (>= 2.2.2)
+  bundler (~> 1.0.0)
+  jeweler (~> 1.5.1)
+  mocha
+  nokogiri (>= 1.4.4)
+  rcov
+  shoulda

@@ -13,16 +13,19 @@ require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "google_calendar"
-  gem.homepage = "http://github.com/szich/google_calendar"
+  gem.homepage = "http://github.com/northworld/google_calendar"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{A lightweight google calendar API wrapper}
+  gem.description = %Q{A minimal wrapper around the google calendar API, which uses nokogiri for fast parsing.}
   gem.email = "steve.zich@gmail.com"
-  gem.authors = ["Steve"]
-  # Include your dependencies below. Runtime dependencies are required when using your gem,
-  # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
-  #  gem.add_runtime_dependency 'jabber4r', '> 0.1'
-  #  gem.add_development_dependency 'rspec', '> 1.2.3'
+  gem.authors = ["Steve Zich"]
+  gem.add_runtime_dependency "nokogiri", ">= 1.4.4"
+  gem.add_runtime_dependency "addressable", ">= 2.2.2"
+  gem.add_development_dependency "shoulda", ">= 0"
+  gem.add_development_dependency "bundler", "~> 1.0.0"
+  gem.add_development_dependency "jeweler", "~> 1.5.1"
+  gem.add_development_dependency "rcov", ">= 0"
+  gem.files = Dir.glob('lib/**/*.rb')
 end
 Jeweler::RubygemsDotOrgTasks.new
 
