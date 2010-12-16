@@ -17,14 +17,29 @@ Gem::Specification.new do |s|
     "README.rdoc"
   ]
   s.files = [
+    ".document",
+    "Gemfile",
+    "Gemfile.lock",
+    "LICENSE.txt",
+    "README.rdoc",
+    "Rakefile",
+    "VERSION",
+    "google_calendar.gemspec",
     "lib/google/calendar.rb",
     "lib/google/connection.rb",
     "lib/google/errors.rb",
     "lib/google/event.rb",
     "lib/google/net/https.rb",
-    "lib/google_calendar.rb"
+    "lib/google_calendar.rb",
+    "test/helper.rb",
+    "test/mocks/create_event.xml",
+    "test/mocks/events.xml",
+    "test/mocks/find_event_by_id.xml",
+    "test/mocks/query_events.xml",
+    "test/mocks/successful_login.txt",
+    "test/test_google_calendar.rb"
   ]
-  s.homepage = %q{http://github.com/szich/google_calendar}
+  s.homepage = %q{http://github.com/northworld/google_calendar}
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.7}
