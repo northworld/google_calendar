@@ -19,12 +19,6 @@ Jeweler::Tasks.new do |gem|
   gem.description = %Q{A minimal wrapper around the google calendar API, which uses nokogiri for fast parsing.}
   gem.email = "steve.zich@gmail.com"
   gem.authors = ["Steve Zich"]
-  gem.add_runtime_dependency "nokogiri", ">= 1.4.4"
-  gem.add_runtime_dependency "addressable", ">= 2.2.2"
-  gem.add_development_dependency "shoulda", ">= 0"
-  gem.add_development_dependency "bundler", "~> 1.0.0"
-  gem.add_development_dependency "jeweler", "~> 1.5.1"
-  gem.add_development_dependency "rcov", ">= 0"
 end
 Jeweler::RubygemsDotOrgTasks.new
 
