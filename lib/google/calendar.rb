@@ -59,6 +59,7 @@ module Google
     #   an array of events if many found.
     #
     def find_event_by_id(id)
+      return nil unless id && id.strip != ''
       event_lookup("/#{id}")
     end
 
@@ -110,12 +111,13 @@ module Google
     protected
 
     def event_lookup(query_string = '') #:nodoc:
+      begin
       response = @connection.send(Addressable::URI.parse(events_url + query_string), :get)
-
-      return nil if response.kind_of? Net::HTTPNotFound
-
       events = Event.build_from_google_feed(response.body, self)
       events.length > 1 ? events : events[0]
+      rescue Google::HTTPNotFound
+        return nil
+      end
     end
 
     def calendar_url #:nodoc:

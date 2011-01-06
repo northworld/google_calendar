@@ -58,9 +58,7 @@ class TestGoogleCalendar < Test::Unit::TestCase
 
       should "throw NotFound with invalid event id" do
         @http_mock.stubs(:kind_of?).with(Net::HTTPNotFound).returns(true)
-        assert_raise(HTTPNotFound) do
-          @calendar.find_event_by_id('1234')
-        end
+        assert_equal @calendar.find_event_by_id('1234'), nil
       end
 
       should "create an event with block" do
