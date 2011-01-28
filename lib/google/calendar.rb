@@ -24,8 +24,13 @@ module Google
       username = params[:username]
       password = params[:password]
       @calendar = params[:calendar]
+      app_name = params[:app_name]
+      auth_url = params[:auth_url]
+      
 
-      @connection = Connection.new(:username => username, :password => password)
+      @connection = Connection.new(:username => username, :password => password,:app_name => app_name, 
+        :auth_url => auth_url
+      )
     end
 
     # Find all of the events associated with this calendar.

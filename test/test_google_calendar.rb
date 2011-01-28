@@ -31,6 +31,42 @@ class TestGoogleCalendar < Test::Unit::TestCase
           Calendar.new(:username => 'some.one@gmail.com', :password => 'wrong-password')
         end
       end
+      
+      should "login properly with an app_name" do 
+        assert_nothing_thrown do
+          Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret', 
+            :app_name => 'northworld.com-googlecalendar-integration'
+          )
+        end
+      end
+      
+      should "catch login with invalid app_name" do 
+          @http_mock.stubs(:kind_of?).with(Net::HTTPForbidden).returns(true)
+          @http_mock.stubs(:body).returns('Error=BadAuthentication')
+          assert_raise(HTTPAuthorizationFailed) do
+            Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret', 
+              :app_name => 'northworld.com-silly-cal'
+            )
+          end
+        end 
+        
+        should "login properly with an auth_url" do 
+          assert_nothing_thrown do
+            Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret', 
+              :auth_url => "https://www.google.com/accounts/ClientLogin"
+            )
+          end
+        end
+
+        should "catch login with invalid auth_url" do 
+            @http_mock.stubs(:kind_of?).with(Net::HTTPForbidden).returns(true)
+            @http_mock.stubs(:body).returns('Error=BadAuthentication')
+            assert_raise(HTTPAuthorizationFailed) do
+              Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret', 
+                :auth_url => "https://www.google.com/accounts/ClientLogin/waffles"
+              )
+            end
+          end               
 
     end # login context
 

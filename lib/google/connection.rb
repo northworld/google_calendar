@@ -7,14 +7,13 @@ module Google
   # communication with the google calendar api.
   #
   class Connection
-    AUTH_URL = "https://www.google.com/accounts/ClientLogin"
-    APP_NAME = "northworld.com-googlecalendar-integration"
-
-    # set the username and password and login.
+    # set the username, password, auth_url, app_name, and login.
     #
     def initialize(params)
       @username = params[:username]
       @password = params[:password]
+      @auth_url = params[:auth_url] || "https://www.google.com/accounts/ClientLogin"
+      @app_name = params[:app_name] || "northworld.com-googlecalendar-integration"
 
       login()
     end
@@ -25,11 +24,11 @@ module Google
       content = {
         'Email' => @username,
         'Passwd' => @password,
-        'source' => APP_NAME,
+        'source' => @app_name,
         'accountType' => 'HOSTED_OR_GOOGLE',
         'service' => 'cl'}
 
-      response = send(Addressable::URI.parse(AUTH_URL), :post_form, content)
+      response = send(Addressable::URI.parse(@auth_url), :post_form, content)
 
       raise HTTPRequestFailed unless response.kind_of? Net::HTTPSuccess
 
