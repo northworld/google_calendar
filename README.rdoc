@@ -5,13 +5,15 @@ A fast lightweight and minimalist wrapper around the google calendar api.
 == Install
   [sudo] gem install 'google_calendar'
 
-Note: Make sure to customize the APP_NAME constant in the Connection class.
+Note: Google requests that you set the name of your application so they can better monitor the use of their services.
 
 == Usage
   require 'rubygems'
   require 'google_calendar'
 
-  cal = Google::Calendar.new(:username => 'some.person@gmail.com', :password => 'super-secret')
+  cal = Google::Calendar.new(:username => 'some.person@gmail.com',
+                             :password => 'super-secret',
+                             :app_name => 'mycompany.com-googlecalendar-integration')
 
   event = cal.create_event do |e|
     e.title = 'A Cool Event'

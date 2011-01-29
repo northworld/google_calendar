@@ -10,6 +10,8 @@ module Google
     # * :username => the username of the specified calendar (i.e. some.guy@gmail.com)
     # * :password => the password for the specified user (i.e. super-secret)
     # * :calendar => the name of the calendar you would like to work with (optional, defaults to the calendar the user setup as their default one.)
+    # * :app_name => the name of your application (defaults to 'northworld.com-googlecalendar-integration')
+    # * :auth_url => the base url that is used to connect to google (defaults to 'https://www.google.com/accounts/ClientLogin')
     #
     # After creating an instace you are immediatly logged on and ready to go.
     #
@@ -20,17 +22,20 @@ module Google
     #   # Specify the calendar
     #   Calendar.new(username: => 'some.guy@gmail.com', :password => 'ilovepie!', :calendar => 'my.company@gmail.com')
     #
+    #   # Specify the app_name
+    #   Calendar.new(username: => 'some.guy@gmail.com', :password => 'ilovepie!', :app_name => 'mycompany.com-googlecalendar-integration')
+    #
     def initialize(params)
       username = params[:username]
       password = params[:password]
       @calendar = params[:calendar]
       app_name = params[:app_name]
       auth_url = params[:auth_url]
-      
 
-      @connection = Connection.new(:username => username, :password => password,:app_name => app_name, 
-        :auth_url => auth_url
-      )
+      @connection = Connection.new(:username => username,
+                                   :password => password,
+                                   :app_name => app_name,
+                                   :auth_url => auth_url)
     end
 
     # Find all of the events associated with this calendar.
