@@ -62,6 +62,18 @@ module Google
       event_lookup("?q=#{query}")
     end
 
+    # Find all of the events associated with this calendar that start in the given time frame.
+    # The lower bound is inclusive, whereas the upper bound is exclusive.
+    # Events that overlap the range are included.
+    #  Returns:
+    #   nil if nothing found.
+    #   a single event if only one found.
+    #   an array of events if many found.
+    #
+    def find_events_in_range(start_min, start_max)
+      event_lookup("?start-min=#{start_min.iso8601}&start-max=#{start_max.iso8601}")
+    end
+
     # Attempts to find the event specified by the id
     #  Returns:
     #   nil if nothing found.

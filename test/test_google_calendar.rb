@@ -86,6 +86,13 @@ class TestGoogleCalendar < Test::Unit::TestCase
         assert_equal event.title, 'Test'
       end
 
+      should "find events in range" do
+        start_min = DateTime.new(2011, 2, 1, 11, 1, 1)
+        start_max = DateTime.new(2011, 2, 28, 23, 59, 59)
+        @calendar.expects(:event_lookup).with('?start-min=2011-02-01T11:01:01+00:00&start-max=2011-02-28T23:59:59+00:00')
+        events = @calendar.find_events_in_range(start_min, start_max)
+      end
+
       should "find an event by id" do
         @http_mock.stubs(:body).returns( get_mock_body("find_event_by_id.xml") )
         event = @calendar.find_event_by_id('oj6fmpaulbvk9ouoj0lj4v6hio')
