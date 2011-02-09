@@ -71,7 +71,9 @@ module Google
     #   an array of events if many found.
     #
     def find_events_in_range(start_min, start_max)
-      event_lookup("?start-min=#{start_min.iso8601}&start-max=#{start_max.iso8601}")
+      formatted_start_min = start_min.strftime("%Y-%m-%dT%H:%M:%S")
+      formatted_start_max = start_max.strftime("%Y-%m-%dT%H:%M:%S")
+      event_lookup("?start-min=#{formatted_start_min}&start-max=#{formatted_start_max}")
     end
 
     # Attempts to find the event specified by the id
