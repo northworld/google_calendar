@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{google_calendar}
-  s.version = "0.1.3"
+  s.version = "0.1.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Steve Zich"]
-  s.date = %q{2011-01-28}
+  s.date = %q{2011-02-09}
   s.description = %q{A minimal wrapper around the google calendar API, which uses nokogiri for fast parsing.}
   s.email = %q{steve.zich@gmail.com}
   s.extra_rdoc_files = [
@@ -42,7 +42,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/northworld/google_calendar}
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.4.2}
+  s.rubygems_version = %q{1.5.0}
   s.summary = %q{A lightweight google calendar API wrapper}
   s.test_files = [
     "test/helper.rb",
