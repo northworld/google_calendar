@@ -17,13 +17,13 @@ module Google
     #
     # ==== Examples
     #   # Use the default calendar
-    #   Calendar.new(username: => 'some.guy@gmail.com', :password => 'ilovepie!')
+    #   Calendar.new(:username => 'some.guy@gmail.com', :password => 'ilovepie!')
     #
     #   # Specify the calendar
-    #   Calendar.new(username: => 'some.guy@gmail.com', :password => 'ilovepie!', :calendar => 'my.company@gmail.com')
+    #   Calendar.new(:username => 'some.guy@gmail.com', :password => 'ilovepie!', :calendar => 'my.company@gmail.com')
     #
     #   # Specify the app_name
-    #   Calendar.new(username: => 'some.guy@gmail.com', :password => 'ilovepie!', :app_name => 'mycompany.com-googlecalendar-integration')
+    #   Calendar.new(:username => 'some.guy@gmail.com', :password => 'ilovepie!', :app_name => 'mycompany.com-googlecalendar-integration')
     #
     def initialize(params)
       username = params[:username]
