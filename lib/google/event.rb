@@ -17,7 +17,7 @@ module Google
   #
   class Event
     attr_reader :id, :raw_xml
-    attr_accessor :title, :content, :where, :calendar
+    attr_accessor :title, :content, :where, :calendar, :quickadd
 
     # Create a new event, and optionally set it's attributes.
     #
@@ -38,6 +38,7 @@ module Google
       @end_time = params[:end_time]
       @calendar = params[:calendar]
       @raw_xml = params[:raw_xml]
+      @quickadd = params[:quickadd]
     end
 
     # Sets the start time of the Event.  Must be a Time object or a parsable string representation of a time.
@@ -80,21 +81,30 @@ module Google
     # Google XMl representation of an evetn object.
     #
     def to_xml
-      "<entry xmlns='http://www.w3.org/2005/Atom' xmlns:gd='http://schemas.google.com/g/2005'>
-        <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'></category>
-        <title type='text'>#{title}</title>
-        <content type='text'>#{content}</content>
-        <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'></gd:transparency>
-        <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'></gd:eventStatus>
-        <gd:where valueString=\"#{where}\"></gd:where>
-        <gd:when startTime=\"#{start_time}\" endTime=\"#{end_time}\"></gd:when>
-       </entry>"
+      unless quickadd
+        "<entry xmlns='http://www.w3.org/2005/Atom' xmlns:gd='http://schemas.google.com/g/2005'>
+          <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'></category>
+          <title type='text'>#{title}</title>
+          <content type='text'>#{content}</content>
+          <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'></gd:transparency>
+          <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'></gd:eventStatus>
+          <gd:where valueString=\"#{where}\"></gd:where>
+          <gd:when startTime=\"#{start_time}\" endTime=\"#{end_time}\"></gd:when>
+         </entry>"
+      else
+        %Q{<entry xmlns='http://www.w3.org/2005/Atom' xmlns:gCal='http://schemas.google.com/gCal/2005'>
+            <content type="html">#{content}</content>
+            <gCal:quickadd value="true"/>
+          </entry>}
+      end
     end
 
     # String representation of an event object.
     #
     def to_s
-      "#{title} (#{self.id})\n\t#{start_time}\n\t#{end_time}\n\t#{where}\n\t#{content}"
+      s = "#{title} (#{self.id})\n\t#{start_time}\n\t#{end_time}\n\t#{where}\n\t#{content}"
+      s << "\n\t#{quickadd}" if quickadd
+      s
     end
 
     # Saves an event.
@@ -125,6 +135,7 @@ module Google
       where       = xml.at_xpath("gd:where")['valueString']
       start_time  = xml.at_xpath("gd:when")['startTime']
       end_time    = xml.at_xpath("gd:when")['endTime']
+      quickadd    = xml.at_xpath("gCal:quickadd") ? xml.at_xpath("gCal:quickadd")['quickadd'] : nil
 
       Event.new(:id => id,
                 :title => title,
@@ -133,7 +144,8 @@ module Google
                 :start_time => start_time,
                 :end_time => end_time,
                 :calendar => calendar,
-                :raw_xml => xml)
+                :raw_xml => xml,
+                :quickadd => quickadd)
     end
 
     # Set the ID after google assigns it (only necessary when we are creating a new event)
