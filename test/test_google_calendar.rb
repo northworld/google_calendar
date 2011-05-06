@@ -118,6 +118,17 @@ class TestGoogleCalendar < Test::Unit::TestCase
         assert_equal event.title, 'New Event'
       end
 
+      should "create a quickadd event" do
+        @http_mock.stubs(:body).returns( get_mock_body("create_quickadd_event.xml") )
+
+        event = @calendar.create_event do |e|
+          e.content = "movie tomorrow 23:00 at AMC Van Ness"
+          e.quickadd = true
+        end
+
+        assert_equal event.content, "movie tomorrow 23:00 at AMC Van Ness"
+      end
+
       should "format to_s properly" do
         @http_mock.stubs(:body).returns( get_mock_body("query_events.xml") )
         event = @calendar.find_events('Test')
