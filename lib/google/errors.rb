@@ -3,4 +3,5 @@ module Google
   class HTTPAuthorizationFailed < StandardError; end
   class HTTPNotFound < StandardError; end
   class HTTPTooManyRedirections < StandardError; end
+  class InvalidCalendar < StandardError; end
 end
