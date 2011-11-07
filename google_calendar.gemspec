@@ -4,14 +4,14 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{google_calendar}
-  s.version = "0.1.4"
+  s.name = "google_calendar"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Steve Zich"]
-  s.date = %q{2011-02-09}
-  s.description = %q{A minimal wrapper around the google calendar API, which uses nokogiri for fast parsing.}
-  s.email = %q{steve.zich@gmail.com}
+  s.date = "2011-11-07"
+  s.description = "A minimal wrapper around the google calendar API, which uses nokogiri for fast parsing."
+  s.email = "steve.zich@gmail.com"
   s.extra_rdoc_files = [
     "LICENSE.txt",
     "README.rdoc"
@@ -33,17 +33,19 @@ Gem::Specification.new do |s|
     "lib/google_calendar.rb",
     "test/helper.rb",
     "test/mocks/create_event.xml",
+    "test/mocks/create_quickadd_event.xml",
     "test/mocks/events.xml",
     "test/mocks/find_event_by_id.xml",
+    "test/mocks/list_calendars.xml",
     "test/mocks/query_events.xml",
     "test/mocks/successful_login.txt",
     "test/test_google_calendar.rb"
   ]
-  s.homepage = %q{http://github.com/northworld/google_calendar}
+  s.homepage = "http://github.com/northworld/google_calendar"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.5.0}
-  s.summary = %q{A lightweight google calendar API wrapper}
+  s.rubygems_version = "1.8.10"
+  s.summary = "A lightweight google calendar API wrapper"
   s.test_files = [
     "test/helper.rb",
     "test/test_google_calendar.rb"
