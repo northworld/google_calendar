@@ -1,3 +1,5 @@
+require 'nokogiri'
+
 module Google
 
   # Calendar is the main object you use to interact with events.
@@ -144,12 +146,31 @@ module Google
       end
     end
 
-    def calendar_url #:nodoc:
-      @calendar || 'default'
+    def calendar_id #:nodoc:
+      @calendar || "default"
     end
 
-    def events_url #:nodoc:
-      "https://www.google.com/calendar/feeds/#{calendar_url}/private/full"
+    # Initialize the events URL given String attribute @calendar value :
+    #
+    # contains a '@'        : construct the feed url with @calendar.
+    # does not contain '@'  : fetch user's all calendars (http://code.google.com/apis/calendar/data/2.0/developers_guide_protocol.html#RetrievingAllCalendars)
+    #                         and return feed url matching @calendar.
+    # nil                   : default feed url.
+    #
+    # Returns:
+    #  a String url for a calendar feeds.
+    #  raise a Google::InvalidCalendar error if @calendar is invalid.
+    #
+    def events_url
+      if @calendar and !@calendar.include?("@")
+         xml = @connection.send(Addressable::URI.parse("https://www.google.com/calendar/feeds/default/allcalendars/full"), :get)
+         doc = Nokogiri::XML(xml.body)
+         doc.remove_namespaces!
+         link = doc.xpath("//entry[title='#{@calendar}']/link[contains(@rel, '#eventFeed')]/@href").to_s
+         link.empty? ? raise(Google::InvalidCalendar) : link
+       else
+         "https://www.google.com/calendar/feeds/#{calendar_id}/private/full"
+      end
     end
 
     def setup_event(event) #:nodoc:

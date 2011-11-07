@@ -66,6 +66,40 @@ class TestGoogleCalendar < Test::Unit::TestCase
                 :auth_url => "https://www.google.com/accounts/ClientLogin/waffles"
               )
             end
+          end
+
+          should "login properly with a calendar" do
+            assert_nothing_thrown do
+              cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
+              :calendar => "Little Giants")
+
+              #mock calendar list request
+              calendar_uri = mock("get calendar uri")
+              Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").once.returns(calendar_uri)
+              Connection.any_instance.expects(:send).with(calendar_uri, :get).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
+
+              #mock events list request
+              events_uri = mock("get events uri")
+              Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/rf1c66uld6dgk2t5lh43svev6g%40group.calendar.google.com/private/full").once.returns(events_uri)
+              Connection.any_instance.expects(:send).with(events_uri, :get).once.returns(mock("response", :body => get_mock_body('events.xml')))
+
+              cal.events
+            end
+          end
+
+          should "catch login with invalid calendar" do
+
+            assert_raise(InvalidCalendar) do
+              cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
+              :calendar => "invalid calendar")
+
+              #mock calendar list request
+              calendar_uri = mock("get calendar uri")
+              Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").once.returns(calendar_uri)
+              Connection.any_instance.expects(:send).with(calendar_uri, :get).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
+
+              cal.events
+            end
           end               
 
     end # login context
