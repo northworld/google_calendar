@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Steve Zich"]
-  s.date = "2011-11-07"
+  s.date = "2011-11-08"
   s.description = "A minimal wrapper around the google calendar API, which uses nokogiri for fast parsing."
   s.email = "steve.zich@gmail.com"
   s.extra_rdoc_files = [
