@@ -27,14 +27,18 @@ module Google
     #   # Specify the app_name
     #   Calendar.new(:username => 'some.guy@gmail.com', :password => 'ilovepie!', :app_name => 'mycompany.com-googlecalendar-integration')
     #
-    def initialize(params)
-      username = params[:username]
-      password = params[:password]
-      @calendar = params[:calendar]
-      app_name = params[:app_name]
-      auth_url = params[:auth_url]
 
-      @connection = Connection.new(:username => username,
+    # Calendar attributes
+    attr_accessor :username, :password, :app_name, :auth_url, :connection, :calendar
+
+    def initialize(params)
+      self.username = params[:username]
+      self.password = params[:password]
+      self.calendar = params[:calendar]
+      self.app_name = params[:app_name]
+      self.auth_url = params[:auth_url]
+
+      self.connection = Connection.new(:username => username,
                                    :password => password,
                                    :app_name => app_name,
                                    :auth_url => auth_url)
@@ -134,6 +138,27 @@ module Google
       @connection.send(Addressable::URI.parse(events_url + "/#{event.id}"), :delete)
     end
 
+    # Explicitly reload the connection to google calendar
+    #
+    # Examples
+    # class User
+    #   def calendar
+    #     @calendar ||= Google::Calendar.new :username => "foo@gmail.com", :password => "bar"
+    #   end
+    # end
+    # user = User.new
+    # 2.times { user.calendar }     #only one HTTP authentication request to google
+    # user.calendar.reload          #new HTTP authentication request to google
+    #
+    # Returns Google::Calendar instance
+    def reload
+      self.connection = Connection.new(:username => username,
+                                   :password => password,
+                                   :app_name => app_name,
+                                   :auth_url => auth_url)
+      self
+    end
+
     protected
 
     def event_lookup(query_string = '') #:nodoc:
@@ -179,7 +204,6 @@ module Google
       event.save
       event
     end
-
   end
 
 end

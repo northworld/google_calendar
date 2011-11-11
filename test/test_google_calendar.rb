@@ -31,82 +31,87 @@ class TestGoogleCalendar < Test::Unit::TestCase
           Calendar.new(:username => 'some.one@gmail.com', :password => 'wrong-password')
         end
       end
-      
-      should "login properly with an app_name" do 
+
+      should "login properly with an app_name" do
         assert_nothing_thrown do
-          Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret', 
-            :app_name => 'northworld.com-googlecalendar-integration'
+          Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
+          :app_name => 'northworld.com-googlecalendar-integration'
           )
         end
       end
-      
-      should "catch login with invalid app_name" do 
-          @http_mock.stubs(:kind_of?).with(Net::HTTPForbidden).returns(true)
-          @http_mock.stubs(:body).returns('Error=BadAuthentication')
-          assert_raise(HTTPAuthorizationFailed) do
-            Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret', 
-              :app_name => 'northworld.com-silly-cal'
-            )
-          end
-        end 
-        
-        should "login properly with an auth_url" do 
-          assert_nothing_thrown do
-            Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret', 
-              :auth_url => "https://www.google.com/accounts/ClientLogin"
-            )
-          end
+
+      should "catch login with invalid app_name" do
+        @http_mock.stubs(:kind_of?).with(Net::HTTPForbidden).returns(true)
+        @http_mock.stubs(:body).returns('Error=BadAuthentication')
+        assert_raise(HTTPAuthorizationFailed) do
+          Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
+          :app_name => 'northworld.com-silly-cal'
+          )
         end
+      end
 
-        should "catch login with invalid auth_url" do 
-            @http_mock.stubs(:kind_of?).with(Net::HTTPForbidden).returns(true)
-            @http_mock.stubs(:body).returns('Error=BadAuthentication')
-            assert_raise(HTTPAuthorizationFailed) do
-              Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret', 
-                :auth_url => "https://www.google.com/accounts/ClientLogin/waffles"
-              )
-            end
-          end
+      should "login properly with an auth_url" do
+        assert_nothing_thrown do
+          Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
+          :auth_url => "https://www.google.com/accounts/ClientLogin"
+          )
+        end
+      end
 
-          should "login properly with a calendar" do
-            assert_nothing_thrown do
-              cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
-              :calendar => "Little Giants")
+      should "catch login with invalid auth_url" do
+        @http_mock.stubs(:kind_of?).with(Net::HTTPForbidden).returns(true)
+        @http_mock.stubs(:body).returns('Error=BadAuthentication')
+        assert_raise(HTTPAuthorizationFailed) do
+          Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
+          :auth_url => "https://www.google.com/accounts/ClientLogin/waffles"
+          )
+        end
+      end
 
-              #mock calendar list request
-              calendar_uri = mock("get calendar uri")
-              Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").once.returns(calendar_uri)
-              Connection.any_instance.expects(:send).with(calendar_uri, :get).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
+      should "login properly with a calendar" do
+        assert_nothing_thrown do
+          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
+          :calendar => "Little Giants")
 
-              #mock events list request
-              events_uri = mock("get events uri")
-              Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/rf1c66uld6dgk2t5lh43svev6g%40group.calendar.google.com/private/full").once.returns(events_uri)
-              Connection.any_instance.expects(:send).with(events_uri, :get).once.returns(mock("response", :body => get_mock_body('events.xml')))
+          #mock calendar list request
+          calendar_uri = mock("get calendar uri")
+          Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").once.returns(calendar_uri)
+          Connection.any_instance.expects(:send).with(calendar_uri, :get).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
 
-              cal.events
-            end
-          end
+          #mock events list request
+          events_uri = mock("get events uri")
+          Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/rf1c66uld6dgk2t5lh43svev6g%40group.calendar.google.com/private/full").once.returns(events_uri)
+          Connection.any_instance.expects(:send).with(events_uri, :get).once.returns(mock("response", :body => get_mock_body('events.xml')))
 
-          should "catch login with invalid calendar" do
+          cal.events
+        end
+      end
 
-            assert_raise(InvalidCalendar) do
-              cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
-              :calendar => "invalid calendar")
+      should "catch login with invalid calendar" do
 
-              #mock calendar list request
-              calendar_uri = mock("get calendar uri")
-              Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").once.returns(calendar_uri)
-              Connection.any_instance.expects(:send).with(calendar_uri, :get).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
+        assert_raise(InvalidCalendar) do
+          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
+          :calendar => "invalid calendar")
 
-              cal.events
-            end
-          end               
+          #mock calendar list request
+          calendar_uri = mock("get calendar uri")
+          Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").once.returns(calendar_uri)
+          Connection.any_instance.expects(:send).with(calendar_uri, :get).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
+
+          cal.events
+        end
+      end
 
     end # login context
 
     context "Logged on" do
       setup do
         @calendar = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret')
+      end
+
+      should "reload connection" do
+        old_connection = @calendar.connection
+        assert_not_equal old_connection, @calendar.reload.connection
       end
 
       should "find all events" do
