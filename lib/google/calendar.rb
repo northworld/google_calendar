@@ -79,7 +79,7 @@ module Google
     def find_events_in_range(start_min, start_max)
       formatted_start_min = start_min.strftime("%Y-%m-%dT%H:%M:%S")
       formatted_start_max = start_max.strftime("%Y-%m-%dT%H:%M:%S")
-      event_lookup("?start-min=#{formatted_start_min}&start-max=#{formatted_start_max}")
+      event_lookup("?start-min=#{formatted_start_min}&start-max=#{formatted_start_max}&recurrence-expansion-start=#{formatted_start_min}&recurrence-expansion-end=#{formatted_start_max}")
     end
 
     # Attempts to find the event specified by the id

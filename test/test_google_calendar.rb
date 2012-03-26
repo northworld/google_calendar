@@ -128,7 +128,7 @@ class TestGoogleCalendar < Test::Unit::TestCase
       should "find events in range" do
         start_min = DateTime.new(2011, 2, 1, 11, 1, 1)
         start_max = DateTime.new(2011, 2, 28, 23, 59, 59)
-        @calendar.expects(:event_lookup).with('?start-min=2011-02-01T11:01:01&start-max=2011-02-28T23:59:59')
+        @calendar.expects(:event_lookup).with('?start-min=2011-02-01T11:01:01&start-max=2011-02-28T23:59:59&recurrence-expansion-start=2011-02-01T11:01:01&recurrence-expansion-end=2011-02-28T23:59:59')
         events = @calendar.find_events_in_range(start_min, start_max)
       end
 
