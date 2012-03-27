@@ -232,6 +232,24 @@ class TestGoogleCalendar < Test::Unit::TestCase
         end
       end
     end
+    
+    context "#all_day=" do
+      context "sets the start and end time to the appropriate values for an all day event on that day" do
+        should "set the start time" do
+          @event = Event.new :all_day => Time.parse("2012-05-02 12:24")
+          assert_equal @event.start_time, "2012-05-02"
+        end
+        should "set the end time" do
+          @event = Event.new :all_day => Time.parse("2012-05-02 12:24")
+          assert_equal @event.end_time, "2012-05-03"
+        end
+        should "be able to handle strings" do
+          @event = Event.new :all_day => "2012-05-02 12:24"
+          assert_equal @event.start_time, "2012-05-02"
+          assert_equal @event.end_time, "2012-05-03"
+        end
+      end
+    end
   end
 
   def test_https_extension

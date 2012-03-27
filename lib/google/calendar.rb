@@ -158,6 +158,10 @@ module Google
                                    :auth_url => auth_url)
       self
     end
+    
+    def display_color
+      calendar_data.xpath("//entry[title='#{@calendar}']/color/@value").first.value
+    end
 
     protected
 
@@ -188,14 +192,20 @@ module Google
     #
     def events_url
       if @calendar and !@calendar.include?("@")
-         xml = @connection.send(Addressable::URI.parse("https://www.google.com/calendar/feeds/default/allcalendars/full"), :get)
-         doc = Nokogiri::XML(xml.body)
-         doc.remove_namespaces!
-         link = doc.xpath("//entry[title='#{@calendar}']/link[contains(@rel, '#eventFeed')]/@href").to_s
+         link = calendar_data.xpath("//entry[title='#{@calendar}']/link[contains(@rel, '#eventFeed')]/@href").to_s
          link.empty? ? raise(Google::InvalidCalendar) : link
        else
          "https://www.google.com/calendar/feeds/#{calendar_id}/private/full"
       end
+    end
+    
+    def calendar_data
+      unless @calendar_data
+        xml = @connection.send(Addressable::URI.parse("https://www.google.com/calendar/feeds/default/allcalendars/full"), :get)
+        @calendar_data = Nokogiri::XML(xml.body)
+        @calendar_data.remove_namespaces!
+      end
+      @calendar_data
     end
 
     def setup_event(event) #:nodoc:

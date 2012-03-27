@@ -36,6 +36,7 @@ module Google
       @where = params[:where]
       @start_time = params[:start_time]
       @end_time = params[:end_time]
+      self.all_day= params[:all_day] if params[:all_day]
       @calendar = params[:calendar]
       @raw_xml = params[:raw_xml]
       @quickadd = params[:quickadd]
@@ -77,6 +78,14 @@ module Google
     #
     def all_day?
       duration == 24 * 60 * 60 # Exactly one day
+    end
+    
+    def all_day=(time)
+      if time.class == String
+        time = Time.parse(time)
+      end
+      @start_time = time.strftime("%Y-%m-%d")
+      @end_time = (time + 24*60*60).strftime("%Y-%m-%d")
     end
     
     # Duration in seconds
