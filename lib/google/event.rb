@@ -36,6 +36,7 @@ module Google
       @where = params[:where]
       @start_time = params[:start_time]
       @end_time = params[:end_time]
+      self.all_day= params[:all_day] if params[:all_day]
       @calendar = params[:calendar]
       @raw_xml = params[:raw_xml]
       @quickadd = params[:quickadd]
@@ -71,6 +72,25 @@ module Google
     def end_time=(time)
       raise ArgumentError, "End Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
       @end_time = ((time.is_a? String) ? Time.parse(time) : time)
+    end
+    
+    # Returns whether the Event is an all-day event, based on whether the event starts at the beginning and ends at the end of the day.
+    #
+    def all_day?
+      duration == 24 * 60 * 60 # Exactly one day
+    end
+    
+    def all_day=(time)
+      if time.class == String
+        time = Time.parse(time)
+      end
+      @start_time = time.strftime("%Y-%m-%d")
+      @end_time = (time + 24*60*60).strftime("%Y-%m-%d")
+    end
+    
+    # Duration in seconds
+    def duration
+      Time.parse(end_time) - Time.parse(start_time)
     end
 
     #

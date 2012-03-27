@@ -128,7 +128,7 @@ class TestGoogleCalendar < Test::Unit::TestCase
       should "find events in range" do
         start_min = DateTime.new(2011, 2, 1, 11, 1, 1)
         start_max = DateTime.new(2011, 2, 28, 23, 59, 59)
-        @calendar.expects(:event_lookup).with('?start-min=2011-02-01T11:01:01&start-max=2011-02-28T23:59:59')
+        @calendar.expects(:event_lookup).with('?start-min=2011-02-01T11:01:01&start-max=2011-02-28T23:59:59&recurrence-expansion-start=2011-02-01T11:01:01&recurrence-expansion-end=2011-02-28T23:59:59')
         events = @calendar.find_events_in_range(start_min, start_max)
       end
 
@@ -216,6 +216,41 @@ class TestGoogleCalendar < Test::Unit::TestCase
     end # Logged on context
 
   end # Connected context
+  
+  context "Event instance methods" do
+    context "#all_day?" do
+      context "when the event is 24 hours long or more" do
+        should "be true" do
+          @event = Event.new(:start_time => "2012-03-31", :end_time => "2012-04-01")
+          assert @event.all_day?
+        end
+      end
+      context "when the event is not an all-day event" do
+        should "be false" do
+          @event = Event.new(:start_time => "2012-03-27T10:00:00.000-07:00", :end_time => "2012-03-27T10:30:00.000-07:00")
+          assert !@event.all_day?
+        end
+      end
+    end
+    
+    context "#all_day=" do
+      context "sets the start and end time to the appropriate values for an all day event on that day" do
+        should "set the start time" do
+          @event = Event.new :all_day => Time.parse("2012-05-02 12:24")
+          assert_equal @event.start_time, "2012-05-02"
+        end
+        should "set the end time" do
+          @event = Event.new :all_day => Time.parse("2012-05-02 12:24")
+          assert_equal @event.end_time, "2012-05-03"
+        end
+        should "be able to handle strings" do
+          @event = Event.new :all_day => "2012-05-02 12:24"
+          assert_equal @event.start_time, "2012-05-02"
+          assert_equal @event.end_time, "2012-05-03"
+        end
+      end
+    end
+  end
 
   def test_https_extension
     assert_nothing_thrown do
