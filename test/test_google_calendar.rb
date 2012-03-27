@@ -216,6 +216,23 @@ class TestGoogleCalendar < Test::Unit::TestCase
     end # Logged on context
 
   end # Connected context
+  
+  context "Event instance methods" do
+    context "#all_day?" do
+      context "when the event is 24 hours long or more" do
+        should "be true" do
+          @event = Event.new(:start_time => "2012-03-31", :end_time => "2012-04-01")
+          assert @event.all_day?
+        end
+      end
+      context "when the event is not an all-day event" do
+        should "be false" do
+          @event = Event.new(:start_time => "2012-03-27T10:00:00.000-07:00", :end_time => "2012-03-27T10:30:00.000-07:00")
+          assert !@event.all_day?
+        end
+      end
+    end
+  end
 
   def test_https_extension
     assert_nothing_thrown do

@@ -72,6 +72,12 @@ module Google
       raise ArgumentError, "End Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
       @end_time = ((time.is_a? String) ? Time.parse(time) : time)
     end
+    
+    # Returns whether the Event is an all-day event, based on whether the event starts at the beginning and ends at the end of the day.
+    #
+    def all_day?
+      (Time.parse(end_time) - Time.parse(start_time)) == 24 * 60 * 60 # Exactly one day
+    end
 
     #
     def self.build_from_google_feed(xml, calendar)
