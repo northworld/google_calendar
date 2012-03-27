@@ -79,7 +79,7 @@ module Google
     def find_events_in_range(start_min, start_max)
       formatted_start_min = start_min.strftime("%Y-%m-%dT%H:%M:%S")
       formatted_start_max = start_max.strftime("%Y-%m-%dT%H:%M:%S")
-      event_lookup("?start-min=#{formatted_start_min}&start-max=#{formatted_start_max}")
+      event_lookup("?start-min=#{formatted_start_min}&start-max=#{formatted_start_max}&recurrence-expansion-start=#{formatted_start_min}&recurrence-expansion-end=#{formatted_start_max}")
     end
 
     # Attempts to find the event specified by the id
@@ -158,6 +158,10 @@ module Google
                                    :auth_url => auth_url)
       self
     end
+    
+    def display_color
+      calendar_data.xpath("//entry[title='#{@calendar}']/color/@value").first.value
+    end
 
     protected
 
@@ -188,14 +192,20 @@ module Google
     #
     def events_url
       if @calendar and !@calendar.include?("@")
-         xml = @connection.send(Addressable::URI.parse("https://www.google.com/calendar/feeds/default/allcalendars/full"), :get)
-         doc = Nokogiri::XML(xml.body)
-         doc.remove_namespaces!
-         link = doc.xpath("//entry[title='#{@calendar}']/link[contains(@rel, '#eventFeed')]/@href").to_s
+         link = calendar_data.xpath("//entry[title='#{@calendar}']/link[contains(@rel, '#eventFeed')]/@href").to_s
          link.empty? ? raise(Google::InvalidCalendar) : link
        else
          "https://www.google.com/calendar/feeds/#{calendar_id}/private/full"
       end
+    end
+    
+    def calendar_data
+      unless @calendar_data
+        xml = @connection.send(Addressable::URI.parse("https://www.google.com/calendar/feeds/default/allcalendars/full"), :get)
+        @calendar_data = Nokogiri::XML(xml.body)
+        @calendar_data.remove_namespaces!
+      end
+      @calendar_data
     end
 
     def setup_event(event) #:nodoc:
