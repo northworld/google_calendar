@@ -17,7 +17,7 @@ module Google
   #
   class Event
     attr_reader :id, :raw_xml
-    attr_accessor :title, :content, :where, :calendar, :quickadd
+    attr_accessor :title, :content, :where, :calendar, :quickadd, :transparency
 
     # Create a new event, and optionally set it's attributes.
     #
@@ -40,6 +40,7 @@ module Google
       @calendar = params[:calendar]
       @raw_xml = params[:raw_xml]
       @quickadd = params[:quickadd]
+      @transparency = params[:transparency]
     end
 
     # Sets the start time of the Event.  Must be a Time object or a parsable string representation of a time.
@@ -93,6 +94,14 @@ module Google
       Time.parse(end_time) - Time.parse(start_time)
     end
 
+    def transparent?
+      transparency == "transparent"
+    end
+
+    def opaque?
+      transparency == "opaque"
+    end
+
     #
     def self.build_from_google_feed(xml, calendar)
       Nokogiri::XML(xml).xpath("//xmlns:entry").collect {|e| new_from_xml(e, calendar)}
@@ -106,7 +115,7 @@ module Google
           <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'></category>
           <title type='text'>#{title}</title>
           <content type='text'>#{content}</content>
-          <gd:transparency value='http://schemas.google.com/g/2005#event.opaque'></gd:transparency>
+          <gd:transparency value='http://schemas.google.com/g/2005#event.#{transparency}'></gd:transparency>
           <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'></gd:eventStatus>
           <gd:where valueString=\"#{where}\"></gd:where>
           <gd:when startTime=\"#{start_time}\" endTime=\"#{end_time}\"></gd:when>
@@ -149,13 +158,14 @@ module Google
     # Create a new event from a google 'entry' xml block.
     #
     def self.new_from_xml(xml, calendar) #:nodoc:
-      id          = xml.at_xpath("gCal:uid")['value'].split('@').first
-      title       = xml.at_xpath("xmlns:title").content
-      content     = xml.at_xpath("xmlns:content").content
-      where       = xml.at_xpath("gd:where")['valueString']
-      start_time  = xml.at_xpath("gd:when")['startTime']
-      end_time    = xml.at_xpath("gd:when")['endTime']
-      quickadd    = xml.at_xpath("gCal:quickadd") ? xml.at_xpath("gCal:quickadd")['quickadd'] : nil
+      id           = xml.at_xpath("gCal:uid")['value'].split('@').first
+      title        = xml.at_xpath("xmlns:title").content
+      content      = xml.at_xpath("xmlns:content").content
+      where        = xml.at_xpath("gd:where")['valueString']
+      start_time   = xml.at_xpath("gd:when")['startTime']
+      end_time     = xml.at_xpath("gd:when")['endTime']
+      transparency = xml.at_xpath("gd:transparency")['value'].split('.').last
+      quickadd     = xml.at_xpath("gCal:quickadd") ? xml.at_xpath("gCal:quickadd")['quickadd'] : nil
 
       Event.new(:id => id,
                 :title => title,
@@ -165,6 +175,7 @@ module Google
                 :end_time => end_time,
                 :calendar => calendar,
                 :raw_xml => xml,
+                :transparency => transparency,
                 :quickadd => quickadd)
     end
 
