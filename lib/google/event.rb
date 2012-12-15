@@ -14,9 +14,10 @@ module Google
   # * +end_time+ - The end time of the event (Time object, defaults to one hour from now), read/write.
   # * +calendar+ - What calendar the event belongs to, read/write.
   # * +raw_xml+ - The full google xml representation of the event.
+  # * +html_link+ - An absolute link to this event in the Google Calendar Web UI. Read-only.
   #
   class Event
-    attr_reader :id, :raw_xml
+    attr_reader :id, :raw_xml, :html_link
     attr_accessor :title, :content, :where, :calendar, :quickadd, :transparency
 
     # Create a new event, and optionally set it's attributes.
@@ -30,6 +31,7 @@ module Google
     #           :calendar => calendar_object)
     #
     def initialize(params = {})
+
       @id = params[:id]
       @title = params[:title]
       @content = params[:content]
@@ -41,6 +43,8 @@ module Google
       @raw_xml = params[:raw_xml]
       @quickadd = params[:quickadd]
       @transparency = params[:transparency]
+      @html_link = params[:html_link]
+
     end
 
     # Sets the start time of the Event.  Must be a Time object or a parsable string representation of a time.
@@ -166,6 +170,7 @@ module Google
       end_time     = xml.at_xpath("gd:when")['endTime']
       transparency = xml.at_xpath("gd:transparency")['value'].split('.').last
       quickadd     = xml.at_xpath("gCal:quickadd") ? xml.at_xpath("gCal:quickadd")['quickadd'] : nil
+      html_link    = xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href']
 
       Event.new(:id => id,
                 :title => title,
@@ -176,7 +181,8 @@ module Google
                 :calendar => calendar,
                 :raw_xml => xml,
                 :transparency => transparency,
-                :quickadd => quickadd)
+                :quickadd => quickadd,
+                :html_link => html_link)
     end
 
     # Set the ID after google assigns it (only necessary when we are creating a new event)
