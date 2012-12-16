@@ -51,7 +51,7 @@ module Google
     #
     def start_time=(time)
       raise ArgumentError, "Start Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
-      @start_time = (time.is_a? String) ? Time.parse(time) : time
+      @start_time = (time.is_a? String) ? Time.parse(time) : time.dup
     end
 
     # Get the start_time of the event.
@@ -76,7 +76,7 @@ module Google
     #
     def end_time=(time)
       raise ArgumentError, "End Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
-      @end_time = ((time.is_a? String) ? Time.parse(time) : time)
+      @end_time = ((time.is_a? String) ? Time.parse(time) : time.dup)
     end
     
     # Returns whether the Event is an all-day event, based on whether the event starts at the beginning and ends at the end of the day.
