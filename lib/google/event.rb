@@ -51,7 +51,7 @@ module Google
     #
     def start_time=(time)
       raise ArgumentError, "Start Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
-      @start_time = (time.is_a? String) ? Time.parse(time) : time.dup
+      @start_time = (time.is_a? String) ? Time.parse(time) : time.dup.utc
     end
 
     # Get the start_time of the event.
@@ -59,8 +59,8 @@ module Google
     # If no time is set (i.e. new event) it defaults to the current time.
     #
     def start_time
-      @start_time ||= Time.now
-      (@start_time.is_a? String) ? @start_time : @start_time.utc.xmlschema
+      @start_time ||= Time.now.utc
+      (@start_time.is_a? String) ? @start_time : @start_time.xmlschema
     end
 
     # Get the end_time of the event.
@@ -68,15 +68,15 @@ module Google
     # If no time is set (i.e. new event) it defaults to one hour in the future.
     #
     def end_time
-      @end_time ||= Time.now + (60 * 60) # seconds * min
-      (@end_time.is_a? String) ? @end_time : @end_time.utc.xmlschema
+      @end_time ||= Time.now.utc + (60 * 60) # seconds * min
+      (@end_time.is_a? String) ? @end_time : @end_time.xmlschema
     end
 
     # Sets the end time of the Event.  Must be a Time object or a parsable string representation of a time.
     #
     def end_time=(time)
       raise ArgumentError, "End Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
-      @end_time = ((time.is_a? String) ? Time.parse(time) : time.dup)
+      @end_time = (time.is_a? String) ? Time.parse(time) : time.dup.utc
     end
     
     # Returns whether the Event is an all-day event, based on whether the event starts at the beginning and ends at the end of the day.
