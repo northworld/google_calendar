@@ -192,6 +192,7 @@ module Google
 
       xml = Nokogiri::XML(respose.body).at_xpath("//xmlns:entry")
       @id = xml.at_xpath("gCal:uid")['value'].split('@').first
+      @html_link    = xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href']
       @raw_xml = xml
     end
 
