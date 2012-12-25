@@ -76,10 +76,13 @@ module Google
     #   a single event if only one found.
     #   an array of events if many found.
     #
-    def find_events_in_range(start_min, start_max)
+    def find_events_in_range(start_min, start_max,options = {})
+	options[:max_results] ||=  25
       formatted_start_min = start_min.strftime("%Y-%m-%dT%H:%M:%S")
       formatted_start_max = start_max.strftime("%Y-%m-%dT%H:%M:%S")
-      event_lookup("?start-min=#{formatted_start_min}&start-max=#{formatted_start_max}&recurrence-expansion-start=#{formatted_start_min}&recurrence-expansion-end=#{formatted_start_max}")
+      query = "?start-min=#{formatted_start_min}&start-max=#{formatted_start_max}&recurrence-expansion-start=#{formatted_start_min}&recurrence-expansion-end=#{formatted_start_max}"
+	query = "#{query}&max-results=#{options[:max_results]}"
+      event_lookup(query)
     end
 
     # Attempts to find the event specified by the id
