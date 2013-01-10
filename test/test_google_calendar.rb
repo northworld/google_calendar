@@ -219,10 +219,22 @@ class TestGoogleCalendar < Test::Unit::TestCase
   
   context "Event instance methods" do
     context "#all_day?" do
-      context "when the event is 24 hours long or more" do
+      context "when the event is marked as All Day in google calendar" do
         should "be true" do
           @event = Event.new(:start_time => "2012-03-31", :end_time => "2012-04-01")
           assert @event.all_day?
+        end
+      end
+      context "when the event is marked as All Day in google calendar and have more than one day" do
+        should "be true" do
+          @event = Event.new(:start_time => "2012-03-31", :end_time => "2012-04-03")
+          assert @event.all_day?
+        end
+      end
+      context "when the event is not marked as All Day in google calendar and has duration of one whole day" do
+        should "be false" do
+          @event = Event.new(:start_time => "2012-03-27T10:00:00.000-07:00", :end_time => "2012-03-28T10:00:00.000-07:00")
+          assert !@event.all_day?
         end
       end
       context "when the event is not an all-day event" do
