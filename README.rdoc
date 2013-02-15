@@ -1,10 +1,9 @@
-[![Build Status](https://travis-ci.org/northworld/google_calendar.png?branch=master)](https://travis-ci.org/northworld/google_calendar) 
-[![Dependency Status](https://gemnasium.com/northworld/google_calendar.png)](https://gemnasium.com/northworld/google_calendar) 
-[![Code Climate](https://codeclimate.com/github/northworld/google_calendar.png)](https://codeclimate.com/github/northworld/google_calendar) 
 
 = Google Calendar
 
 A fast lightweight and minimalist wrapper around the google calendar api.
+
+{<img src="https://travis-ci.org/northworld/google_calendar.png?branch=master" alt="Build Status" />}[https://travis-ci.org/northworld/google_calendar] {<img src="https://gemnasium.com/northworld/google_calendar.png" alt="Dependency Status" />}[https://gemnasium.com/northworld/google_calendar] {<img src="https://codeclimate.com/github/northworld/google_calendar.png" />}[https://codeclimate.com/github/northworld/google_calendar]
 
 == Install
   [sudo] gem install 'google_calendar'
