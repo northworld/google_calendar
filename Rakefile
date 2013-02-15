@@ -9,19 +9,6 @@ rescue Bundler::BundlerError => e
 end
 require 'rake'
 
-require 'jeweler'
-Jeweler::Tasks.new do |gem|
-  # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.name = "google_calendar"
-  gem.homepage = "http://github.com/northworld/google_calendar"
-  gem.license = "MIT"
-  gem.summary = %Q{A lightweight google calendar API wrapper}
-  gem.description = %Q{A minimal wrapper around the google calendar API, which uses nokogiri for fast parsing.}
-  gem.email = "steve.zich@gmail.com"
-  gem.authors = ["Steve Zich"]
-end
-Jeweler::RubygemsDotOrgTasks.new
-
 require 'rake/testtask'
 Rake::TestTask.new(:test) do |test|
   test.libs << 'lib' << 'test'

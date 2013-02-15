@@ -7,13 +7,7 @@ GEM
     addressable (2.3.2)
     bourne (1.1.2)
       mocha (= 0.10.5)
-    git (1.2.5)
     i18n (0.6.1)
-    jeweler (1.8.4)
-      bundler (~> 1.0)
-      git (>= 1.2.5)
-      rake
-      rdoc
     json (1.7.7)
     metaclass (0.0.1)
     mocha (0.10.5)
@@ -37,7 +31,8 @@ PLATFORMS
 DEPENDENCIES
   addressable (>= 2.2.2)
   bundler (>= 1.0.0)
-  jeweler (>= 1.5.1)
   mocha
   nokogiri (>= 1.4.4)
+  rake (> 10)
+  rdoc (> 3)
   shoulda
