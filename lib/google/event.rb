@@ -3,7 +3,7 @@ require 'time'
 
 module Google
 
-  # Represents a google Event.
+  # Represents a Google Event.
   #
   # === Attributes
   #
@@ -83,7 +83,7 @@ module Google
     #
     def all_day?
       time = Time.parse(@start_time)
-      duration % (24 * 60 * 60) == 0 && time == Time.new(time.year,time.month,time.day)
+      duration % (24 * 60 * 60) == 0 && time == Time.local(time.year,time.month,time.day)
     end
     
     def all_day=(time)
