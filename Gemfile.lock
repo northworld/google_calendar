@@ -1,27 +1,43 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    addressable (2.2.2)
+    activesupport (3.2.12)
+      i18n (~> 0.6)
+      multi_json (~> 1.0)
+    addressable (2.3.2)
+    bourne (1.1.2)
+      mocha (= 0.10.5)
     git (1.2.5)
-    jeweler (1.5.1)
-      bundler (~> 1.0.0)
+    i18n (0.6.1)
+    jeweler (1.8.4)
+      bundler (~> 1.0)
       git (>= 1.2.5)
       rake
-    mocha (0.9.10)
-      rake
-    nokogiri (1.4.4)
-    rake (0.8.7)
-    rcov (0.9.9)
-    shoulda (2.11.3)
+      rdoc
+    json (1.7.7)
+    metaclass (0.0.1)
+    mocha (0.10.5)
+      metaclass (~> 0.0.1)
+    multi_json (1.6.1)
+    nokogiri (1.5.6)
+    rake (10.0.3)
+    rdoc (3.12.1)
+      json (~> 1.4)
+    shoulda (3.3.2)
+      shoulda-context (~> 1.0.1)
+      shoulda-matchers (~> 1.4.1)
+    shoulda-context (1.0.2)
+    shoulda-matchers (1.4.2)
+      activesupport (>= 3.0.0)
+      bourne (~> 1.1.2)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   addressable (>= 2.2.2)
-  bundler (~> 1.0.0)
-  jeweler (~> 1.5.1)
+  bundler (>= 1.0.0)
+  jeweler (>= 1.5.1)
   mocha
   nokogiri (>= 1.4.4)
-  rcov
   shoulda
