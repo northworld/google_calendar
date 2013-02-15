@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/northworld/google_calendar.png?branch=master)](https://travis-ci.org/northworld/google_calendar) 
+[![Dependency Status](https://gemnasium.com/northworld/google_calendar.png)](https://gemnasium.com/northworld/google_calendar) 
+[![Code Climate](https://codeclimate.com/github/northworld/google_calendar.png)](https://codeclimate.com/github/northworld/google_calendar) 
+
 = Google Calendar
 
 A fast lightweight and minimalist wrapper around the google calendar api.
