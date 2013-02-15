@@ -50,8 +50,7 @@ module Google
     # Sets the start time of the Event.  Must be a Time object or a parsable string representation of a time.
     #
     def start_time=(time)
-      raise ArgumentError, "Start Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
-      @start_time = (time.is_a? String) ? Time.parse(time) : time.dup.utc
+      @start_time = parse_time(time)
     end
 
     # Get the start_time of the event.
@@ -75,6 +74,7 @@ module Google
     # Sets the end time of the Event.  Must be a Time object or a parsable string representation of a time.
     #
     def end_time=(time)
+      @end_time = parse_time(time)
       raise ArgumentError, "End Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
       @end_time = (time.is_a? String) ? Time.parse(time) : time.dup.utc
     end
@@ -163,27 +163,17 @@ module Google
     # Create a new event from a google 'entry' xml block.
     #
     def self.new_from_xml(xml, calendar) #:nodoc:
-      id           = xml.at_xpath("gCal:uid")['value'].split('@').first
-      title        = xml.at_xpath("xmlns:title").content
-      content      = xml.at_xpath("xmlns:content").content
-      where        = xml.at_xpath("gd:where")['valueString']
-      start_time   = xml.at_xpath("gd:when")['startTime']
-      end_time     = xml.at_xpath("gd:when")['endTime']
-      transparency = xml.at_xpath("gd:transparency")['value'].split('.').last
-      quickadd     = xml.at_xpath("gCal:quickadd") ? xml.at_xpath("gCal:quickadd")['quickadd'] : nil
-      html_link    = xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href']
-
-      Event.new(:id => id,
-                :title => title,
-                :content => content,
-                :where => where,
-                :start_time => start_time,
-                :end_time => end_time,
-                :calendar => calendar,
-                :raw_xml => xml,
-                :transparency => transparency,
-                :quickadd => quickadd,
-                :html_link => html_link)
+      Event.new(:id           => xml.at_xpath("gCal:uid")['value'].split('@').first,
+                :calendar     => calendar,
+                :raw_xml      => xml,
+                :title        => xml.at_xpath("xmlns:title").content,
+                :content      => xml.at_xpath("xmlns:content").content,
+                :where        => xml.at_xpath("gd:where")['valueString'],
+                :start_time   => xml.at_xpath("gd:when")['startTime'],
+                :end_time     => xml.at_xpath("gd:when")['endTime'],
+                :transparency => xml.at_xpath("gd:transparency")['value'].split('.').last,
+                :quickadd     => (xml.at_xpath("gCal:quickadd") ? (xml.at_xpath("gCal:quickadd")['quickadd']) : nil),
+                :html_link    => xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href'])
     end
 
     # Set the ID after google assigns it (only necessary when we are creating a new event)
@@ -195,6 +185,13 @@ module Google
       @id = xml.at_xpath("gCal:uid")['value'].split('@').first
       @html_link    = xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href']
       @raw_xml = xml
+    end
+
+    # A utility method used centralize time parsing.
+    #
+    def parse_time(time) #:nodoc
+      raise ArgumentError, "Start Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
+      (time.is_a? String) ? Time.parse(time) : time.dup.utc
     end
 
   end
