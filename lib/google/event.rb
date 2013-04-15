@@ -15,9 +15,11 @@ module Google
   # * +calendar+ - What calendar the event belongs to, read/write.
   # * +raw_xml+ - The full google xml representation of the event.
   # * +html_link+ - An absolute link to this event in the Google Calendar Web UI. Read-only.
+  # * +published_time+ - The time of the event creation. Read-only.
+  # * +updated_time+ - The last update time of the event. Read-only.
   #
   class Event
-    attr_reader :id, :raw_xml, :html_link
+    attr_reader :id, :raw_xml, :html_link, :updated_time, :published_time
     attr_accessor :title, :content, :where, :calendar, :quickadd, :transparency
 
     # Create a new event, and optionally set it's attributes.
@@ -31,20 +33,20 @@ module Google
     #           :calendar => calendar_object)
     #
     def initialize(params = {})
-
-      @id = params[:id]
-      @title = params[:title]
-      @content = params[:content]
-      @where = params[:where]
-      @start_time = params[:start_time]
-      @end_time = params[:end_time]
-      self.all_day= params[:all_day] if params[:all_day]
-      @calendar = params[:calendar]
-      @raw_xml = params[:raw_xml]
-      @quickadd = params[:quickadd]
-      @transparency = params[:transparency]
-      @html_link = params[:html_link]
-
+      @id             = params[:id]
+      @title          = params[:title]
+      @where          = params[:where]
+      @raw_xml        = params[:raw_xml]
+      @content        = params[:content]
+      @calendar       = params[:calendar]
+      @end_time       = params[:end_time]
+      @quickadd       = params[:quickadd]
+      @html_link      = params[:html_link]
+      @start_time     = params[:start_time]
+      self.all_day    = params[:all_day] if params[:all_day]
+      @updated_time   = params[:updated]
+      @transparency   = params[:transparency]
+      @published_time = params[:published]
     end
 
     # Sets the start time of the Event.  Must be a Time object or a parsable string representation of a time.
@@ -78,14 +80,14 @@ module Google
       raise ArgumentError, "End Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
       @end_time = (time.is_a? String) ? Time.parse(time) : time.dup.utc
     end
-    
+
     # Returns whether the Event is an all-day event, based on whether the event starts at the beginning and ends at the end of the day.
     #
     def all_day?
       time = Time.parse(@start_time)
       duration % (24 * 60 * 60) == 0 && time == Time.local(time.year,time.month,time.day)
     end
-    
+
     def all_day=(time)
       if time.class == String
         time = Time.parse(time)
@@ -93,7 +95,7 @@ module Google
       @start_time = time.strftime("%Y-%m-%d")
       @end_time = (time + 24*60*60).strftime("%Y-%m-%d")
     end
-    
+
     # Duration in seconds
     def duration
       Time.parse(end_time) - Time.parse(start_time)
@@ -173,7 +175,9 @@ module Google
                 :end_time     => xml.at_xpath("gd:when")['endTime'],
                 :transparency => xml.at_xpath("gd:transparency")['value'].split('.').last,
                 :quickadd     => (xml.at_xpath("gCal:quickadd") ? (xml.at_xpath("gCal:quickadd")['quickadd']) : nil),
-                :html_link    => xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href'])
+                :html_link    => xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href'],
+                :published    => xml.at_xpath("xmlns:published").content,
+                :updated      => xml.at_xpath("xmlns:updated").content )
     end
 
     # Set the ID after google assigns it (only necessary when we are creating a new event)
