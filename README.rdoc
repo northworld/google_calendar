@@ -40,7 +40,7 @@ Note: Google requests that you set the name of your application so they can bett
   puts cal.find_events('my search string')
 
 
-Note: This is not a complete implementation of the calendar api, it just includes the features I needed to support our internal calendar integration.
+Note: This is not a complete implementation of the calendar api, it just includes the features we needed to support our internal calendar integration.
 
 == Contributing to google_calendar
 
