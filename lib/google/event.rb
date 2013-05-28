@@ -165,7 +165,17 @@ module Google
     # Create a new event from a google 'entry' xml block.
     #
     def self.new_from_xml(xml, calendar) #:nodoc:
-      Event.new(:id           => xml.at_xpath("gCal:uid")['value'].split('@').first,
+      id = xml.at_xpath("gCal:uid")['value'].split('@').first
+
+      # Check if this event came from an apple program (ios, iCal, Calendar, etc)
+      # Id format ex: E52411E2-8DB9-4A26-AD5A-8B6104320D3C
+      if id.match( /[0-9A-Z]{8}-([0-9A-Z]{4}-){3}[0-9A-Z]{12}/ )
+        # Use the ID field instead of the UID which apple overwrites for its own purposes.
+        # TODO With proper testing, this should be way to parse all event id's
+        id = xml.at_xpath("xmlns:id").content.split('/').last
+      end
+
+      Event.new(:id           => id,
                 :calendar     => calendar,
                 :raw_xml      => xml,
                 :title        => xml.at_xpath("xmlns:title").content,
