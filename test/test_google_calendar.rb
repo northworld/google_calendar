@@ -168,6 +168,22 @@ class TestGoogleCalendar < Test::Unit::TestCase
         assert_equal event.content, "movie tomorrow 23:00 at AMC Van Ness"
       end
 
+      should "format create event with ampersand correctly" do
+	@http_mock.stubs(:body).returns( get_mock_body("create_event.xml") )
+	
+	event = @calendar.create_event do |e|
+	  e.title = 'New Event with &'
+	  e.start_time = Time.now + (60 * 60)
+	  e.end_time = Time.now + (60 * 60 * 2)
+	  e.content = "A new event with &"
+	  e.where = "Joe's House & Backyard"
+	end
+	
+	assert_equal event.title, 'New Event with &amp;'
+	assert_equal event.content, 'A new event with &amp;'
+	assert_equal event.where, "Joe's House &amp; Backyard"
+      end
+
       should "format to_s properly" do
         @http_mock.stubs(:body).returns( get_mock_body("query_events.xml") )
         event = @calendar.find_events('Test')
