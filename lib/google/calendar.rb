@@ -213,7 +213,12 @@ module Google
 
     def setup_event(event) #:nodoc:
       event.calendar = self
-       yield(event) if block_given?
+      if block_given?
+      	yield(event)
+	event.title = event.title.encode(:xml => :text) if event.title
+	event.content = event.content.encode(:xml => :text) if event.content
+	event.where = event.where.encode(:xml => :text) if event.where
+      end
       event.save
       event
     end
