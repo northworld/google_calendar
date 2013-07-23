@@ -86,6 +86,13 @@ module Google
       event_lookup(query)
     end
 
+    def find_future_events(options={})
+      options[:max_results] ||=  25
+      options[:order_by] ||= 'lastmodified' # other option is 'starttime'
+      query = "?futureevents=true&orderby=#{options[:order_by]}&max-results=#{options[:max_results]}"
+      event_lookup(query)
+    end
+
     # Attempts to find the event specified by the id
     #  Returns:
     #   nil if nothing found.
