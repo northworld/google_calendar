@@ -175,14 +175,16 @@ module Google
         id = xml.at_xpath("xmlns:id").content.split('/').last
       end
 
+      event_time_data = xml.at_xpath("gd:when")
+
       Event.new(:id           => id,
                 :calendar     => calendar,
                 :raw_xml      => xml,
                 :title        => xml.at_xpath("xmlns:title").content,
                 :content      => xml.at_xpath("xmlns:content").content,
                 :where        => xml.at_xpath("gd:where")['valueString'],
-                :start_time   => xml.at_xpath("gd:when")['startTime'],
-                :end_time     => xml.at_xpath("gd:when")['endTime'],
+                :start_time   => (event_time_data.nil? ? nil : xml.at_xpath("gd:when")['startTime']),
+                :end_time     => (event_time_data.nil? ? nil : xml.at_xpath("gd:when")['endTime']),
                 :transparency => xml.at_xpath("gd:transparency")['value'].split('.').last,
                 :quickadd     => (xml.at_xpath("gCal:quickadd") ? (xml.at_xpath("gCal:quickadd")['quickadd']) : nil),
                 :html_link    => xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href'],

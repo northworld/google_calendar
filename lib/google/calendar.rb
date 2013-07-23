@@ -77,11 +77,19 @@ module Google
     #   an array of events if many found.
     #
     def find_events_in_range(start_min, start_max,options = {})
-	options[:max_results] ||=  25
+      options[:max_results] ||=  25
+      options[:order_by] ||= 'lastmodified' # other option is 'starttime'
       formatted_start_min = start_min.strftime("%Y-%m-%dT%H:%M:%S")
       formatted_start_max = start_max.strftime("%Y-%m-%dT%H:%M:%S")
       query = "?start-min=#{formatted_start_min}&start-max=#{formatted_start_max}&recurrence-expansion-start=#{formatted_start_min}&recurrence-expansion-end=#{formatted_start_max}"
-	query = "#{query}&max-results=#{options[:max_results]}"
+      query = "#{query}&orderby=#{options[:order_by]}&max-results=#{options[:max_results]}"
+      event_lookup(query)
+    end
+
+    def find_future_events(options={})
+      options[:max_results] ||=  25
+      options[:order_by] ||= 'lastmodified' # other option is 'starttime'
+      query = "?futureevents=true&orderby=#{options[:order_by]}&max-results=#{options[:max_results]}"
       event_lookup(query)
     end
 
