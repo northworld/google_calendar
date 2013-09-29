@@ -127,7 +127,7 @@ module Google
           <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'></gd:eventStatus>
           <gd:where valueString=\"#{where}\"></gd:where>
           <gd:when startTime=\"#{start_time}\" endTime=\"#{end_time}\">
-            <gd:reminder method=\"#{reminder_method}\" minutes=\"#{reminder_time}\"></gd:reminder>
+            #{reminder_xml}
           </gd:when>
          </entry>"
       else
@@ -135,6 +135,14 @@ module Google
             <content type="html">#{content}</content>
             <gCal:quickadd value="true"/>
           </entry>}
+      end
+    end
+
+    def reminder_xml
+      if reminder_time || reminder_method
+        "<gd:reminder method=\"#{reminder_method || "alert"}\" minutes=\"#{reminder_time || 10}\"></gd:reminder>"
+      else
+        ""
       end
     end
 
