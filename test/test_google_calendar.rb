@@ -280,31 +280,22 @@ class TestGoogleCalendar < Test::Unit::TestCase
     end
 
     context "reminders" do
-      # context "#reminder_time=" do
-      #   should "set reminder time" do
-      #     @event = Event.new :reminder_time => "2012-05-02 12:24"
-      #     assert_equal @event.reminder_time, "2012-05-02 12:24"
-      #   end
-      # end
-
-      # context "#reminder_method=" do
-      #   should "set reminder method" do
-      #     @event = Event.new :reminder_time => "2012-05-02 12:24", :reminder_method => "sms"
-      #     assert_equal @event.reminder_time, "2012-05-02 12:24"
-      #     assert_equal @event.reminder_method, "sms"
-      #   end
-      # end
       context "reminders array" do
-          should "set reminder time" do
-            @event = Event.new :reminders => [minutes: 6]
-            assert_equal @event.reminders.first[:minutes], 6
-          end
+        should "set reminder time" do
+          @event = Event.new :reminders => [minutes: 6]
+          assert_equal @event.reminders.first[:minutes], 6
+        end
 
-          should "set reminder method" do
-            @event = Event.new :reminders => [minutes: 6, method: "sms"]
-            assert_equal @event.reminders.first[:minutes], 6
-            assert_equal @event.reminders.first[:method], "sms"
-          end
+        should "use different time scales" do
+          @event = Event.new :reminders => [hours: 5]
+          assert_equal @event.reminders.first[:hours], 5
+        end
+
+        should "set reminder method" do
+          @event = Event.new :reminders => [minutes: 6, method: "sms"]
+          assert_equal @event.reminders.first[:minutes], 6
+          assert_equal @event.reminders.first[:method], "sms"
+        end
       end
     end
   end

@@ -46,7 +46,7 @@ module Google
       self.all_day    = params[:all_day] if params[:all_day]
       @updated_time   = params[:updated]
       @transparency   = params[:transparency]
-      @reminders = params[:reminders]
+      @reminders      = params[:reminders]
     end
 
     # Sets the start time of the Event.  Must be a Time object or a parsable string representation of a time.
@@ -144,7 +144,8 @@ module Google
     def reminder_xml
       # return ""
       reminders.map{|r|
-        "<gd:reminder method=\"#{r[:method] || "alert"}\" minutes=\"#{r[:minutes] || 10}\"></gd:reminder>"
+        timescale = [:minutes, :hours, :days].select{|t| r[t]}.first || :minutes
+        "<gd:reminder method=\"#{r[:method] || "alert"}\" #{timescale}=\"#{r[timescale] || 10}\"></gd:reminder>"
       }.join("\n")
       # if reminder_time || reminder_method
       #   "<gd:reminder method=\"#{reminder_method || "alert"}\" minutes=\"#{reminder_time || 10}\"></gd:reminder>"
