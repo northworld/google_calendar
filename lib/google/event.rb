@@ -20,7 +20,7 @@ module Google
   #
   class Event
     attr_reader :id, :raw_xml, :html_link, :updated_time, :published_time
-    attr_accessor :title, :content, :where, :calendar, :quickadd, :transparency, :reminder_time, :reminder_method
+    attr_accessor :title, :content, :where, :calendar, :quickadd, :transparency
 
     # Create a new event, and optionally set it's attributes.
     #
@@ -46,8 +46,7 @@ module Google
       self.all_day    = params[:all_day] if params[:all_day]
       @updated_time   = params[:updated]
       @transparency   = params[:transparency]
-      @reminder_time = params[:reminder_time]
-      @reminder_method = params[:reminder_method]
+      @reminders = params[:reminders]
     end
 
     # Sets the start time of the Event.  Must be a Time object or a parsable string representation of a time.
@@ -102,6 +101,10 @@ module Google
       Time.parse(end_time) - Time.parse(start_time)
     end
 
+    def reminders
+      @reminders ||= []
+    end
+
     def transparent?
       transparency == "transparent"
     end
@@ -139,11 +142,15 @@ module Google
     end
 
     def reminder_xml
-      if reminder_time || reminder_method
-        "<gd:reminder method=\"#{reminder_method || "alert"}\" minutes=\"#{reminder_time || 10}\"></gd:reminder>"
-      else
-        ""
-      end
+      # return ""
+      reminders.map{|r|
+        "<gd:reminder method=\"#{r[:method] || "alert"}\" minutes=\"#{r[:minutes] || 10}\"></gd:reminder>"
+      }.join("\n")
+      # if reminder_time || reminder_method
+      #   "<gd:reminder method=\"#{reminder_method || "alert"}\" minutes=\"#{reminder_time || 10}\"></gd:reminder>"
+      # else
+      #   ""
+      # end
     end
 
     # String representation of an event object.
