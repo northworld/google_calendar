@@ -296,6 +296,14 @@ class TestGoogleCalendar < Test::Unit::TestCase
           assert_equal @event.reminders.first[:minutes], 6
           assert_equal @event.reminders.first[:method], "sms"
         end
+
+        should "default to minutes -> hours -> days" do
+          @event = Event.new :reminders => [minutes: 6, hours: 8]
+          assert_equal @event.reminders.first[:minutes], 6
+          assert_equal @event.reminders.first[:hours], 8
+          assert_equal @event.to_xml["hours"], nil
+          assert_not_equal @event.to_xml["minutes"], nil
+        end
       end
     end
   end
