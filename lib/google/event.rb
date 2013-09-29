@@ -20,7 +20,7 @@ module Google
   #
   class Event
     attr_reader :id, :raw_xml, :html_link, :updated_time, :published_time
-    attr_accessor :title, :content, :where, :calendar, :quickadd, :transparency
+    attr_accessor :title, :content, :where, :calendar, :quickadd, :transparency, :reminder_time, :reminder_method
 
     # Create a new event, and optionally set it's attributes.
     #
@@ -46,7 +46,8 @@ module Google
       self.all_day    = params[:all_day] if params[:all_day]
       @updated_time   = params[:updated]
       @transparency   = params[:transparency]
-      @published_time = params[:published]
+      @reminder_time = params[:reminder_time]
+      @reminder_method = params[:reminder_method]
     end
 
     # Sets the start time of the Event.  Must be a Time object or a parsable string representation of a time.
@@ -125,7 +126,9 @@ module Google
           <gd:transparency value='http://schemas.google.com/g/2005#event.#{transparency}'></gd:transparency>
           <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'></gd:eventStatus>
           <gd:where valueString=\"#{where}\"></gd:where>
-          <gd:when startTime=\"#{start_time}\" endTime=\"#{end_time}\"></gd:when>
+          <gd:when startTime=\"#{start_time}\" endTime=\"#{end_time}\">
+            <gd:reminder method=\"#{reminder_method}\" minutes=\"#{reminder_time}\"></gd:reminder>
+          </gd:when>
          </entry>"
       else
         %Q{<entry xmlns='http://www.w3.org/2005/Atom' xmlns:gCal='http://schemas.google.com/gCal/2005'>
