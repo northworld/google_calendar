@@ -199,18 +199,16 @@ module Google
     # Create a new event from a google 'entry' xml block.
     #
     def self.new_from_xml(xml, calendar) #:nodoc:
-      id = parse_id(xml)
-
       event_time_data = xml.at_xpath("gd:when")
 
-      Event.new(:id           => id,
+      Event.new(:id           => parse_id(xml),
                 :calendar     => calendar,
                 :raw_xml      => xml,
                 :title        => xml.at_xpath("xmlns:title").content,
                 :content      => xml.at_xpath("xmlns:content").content,
                 :where        => xml.at_xpath("gd:where")['valueString'],
-                :start_time   => (event_time_data.nil? ? nil : xml.at_xpath("gd:when")['startTime']),
-                :end_time     => (event_time_data.nil? ? nil : xml.at_xpath("gd:when")['endTime']),
+                :start_time   => (event_time_data.nil? ? nil : event_time_data['startTime']),
+                :end_time     => (event_time_data.nil? ? nil : event_time_data['endTime']),
                 :transparency => xml.at_xpath("gd:transparency")['value'].split('.').last,
                 :quickadd     => (xml.at_xpath("gCal:quickadd") ? (xml.at_xpath("gCal:quickadd")['quickadd']) : nil),
                 :html_link    => xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href'],
