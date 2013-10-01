@@ -33,21 +33,15 @@ module Google
     #           :calendar => calendar_object)
     #
     def initialize(params = {})
-      @id             = params[:id]
-      @title          = params[:title]
-      @where          = params[:where]
-      @raw_xml        = params[:raw_xml]
-      @content        = params[:content]
-      @calendar       = params[:calendar]
-      @end_time       = params[:end_time]
-      @quickadd       = params[:quickadd]
-      @html_link      = params[:html_link]
-      @start_time     = params[:start_time]
-      self.all_day    = params[:all_day] if params[:all_day]
-      @updated_time   = params[:updated]
-      @transparency   = params[:transparency]
+
+      [:id, :title, :where, :raw_xml, :content, :calendar, :start_time, 
+       :end_time, :quickadd, :html_link, :transparency, :reminders].each do |attribute|
+        instance_variable_set("@#{attribute}", params[attribute])
+      end
+
       @published_time = params[:published]
-      @reminders      = params[:reminders]
+      @updated_time   = params[:updated]
+      self.all_day    = params[:all_day] if params[:all_day]
     end
 
     # Sets the start time of the Event.  Must be a Time object or a parsable string representation of a time.
@@ -89,6 +83,8 @@ module Google
       duration % (24 * 60 * 60) == 0 && time == Time.local(time.year,time.month,time.day)
     end
 
+    # Makes an event all day, by setting it's start time to the passed in time and it's end time 24 hours later.
+    #
     def all_day=(time)
       if time.class == String
         time = Time.parse(time)
@@ -97,7 +93,8 @@ module Google
       @end_time = (time + 24*60*60).strftime("%Y-%m-%d")
     end
 
-    # Duration in seconds
+    # Duration of the event in seconds
+    #
     def duration
       Time.parse(end_time) - Time.parse(start_time)
     end
@@ -120,14 +117,21 @@ module Google
       @reminders ||= []
     end
 
+    # Returns true if the event is transparent otherwise returns false.
+    # Transparent events do not block time on a calendar.
+    #
     def transparent?
       transparency == "transparent"
     end
 
+    # Returns true if the event is opaque otherwise returns false.
+    # Opaque events block time on a calendar.
+    # 
     def opaque?
       transparency == "opaque"
     end
 
+    # Used to build an array of events from a Google feed.
     #
     def self.build_from_google_feed(xml, calendar)
       Nokogiri::XML(xml).xpath("//xmlns:entry").collect {|e| new_from_xml(e, calendar)}
@@ -195,15 +199,7 @@ module Google
     # Create a new event from a google 'entry' xml block.
     #
     def self.new_from_xml(xml, calendar) #:nodoc:
-      id = xml.at_xpath("gCal:uid")['value'].split('@').first
-
-      # Check if this event came from an apple program (ios, iCal, Calendar, etc)
-      # Id format ex: E52411E2-8DB9-4A26-AD5A-8B6104320D3C
-      if id.match( /[0-9A-Z]{8}-([0-9A-Z]{4}-){3}[0-9A-Z]{12}/ )
-        # Use the ID field instead of the UID which apple overwrites for its own purposes.
-        # TODO With proper testing, this should be way to parse all event id's
-        id = xml.at_xpath("xmlns:id").content.split('/').last
-      end
+      id = parse_id(xml)
 
       event_time_data = xml.at_xpath("gd:when")
 
@@ -231,6 +227,22 @@ module Google
       @id = xml.at_xpath("gCal:uid")['value'].split('@').first
       @html_link    = xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href']
       @raw_xml = xml
+    end
+
+    # A utility method used to parse id of the event
+    #
+    def self.parse_id(xml) #:nodoc:
+      id = xml.at_xpath("gCal:uid")['value'].split('@').first
+
+      # Check if this event came from an apple program (ios, iCal, Calendar, etc)
+      # Id format ex: E52411E2-8DB9-4A26-AD5A-8B6104320D3C
+      if id.match( /[0-9A-Z]{8}-([0-9A-Z]{4}-){3}[0-9A-Z]{12}/ )
+        # Use the ID field instead of the UID which apple overwrites for its own purposes.
+        # TODO With proper testing, this should be way to parse all event id's
+        id = xml.at_xpath("xmlns:id").content.split('/').last
+      end
+
+      return id
     end
 
     # A utility method used centralize time parsing.
