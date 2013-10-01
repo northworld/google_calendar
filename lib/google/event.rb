@@ -47,6 +47,7 @@ module Google
       @updated_time   = params[:updated]
       @transparency   = params[:transparency]
       @published_time = params[:published]
+      @reminders      = params[:reminders]
     end
 
     # Sets the start time of the Event.  Must be a Time object or a parsable string representation of a time.
@@ -101,6 +102,24 @@ module Google
       Time.parse(end_time) - Time.parse(start_time)
     end
 
+    # Stores reminders for this event. Multiple reminders are allowed.
+    #
+    # Examples
+    #  
+    # event = cal.create_event do |e|
+    #   e.title = 'Some Event'
+    #   e.start_time = Time.now + (60 * 10)
+    #   e.end_time = Time.now + (60 * 60) # seconds * min
+    #   e.reminders << {method: 'email', minutes: 4}
+    #   e.reminders << {method: 'alert', hours: 8}
+    # end
+    # 
+    # event = Event.new :start_time => "2012-03-31", :end_time => "2012-04-03", :reminders => [minutes: 6, method: "sms"]
+    #
+    def reminders
+      @reminders ||= []
+    end
+
     def transparent?
       transparency == "transparent"
     end
@@ -114,7 +133,7 @@ module Google
       Nokogiri::XML(xml).xpath("//xmlns:entry").collect {|e| new_from_xml(e, calendar)}
     end
 
-    # Google XMl representation of an evetn object.
+    # Google XMl representation of an event object.
     #
     def to_xml
       unless quickadd
@@ -125,7 +144,9 @@ module Google
           <gd:transparency value='http://schemas.google.com/g/2005#event.#{transparency}'></gd:transparency>
           <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'></gd:eventStatus>
           <gd:where valueString=\"#{where}\"></gd:where>
-          <gd:when startTime=\"#{start_time}\" endTime=\"#{end_time}\"></gd:when>
+          <gd:when startTime=\"#{start_time}\" endTime=\"#{end_time}\">
+            #{reminder_xml}
+          </gd:when>
          </entry>"
       else
         %Q{<entry xmlns='http://www.w3.org/2005/Atom' xmlns:gCal='http://schemas.google.com/gCal/2005'>
@@ -133,6 +154,15 @@ module Google
             <gCal:quickadd value="true"/>
           </entry>}
       end
+    end
+
+    # XML representation of a reminder
+    #
+    def reminder_xml
+      reminders.map{|r|
+        timescale = [:minutes, :hours, :days].select{|t| r[t]}.first || :minutes
+        "<gd:reminder method=\"#{r[:method] || "alert"}\" #{timescale}=\"#{r[timescale] || 10}\"></gd:reminder>"
+      }.join("\n")
     end
 
     # String representation of an event object.
