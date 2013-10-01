@@ -102,6 +102,20 @@ module Google
       Time.parse(end_time) - Time.parse(start_time)
     end
 
+    # Stores reminders for this event. Multiple reminders are allowed.
+    #
+    # Examples
+    #  
+    # event = cal.create_event do |e|
+    #   e.title = 'Some Event'
+    #   e.start_time = Time.now + (60 * 10)
+    #   e.end_time = Time.now + (60 * 60) # seconds * min
+    #   e.reminders << {method: 'email', minutes: 4}
+    #   e.reminders << {method: 'alert', hours: 8}
+    # end
+    # 
+    # event = Event.new :start_time => "2012-03-31", :end_time => "2012-04-03", :reminders => [minutes: 6, method: "sms"]
+    #
     def reminders
       @reminders ||= []
     end
@@ -119,7 +133,7 @@ module Google
       Nokogiri::XML(xml).xpath("//xmlns:entry").collect {|e| new_from_xml(e, calendar)}
     end
 
-    # Google XMl representation of an evetn object.
+    # Google XMl representation of an event object.
     #
     def to_xml
       unless quickadd
@@ -142,6 +156,8 @@ module Google
       end
     end
 
+    # XML representation of a reminder
+    #
     def reminder_xml
       reminders.map{|r|
         timescale = [:minutes, :hours, :days].select{|t| r[t]}.first || :minutes
