@@ -170,7 +170,7 @@ class TestGoogleCalendar < Test::Unit::TestCase
 
       should "format create event with ampersand correctly" do
 	@http_mock.stubs(:body).returns( get_mock_body("create_event.xml") )
-	
+
 	event = @calendar.create_event do |e|
 	  e.title = 'New Event with &'
 	  e.start_time = Time.now + (60 * 60)
@@ -178,7 +178,7 @@ class TestGoogleCalendar < Test::Unit::TestCase
 	  e.content = "A new event with &"
 	  e.where = "Joe's House & Backyard"
 	end
-	
+
 	assert_equal event.title, 'New Event with &amp;'
 	assert_equal event.content, 'A new event with &amp;'
 	assert_equal event.where, "Joe's House &amp; Backyard"
@@ -232,7 +232,7 @@ class TestGoogleCalendar < Test::Unit::TestCase
     end # Logged on context
 
   end # Connected context
-  
+
   context "Event instance methods" do
     context "#all_day?" do
       context "when the event is marked as All Day in google calendar" do
@@ -260,7 +260,7 @@ class TestGoogleCalendar < Test::Unit::TestCase
         end
       end
     end
-    
+
     context "#all_day=" do
       context "sets the start and end time to the appropriate values for an all day event on that day" do
         should "set the start time" do
@@ -275,6 +275,34 @@ class TestGoogleCalendar < Test::Unit::TestCase
           @event = Event.new :all_day => "2012-05-02 12:24"
           assert_equal @event.start_time, "2012-05-02"
           assert_equal @event.end_time, "2012-05-03"
+        end
+      end
+    end
+
+    context "reminders" do
+      context "reminders array" do
+        should "set reminder time" do
+          @event = Event.new :reminders => [minutes: 6]
+          assert_equal @event.reminders.first[:minutes], 6
+        end
+
+        should "use different time scales" do
+          @event = Event.new :reminders => [hours: 5]
+          assert_equal @event.reminders.first[:hours], 5
+        end
+
+        should "set reminder method" do
+          @event = Event.new :reminders => [minutes: 6, method: "sms"]
+          assert_equal @event.reminders.first[:minutes], 6
+          assert_equal @event.reminders.first[:method], "sms"
+        end
+
+        should "default to minutes -> hours -> days" do
+          @event = Event.new :reminders => [minutes: 6, hours: 8]
+          assert_equal @event.reminders.first[:minutes], 6
+          assert_equal @event.reminders.first[:hours], 8
+          assert_equal @event.to_xml["hours"], nil
+          assert_not_equal @event.to_xml["minutes"], nil
         end
       end
     end
