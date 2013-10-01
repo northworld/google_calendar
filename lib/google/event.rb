@@ -46,6 +46,7 @@ module Google
       self.all_day    = params[:all_day] if params[:all_day]
       @updated_time   = params[:updated]
       @transparency   = params[:transparency]
+      @published_time = params[:published]
       @reminders      = params[:reminders]
     end
 
@@ -142,16 +143,10 @@ module Google
     end
 
     def reminder_xml
-      # return ""
       reminders.map{|r|
         timescale = [:minutes, :hours, :days].select{|t| r[t]}.first || :minutes
         "<gd:reminder method=\"#{r[:method] || "alert"}\" #{timescale}=\"#{r[timescale] || 10}\"></gd:reminder>"
       }.join("\n")
-      # if reminder_time || reminder_method
-      #   "<gd:reminder method=\"#{reminder_method || "alert"}\" minutes=\"#{reminder_time || 10}\"></gd:reminder>"
-      # else
-      #   ""
-      # end
     end
 
     # String representation of an event object.
