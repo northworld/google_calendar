@@ -130,7 +130,7 @@ module Google
     # Works like the create_event method.
     #
     def find_or_create_event_by_id(id, &blk)
-      setup_event(find_event_by_id(id) || Event.new, &blk)
+      setup_event(find_event_by_id(id)[0] || Event.new, &blk)
     end
 
     # Saves the specified event.
@@ -179,8 +179,9 @@ module Google
     def event_lookup(query_string = '') #:nodoc:
       begin
       response = @connection.send(Addressable::URI.parse(events_url + query_string), :get)
-      events = Event.build_from_google_feed(response.body, self)
-      events.length > 1 ? events : events[0]
+      events = Event.build_from_google_feed(response.body, self) || []
+      return events if events.empty?
+      events.length > 1 ? events : [events[0]]
       rescue Google::HTTPNotFound
         return nil
       end
