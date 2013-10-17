@@ -46,8 +46,8 @@ module Google
 
     # Find all of the events associated with this calendar.
     #  Returns:
-    #   nil if nothing found.
-    #   a single event if only one found.
+    #   an empty array if nothing found.
+    #   an array with one element if only one found.
     #   an array of events if many found.
     #
     def events
@@ -60,8 +60,8 @@ module Google
     # If you would like to find specific attribute value (i.e. title=Picnic), run a query
     # and parse the results.
     #  Returns:
-    #   nil if nothing found.
-    #   a single event if only one found.
+    #   an empty array if nothing found.
+    #   an array with one element if only one found.
     #   an array of events if many found.
     #
     def find_events(query)
@@ -72,8 +72,8 @@ module Google
     # The lower bound is inclusive, whereas the upper bound is exclusive.
     # Events that overlap the range are included.
     #  Returns:
-    #   nil if nothing found.
-    #   a single event if only one found.
+    #   an empty array if nothing found.
+    #   an array with one element if only one found.
     #   an array of events if many found.
     #
     def find_events_in_range(start_min, start_max,options = {})
@@ -95,8 +95,8 @@ module Google
 
     # Attempts to find the event specified by the id
     #  Returns:
-    #   nil if nothing found.
-    #   a single event if only one found.
+    #   an empty array if nothing found.
+    #   an array with one element if only one found.
     #   an array of events if many found.
     #
     def find_event_by_id(id)
