@@ -4,4 +4,5 @@ module Google
   class HTTPNotFound < StandardError; end
   class HTTPTooManyRedirections < StandardError; end
   class InvalidCalendar < StandardError; end
+  class CalenarIDMissing < StandardError; end
 end

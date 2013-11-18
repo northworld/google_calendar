@@ -104,6 +104,31 @@ class TestGoogleCalendar < Test::Unit::TestCase
 
     end # login context
 
+    context "Username and password not provided" do
+      context "with a valid public calendar id" do
+        should "fetch event data" do
+          assert_nothing_thrown do
+            cal = PublicCalendar.new(:calendar => 'en.singapore#holiday@group.v.calendar.google.com')
+
+            #mock events list request
+            events_uri = mock("get events uri")
+            Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/en.singapore%23holiday%40group.v.calendar.google.com/public/full").once.returns(events_uri)
+            Connection.any_instance.expects(:send).with(events_uri, :get).once.returns(mock("response", :body => get_mock_body('events.xml')))
+
+            cal.events
+          end
+        end
+      end
+
+      context "without specifying a public calendar id" do
+        should "raise error" do
+          assert_raise(CalenarIDMissing) do
+            PublicCalendar.new(calendar: nil)
+          end
+        end
+      end
+    end
+
     context "Logged on" do
       setup do
         @calendar = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret')

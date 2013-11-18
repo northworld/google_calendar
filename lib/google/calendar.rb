@@ -1,4 +1,5 @@
 require 'nokogiri'
+require 'cgi'
 
 module Google
 
@@ -188,7 +189,7 @@ module Google
     end
 
     def calendar_id #:nodoc:
-      @calendar || "default"
+      CGI::escape(@calendar || "default")
     end
 
     # Initialize the events URL given String attribute @calendar value :

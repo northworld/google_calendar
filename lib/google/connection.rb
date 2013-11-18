@@ -15,7 +15,7 @@ module Google
       @auth_url = params[:auth_url] || "https://www.google.com/accounts/ClientLogin"
       @app_name = params[:app_name] || "northworld.com-googlecalendar-integration"
 
-      login()
+      login() if credentials_provided
     end
 
     # login to the google calendar and grab an auth token.
@@ -115,6 +115,11 @@ module Google
       end
     end
 
-  end
+    private
 
+    def credentials_provided
+      blank = /[^[:space:]]/
+      !(@username !~ blank) && !(@password !~ blank)
+    end
+  end
 end
