@@ -23,7 +23,7 @@ module Google
       calendar_id = params[:calendar_id]
 
       raise CalenarIDMissing unless calendar_id
-      @events_url = "#{BASE_URI}/#{CGI::escape(calendar_id)}/public/full"
+      @events_url = "#{BASE_URI}/#{CGI::escape calendar_id}/public/full"
     end
 
     # send a request to google.
@@ -46,6 +46,8 @@ module Google
       return response
     end
 
+    # send a event related request to google.
+    #
     def send_events_request(path_and_query_string, method, content='')
       send(Addressable::URI.parse(@events_url + path_and_query_string), method, content)
     end

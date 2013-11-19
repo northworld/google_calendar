@@ -68,7 +68,7 @@ class TestGoogleCalendar < Test::Unit::TestCase
         end
       end
 
-      should "login properly with a calendar" do
+      should "login properly with a calendar name" do
         assert_nothing_thrown do
           AuthenticatedConnection.any_instance.stubs(:login)
 
@@ -79,6 +79,23 @@ class TestGoogleCalendar < Test::Unit::TestCase
 
           cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
           :calendar => "Little Giants")
+
+          #mock events list request
+          events_uri = mock("get events uri")
+          Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/rf1c66uld6dgk2t5lh43svev6g%40group.calendar.google.com/private/full").once.returns(events_uri)
+          AuthenticatedConnection.any_instance.expects(:send).with(events_uri, :get, anything).once.returns(mock("response", :body => get_mock_body('events.xml')))
+
+          cal.events
+        end
+      end
+
+      should "login properly with a calendar id" do
+        assert_nothing_thrown do
+          AuthenticatedConnection.any_instance.stubs(:login)
+          Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").never
+
+          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
+          :calendar => "rf1c66uld6dgk2t5lh43svev6g@group.calendar.google.com")
 
           #mock events list request
           events_uri = mock("get events uri")

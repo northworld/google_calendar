@@ -13,6 +13,8 @@ module Google
 
       if calendar_name
         @events_url = look_up_events_url_by_calendar_name calendar_name
+      elsif calendar_id
+        @events_url = "#{BASE_URI}/#{CGI::escape calendar_id}/private/full"
       else
         @events_url = "#{BASE_URI}/default/private/full"
       end
