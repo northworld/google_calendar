@@ -7,11 +7,13 @@ module Google
   #
   class Calendar
 
+    attr_reader :connection
+
     # Setup and connect to the specified google calendar.
     #  the +params+ paramater accepts
-    # * :username => the username of the specified calendar (i.e. some.guy@gmail.com)
-    # * :password => the password for the specified user (i.e. super-secret)
-    # * :calendar => the name of the calendar you would like to work with (optional, defaults to the calendar the user setup as their default one.)
+    # * :username => the username of the specified calendar (i.e. some.guy@gmail.com. Leave this out if you'd like to access a public calendar)
+    # * :password => the password for the specified user (i.e. super-secret. Leave this out if you'd like to access a public calendar)
+    # * :calendar => the name or ID of the calendar you would like to work with (Defaults to the calendar the user setup as their default one if credentials are provided. Set this value with the calendar's ID when accessing a public calendar)
     # * :app_name => the name of your application (defaults to 'northworld.com-googlecalendar-integration')
     # * :auth_url => the base url that is used to connect to google (defaults to 'https://www.google.com/accounts/ClientLogin')
     #
@@ -27,8 +29,9 @@ module Google
     #   # Specify the app_name
     #   Calendar.new(:username => 'some.guy@gmail.com', :password => 'ilovepie!', :app_name => 'mycompany.com-googlecalendar-integration')
     #
-    attr_reader :connection
-
+    #   # Specify a public calendar
+    #   Calendar.new(:calendar => 'en.singapore#holiday@group.v.calendar.google.com')
+    #
     def initialize(params)
       options = {
         :username => params[:username],

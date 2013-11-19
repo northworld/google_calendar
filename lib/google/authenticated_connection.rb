@@ -1,15 +1,19 @@
 module Google
+  # This is a utility class that performs communication with the google calendar api that requires authentication.
+  #
   class AuthenticatedConnection < Connection
+    # set the username, password, auth_url, app_name, login and prepare events_url.
+    #
     def initialize params
-      calendar_name = params[:calendar_name]
-      calendar_id = params[:calendar_id]
-
       @username = params[:username]
       @password = params[:password]
       @auth_url = params[:auth_url] || "https://www.google.com/accounts/ClientLogin"
       @app_name = params[:app_name] || "northworld.com-googlecalendar-integration"
 
       login
+
+      calendar_name = params[:calendar_name]
+      calendar_id = params[:calendar_id]
 
       if calendar_name
         @events_url = look_up_events_url_by_calendar_name calendar_name
@@ -20,6 +24,8 @@ module Google
       end
     end
 
+    # reset session_id and login again
+    #
     def reload
       @session_id = nil
       login
@@ -27,6 +33,8 @@ module Google
 
     private
 
+    # login to the google calendar and grab an auth token.
+    #
     def login
       content = {
         'Email' => @username,
@@ -53,6 +61,8 @@ module Google
       events_url.empty? ? raise(Google::InvalidCalendar) : events_url
     end
 
+    # fetch, memoize and return the list of sign-in user's calendars.
+    #
     def list_calendars
       unless @calendars
         xml = send(Addressable::URI.parse("#{BASE_URI}/default/allcalendars/full"), :get)

@@ -4,24 +4,34 @@ require 'cgi'
 
 module Google
 
-  # This is a utility class that performs all of the
-  # communication with the google calendar api.
+  # This is a utility class that performs communication with the google calendar api.
   #
   class Connection
     BASE_URI = "https://www.google.com/calendar/feeds"
 
+    # Depending on wether the credentials are provided or not, establish a authenticated or unauthenticated connection to google
+    #  the +params+ paramater accepts
+    # * :username => the username of the specified calendar (e.g. some.guy@gmail.com)
+    # * :password => the password for the specified user (e.g. super-secret)
+    # * :calendar_name => the name of the calendar you would like to work with (i.e. the human friendly name of the calendar)
+    # * :calendar_id => the id of the calendar you would like to work with (e.g. en.singapore#holiday@group.v.calendar.google.com)
+    # * :app_name => the name of your application (defaults to 'northworld.com-googlecalendar-integration')
+    # * :auth_url => the base url that is used to connect to google (defaults to 'https://www.google.com/accounts/ClientLogin')
+    #
+    # If neither the calendar_name nor the calendar_id is provided, the connection will attempt to fetch events from the user's default calendar
+    # If both the calendar_name and the calendar_id are provided, the calendar_name will take priority (The current implementation of Calendar makes this case impossible)
+    #
     def self.connect params
       if credentials_provided? params[:username], params[:password]
         AuthenticatedConnection.new params
       else
-        self.new params
+        self.new params[:calendar_id]
       end
     end
 
-    def initialize(params)
-      calendar_name = params[:calendar_name]
-      calendar_id = params[:calendar_id]
-
+    # Prepare an unauthenticated connection to google for fetching a public calendar events
+    # calendar_id: the id of the calendar you would like to work with (e.g. en.singapore#holiday@group.v.calendar.google.com)
+    def initialize(calendar_id)
       raise CalenarIDMissing unless calendar_id
       @events_url = "#{BASE_URI}/#{CGI::escape calendar_id}/public/full"
     end
@@ -46,16 +56,16 @@ module Google
       return response
     end
 
-    # send a event related request to google.
+    # wraps `send` method. send a event related request to google.
     #
-    def send_events_request(path_and_query_string, method, content='')
+    def send_events_request(path_and_query_string, method, content = '')
       send(Addressable::URI.parse(@events_url + path_and_query_string), method, content)
     end
 
     protected
 
     # Check to see if we are using a session and extract it's values if required.
-    # 
+    #
     def set_session_if_necessary(uri) #:nodoc:
       # only extract the session if we don't already have one.
       @session_id = uri.query_values['gsessionid'] if @session_id == nil && uri.query
