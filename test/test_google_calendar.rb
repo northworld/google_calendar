@@ -70,18 +70,20 @@ class TestGoogleCalendar < Test::Unit::TestCase
 
       should "login properly with a calendar" do
         assert_nothing_thrown do
-          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
-          :calendar => "Little Giants")
+          Connection.any_instance.stubs(:login)
 
           #mock calendar list request
           calendar_uri = mock("get calendar uri")
           Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").once.returns(calendar_uri)
           Connection.any_instance.expects(:send).with(calendar_uri, :get).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
 
+          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
+          :calendar => "Little Giants")
+
           #mock events list request
           events_uri = mock("get events uri")
           Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/rf1c66uld6dgk2t5lh43svev6g%40group.calendar.google.com/private/full").once.returns(events_uri)
-          Connection.any_instance.expects(:send).with(events_uri, :get).once.returns(mock("response", :body => get_mock_body('events.xml')))
+          Connection.any_instance.expects(:send).with(events_uri, :get, anything).once.returns(mock("response", :body => get_mock_body('events.xml')))
 
           cal.events
         end
@@ -90,13 +92,15 @@ class TestGoogleCalendar < Test::Unit::TestCase
       should "catch login with invalid calendar" do
 
         assert_raise(InvalidCalendar) do
-          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
-          :calendar => "invalid calendar")
+          Connection.any_instance.stubs(:login)
 
           #mock calendar list request
           calendar_uri = mock("get calendar uri")
           Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").once.returns(calendar_uri)
-          Connection.any_instance.expects(:send).with(calendar_uri, :get).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
+          Connection.any_instance.expects(:send).with(calendar_uri, :get, anything).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
+
+          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
+          :calendar => "invalid calendar")
 
           cal.events
         end
@@ -108,12 +112,12 @@ class TestGoogleCalendar < Test::Unit::TestCase
       context "with a valid public calendar id" do
         should "fetch event data" do
           assert_nothing_thrown do
-            cal = PublicCalendar.new(:calendar => 'en.singapore#holiday@group.v.calendar.google.com')
+            cal = Calendar.new(:calendar => 'en.singapore#holiday@group.v.calendar.google.com')
 
             #mock events list request
             events_uri = mock("get events uri")
             Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/en.singapore%23holiday%40group.v.calendar.google.com/public/full").once.returns(events_uri)
-            Connection.any_instance.expects(:send).with(events_uri, :get).once.returns(mock("response", :body => get_mock_body('events.xml')))
+            Connection.any_instance.expects(:send).with(events_uri, :get, anything).once.returns(mock("response", :body => get_mock_body('events.xml')))
 
             cal.events
           end
@@ -123,7 +127,7 @@ class TestGoogleCalendar < Test::Unit::TestCase
       context "without specifying a public calendar id" do
         should "raise error" do
           assert_raise(CalenarIDMissing) do
-            PublicCalendar.new(calendar: nil)
+            Calendar.new(calendar: nil)
           end
         end
       end

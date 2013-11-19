@@ -1,5 +1,4 @@
 require 'nokogiri'
-require 'cgi'
 
 module Google
 
@@ -39,10 +38,20 @@ module Google
       self.app_name = params[:app_name]
       self.auth_url = params[:auth_url]
 
-      self.connection = Connection.new(:username => username,
-                                   :password => password,
-                                   :app_name => app_name,
-                                   :auth_url => auth_url)
+      options = {
+        :username => username,
+        :password => password,
+        :app_name => app_name,
+        :auth_url => auth_url,
+        :calendar => calendar
+      }
+      if @calendar and !@calendar.include?("@")
+        options[:calendar_name] = calendar
+      else
+        options[:calendar_id] = calendar
+      end
+
+      self.connection = Connection.new options
     end
 
     # Find all of the events associated with this calendar.
@@ -140,14 +149,14 @@ module Google
     def save_event(event)
       method = (event.id == nil || event.id == '') ? :post : :put
       query_string = (method == :put) ? "/#{event.id}" : ''
-      @connection.send(Addressable::URI.parse(events_url + query_string), method, event.to_xml)
+      @connection.send_events_request(query_string, :method, event.to_xml)
     end
 
     # Deletes the specified event.
     # This is a callback used by the Event class.
     #
     def delete_event(event)
-      @connection.send(Addressable::URI.parse(events_url + "/#{event.id}"), :delete)
+      @connection.send_events_request("/#{event.id}", :delete)
     end
 
     # Explicitly reload the connection to google calendar
@@ -165,69 +174,36 @@ module Google
     # Returns Google::Calendar instance
     def reload
       self.connection = Connection.new(:username => username,
-                                   :password => password,
-                                   :app_name => app_name,
-                                   :auth_url => auth_url)
+                                       :password => password,
+                                       :app_name => app_name,
+                                       :auth_url => auth_url)
       self
     end
-    
+
     def display_color
-      calendar_data.xpath("//entry[title='#{@calendar}']/color/@value").first.value
+      @connection.list_calendars.xpath("//entry[title='#{@calendar}']/color/@value").first.value
     end
 
     protected
 
     def event_lookup(query_string = '') #:nodoc:
       begin
-      response = @connection.send(Addressable::URI.parse(events_url + query_string), :get)
-      events = Event.build_from_google_feed(response.body, self) || []
-      return events if events.empty?
-      events.length > 1 ? events : [events[0]]
+        response = @connection.send_events_request(query_string, :get)
+        events = Event.build_from_google_feed(response.body, self) || []
+        return events if events.empty?
+        events.length > 1 ? events : [events[0]]
       rescue Google::HTTPNotFound
         return nil
       end
     end
 
-    def calendar_id #:nodoc:
-      CGI::escape(@calendar || "default")
-    end
-
-    # Initialize the events URL given String attribute @calendar value :
-    #
-    # contains a '@'        : construct the feed url with @calendar.
-    # does not contain '@'  : fetch user's all calendars (http://code.google.com/apis/calendar/data/2.0/developers_guide_protocol.html#RetrievingAllCalendars)
-    #                         and return feed url matching @calendar.
-    # nil                   : default feed url.
-    #
-    # Returns:
-    #  a String url for a calendar feeds.
-    #  raise a Google::InvalidCalendar error if @calendar is invalid.
-    #
-    def events_url
-      if @calendar and !@calendar.include?("@")
-         link = calendar_data.xpath("//entry[title='#{@calendar}']/link[contains(@rel, '#eventFeed')]/@href").to_s
-         link.empty? ? raise(Google::InvalidCalendar) : link
-       else
-         "https://www.google.com/calendar/feeds/#{calendar_id}/private/full"
-      end
-    end
-    
-    def calendar_data
-      unless @calendar_data
-        xml = @connection.send(Addressable::URI.parse("https://www.google.com/calendar/feeds/default/allcalendars/full"), :get)
-        @calendar_data = Nokogiri::XML(xml.body)
-        @calendar_data.remove_namespaces!
-      end
-      @calendar_data
-    end
-
     def setup_event(event) #:nodoc:
       event.calendar = self
       if block_given?
-      	yield(event)
-	event.title = event.title.encode(:xml => :text) if event.title
-	event.content = event.content.encode(:xml => :text) if event.content
-	event.where = event.where.encode(:xml => :text) if event.where
+        yield(event)
+        event.title = event.title.encode(:xml => :text) if event.title
+        event.content = event.content.encode(:xml => :text) if event.content
+        event.where = event.where.encode(:xml => :text) if event.where
       end
       event.save
       event

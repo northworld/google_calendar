@@ -1,5 +1,6 @@
 require "addressable/uri"
 require 'google/net/https'
+require 'cgi'
 
 module Google
 
@@ -15,7 +16,22 @@ module Google
       @auth_url = params[:auth_url] || "https://www.google.com/accounts/ClientLogin"
       @app_name = params[:app_name] || "northworld.com-googlecalendar-integration"
 
-      login() if credentials_provided
+      calendar_name = params[:calendar_name]
+      calendar_id = params[:calendar_id]
+
+      if credentials_provided
+        login()
+
+        if calendar_name
+          @events_url = look_up_events_url_by_calendar_name calendar_name
+        else
+          @events_url = "https://www.google.com/calendar/feeds/default/private/full"
+        end
+      else
+        raise CalenarIDMissing unless calendar_id
+        @events_url = "https://www.google.com/calendar/feeds/#{CGI::escape(calendar_id)}/public/full"
+      end
+
     end
 
     # login to the google calendar and grab an auth token.
@@ -59,6 +75,10 @@ module Google
       check_for_errors(response)
 
       return response
+    end
+
+    def send_events_request(path_and_query_string, method, content='')
+      send(Addressable::URI.parse(@events_url + path_and_query_string), method, content)
     end
 
     protected
@@ -120,6 +140,20 @@ module Google
     def credentials_provided
       blank = /[^[:space:]]/
       !(@username !~ blank) && !(@password !~ blank)
+    end
+
+    def look_up_events_url_by_calendar_name calendar_name
+      events_url = list_calendars.xpath("//entry[title='#{calendar_name}']/link[contains(@rel, '#eventFeed')]/@href").to_s
+      events_url.empty? ? raise(Google::InvalidCalendar) : events_url
+    end
+
+    def list_calendars
+      unless @calendars
+        xml = send(Addressable::URI.parse("https://www.google.com/calendar/feeds/default/allcalendars/full"), :get)
+        @calendars = Nokogiri::XML(xml.body)
+        @calendars.remove_namespaces!
+      end
+      @calendars
     end
   end
 end
