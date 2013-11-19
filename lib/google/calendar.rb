@@ -27,31 +27,26 @@ module Google
     #   # Specify the app_name
     #   Calendar.new(:username => 'some.guy@gmail.com', :password => 'ilovepie!', :app_name => 'mycompany.com-googlecalendar-integration')
     #
-
-    # Calendar attributes
-    attr_accessor :username, :password, :app_name, :auth_url, :connection, :calendar
+    attr_reader :connection
 
     def initialize(params)
-      self.username = params[:username]
-      self.password = params[:password]
-      self.calendar = params[:calendar]
-      self.app_name = params[:app_name]
-      self.auth_url = params[:auth_url]
-
       options = {
-        :username => username,
-        :password => password,
-        :app_name => app_name,
-        :auth_url => auth_url,
-        :calendar => calendar
+        :username => params[:username],
+        :password => params[:password],
+        :app_name => params[:app_name],
+        :auth_url => params[:auth_url]
       }
-      if @calendar and !@calendar.include?("@")
-        options[:calendar_name] = calendar
+
+      calendar_name_or_id = params[:calendar]
+      if calendar_name_or_id and !calendar_name_or_id.include?("@")
+        @calendar_name = calendar_name_or_id
+        options[:calendar_name] = @calendar_name
       else
-        options[:calendar_id] = calendar
+        @calendar_id = calendar_name_or_id
+        options[:calendar_id] = @calendar_id
       end
 
-      self.connection = Connection.new options
+      @connection = Connection.connect options
     end
 
     # Find all of the events associated with this calendar.
@@ -173,15 +168,12 @@ module Google
     #
     # Returns Google::Calendar instance
     def reload
-      self.connection = Connection.new(:username => username,
-                                       :password => password,
-                                       :app_name => app_name,
-                                       :auth_url => auth_url)
+      @connection.reload
       self
     end
 
     def display_color
-      @connection.list_calendars.xpath("//entry[title='#{@calendar}']/color/@value").first.value
+      @connection.list_calendars.xpath("//entry[title='#{@calendar_name}']/color/@value").first.value
     end
 
     protected
