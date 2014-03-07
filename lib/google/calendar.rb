@@ -46,8 +46,8 @@ module Google
 
     # Find all of the events associated with this calendar.
     #  Returns:
-    #   nil if nothing found.
-    #   a single event if only one found.
+    #   an empty array if nothing found.
+    #   an array with one element if only one found.
     #   an array of events if many found.
     #
     def events
@@ -60,8 +60,8 @@ module Google
     # If you would like to find specific attribute value (i.e. title=Picnic), run a query
     # and parse the results.
     #  Returns:
-    #   nil if nothing found.
-    #   a single event if only one found.
+    #   an empty array if nothing found.
+    #   an array with one element if only one found.
     #   an array of events if many found.
     #
     def find_events(query)
@@ -72,8 +72,8 @@ module Google
     # The lower bound is inclusive, whereas the upper bound is exclusive.
     # Events that overlap the range are included.
     #  Returns:
-    #   nil if nothing found.
-    #   a single event if only one found.
+    #   an empty array if nothing found.
+    #   an array with one element if only one found.
     #   an array of events if many found.
     #
     def find_events_in_range(start_min, start_max,options = {})
@@ -95,8 +95,8 @@ module Google
 
     # Attempts to find the event specified by the id
     #  Returns:
-    #   nil if nothing found.
-    #   a single event if only one found.
+    #   an empty array if nothing found.
+    #   an array with one element if only one found.
     #   an array of events if many found.
     #
     def find_event_by_id(id)
@@ -130,7 +130,7 @@ module Google
     # Works like the create_event method.
     #
     def find_or_create_event_by_id(id, &blk)
-      setup_event(find_event_by_id(id) || Event.new, &blk)
+      setup_event(find_event_by_id(id)[0] || Event.new, &blk)
     end
 
     # Saves the specified event.
@@ -179,8 +179,9 @@ module Google
     def event_lookup(query_string = '') #:nodoc:
       begin
       response = @connection.send(Addressable::URI.parse(events_url + query_string), :get)
-      events = Event.build_from_google_feed(response.body, self)
-      events.length > 1 ? events : events[0]
+      events = Event.build_from_google_feed(response.body, self) || []
+      return events if events.empty?
+      events.length > 1 ? events : [events[0]]
       rescue Google::HTTPNotFound
         return nil
       end

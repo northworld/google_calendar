@@ -122,7 +122,7 @@ class TestGoogleCalendar < Test::Unit::TestCase
       should "query events" do
         @http_mock.stubs(:body).returns( get_mock_body("query_events.xml") )
         event = @calendar.find_events('Test&gsessionid=12345')
-        assert_equal event.title, 'Test'
+        assert_equal event[0].title, 'Test'
       end
 
       should "find events in range" do
@@ -132,10 +132,28 @@ class TestGoogleCalendar < Test::Unit::TestCase
         events = @calendar.find_events_in_range(start_min, start_max)
       end
 
+      should "return multiple events in range as array" do
+        @http_mock.stubs(:body).returns( get_mock_body("events.xml") )
+        events = @calendar.events
+        assert_equal events.class.to_s, "Array"
+      end
+      
+      should "return one event in range as array" do
+        @http_mock.stubs(:body).returns( get_mock_body("query_events.xml") )
+        events = @calendar.events
+        assert_equal events.class.to_s, "Array"
+      end
+      
+      should "return response of no events in range as array" do
+        @http_mock.stubs(:body).returns( get_mock_body("empty_events.xml") )
+        events = @calendar.events
+        assert_equal events.class.to_s, "Array"
+      end
+
       should "find an event by id" do
         @http_mock.stubs(:body).returns( get_mock_body("find_event_by_id.xml") )
         event = @calendar.find_event_by_id('oj6fmpaulbvk9ouoj0lj4v6hio')
-        assert_equal event.id, 'oj6fmpaulbvk9ouoj0lj4v6hio'
+        assert_equal event[0].id, 'oj6fmpaulbvk9ouoj0lj4v6hio'
       end
 
       should "throw NotFound with invalid event id" do
@@ -187,7 +205,7 @@ class TestGoogleCalendar < Test::Unit::TestCase
       should "format to_s properly" do
         @http_mock.stubs(:body).returns( get_mock_body("query_events.xml") )
         event = @calendar.find_events('Test')
-        assert_equal event.to_s, "Test (oj6fmpaulbvk9ouoj0lj4v6hio)\n\t2010-04-08\n\t2010-04-09\n\tAt School\n\t"
+        assert_equal event[0].to_s, "Test (oj6fmpaulbvk9ouoj0lj4v6hio)\n\t2010-04-08\n\t2010-04-09\n\tAt School\n\t"
       end
 
       should "update an event by id" do

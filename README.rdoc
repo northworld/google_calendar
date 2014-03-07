@@ -24,14 +24,14 @@ Note: Google requests that you set the name of your application so they can bett
     e.end_time = Time.now + (60 * 60) # seconds * min
   end
 
-  puts event
+  puts event[0]
 
   event = cal.find_or_create_event_by_id(event.id) do |e|
     e.title = 'An Updated Cool Event'
     e.end_time = Time.now + (60 * 60 * 2) # seconds * min * hours
   end
 
-  puts event
+  puts event[0]
 
   # All events
   puts cal.events
