@@ -38,7 +38,6 @@ module Google
     #           ]
     #
     def initialize(params = {})
-      puts params
       [:id, :title, :where, :raw_xml, :content, :calendar, :start_time, 
        :end_time, :quickadd, :html_link, :transparency, :reminders, :attendees, :send_event_notification].each do |attribute|
         instance_variable_set("@#{attribute}", params[attribute])
@@ -176,10 +175,9 @@ module Google
     #XML representation of attendees
     #
     def attendees_xml
-      puts @attendees.inspect
       @attendees.map do |attendee|
         "<gd:who email=\"#{attendee[:email]}\" rel=\"#{attendee[:relation]}\" valueString=\"#{attendee[:name]}\" gd:attendeeType=\"#{attendee[:required] ? 'http://schemas.google.com/g/2005#event.required' : 'http://schemas.google.com/g/2005#event.optional'}\"/>"
-      end.join
+      end.join if @attendees
     end
 
     # XML representation of a reminder
