@@ -20,7 +20,7 @@ module Google
   #
   class Event
     attr_reader :id, :raw_xml, :html_link, :updated_time, :published_time
-    attr_accessor :title, :content, :where, :calendar, :quickadd, :transparency
+    attr_accessor :title, :content, :where, :calendar, :quickadd, :transparency, :attendees, :send_event_notification
 
     # Create a new event, and optionally set it's attributes.
     #
@@ -30,12 +30,16 @@ module Google
     #           :where => 'The Ocean',
     #           :start_time => Time.now,
     #           :end_time => Time.now + (60 * 60),
+    #           :send_event_notification => true/false,
     #           :calendar => calendar_object)
+    #           :attendees => [
+    #             {:email => 'murtuzafirst@gmail.com', :name => 'Murtuza Kutub', :relation => 'http://schemas.google.com/g/2005#event.organizer', :required => true/false},
+    #             {:email => 'hariharasudhan@live.com', :name => 'Hari Harasudhan', :relation => 'http://schemas.google.com/g/2005#event.attendee', :required => true/false}
+    #           ]
     #
     def initialize(params = {})
-
       [:id, :title, :where, :raw_xml, :content, :calendar, :start_time, 
-       :end_time, :quickadd, :html_link, :transparency, :reminders].each do |attribute|
+       :end_time, :quickadd, :html_link, :transparency, :reminders, :attendees, :send_event_notification].each do |attribute|
         instance_variable_set("@#{attribute}", params[attribute])
       end
 
@@ -141,9 +145,10 @@ module Google
     #
     def to_xml
       unless quickadd
-        "<entry xmlns='http://www.w3.org/2005/Atom' xmlns:gd='http://schemas.google.com/g/2005'>
+        "<entry xmlns='http://www.w3.org/2005/Atom' xmlns:gd='http://schemas.google.com/g/2005' xmlns:gCal='http://schemas.google.com/gCal/2005'>
           <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'></category>
           <title type='text'>#{title}</title>
+          #{send_event_notification_xml}
           <content type='text'>#{content}</content>
           <gd:transparency value='http://schemas.google.com/g/2005#event.#{transparency}'></gd:transparency>
           <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'></gd:eventStatus>
@@ -151,6 +156,7 @@ module Google
           <gd:when startTime=\"#{start_time}\" endTime=\"#{end_time}\">
             #{reminder_xml}
           </gd:when>
+          #{attendees_xml}
          </entry>"
       else
         %Q{<entry xmlns='http://www.w3.org/2005/Atom' xmlns:gCal='http://schemas.google.com/gCal/2005'>
@@ -158,6 +164,20 @@ module Google
             <gCal:quickadd value="true"/>
           </entry>}
       end
+    end
+    
+    #Send email notification about creation of the event, to all attendees.
+    #
+    def send_event_notification_xml
+      "<gCal:sendEventNotifications value=\"true\" />" if @send_event_notification
+    end
+
+    #XML representation of attendees
+    #
+    def attendees_xml
+      @attendees.map do |attendee|
+        "<gd:who email=\"#{attendee[:email]}\" rel=\"#{attendee[:relation]}\" valueString=\"#{attendee[:name]}\" gd:attendeeType=\"#{attendee[:required] ? 'http://schemas.google.com/g/2005#event.required' : 'http://schemas.google.com/g/2005#event.optional'}\"/>"
+      end.join if @attendees
     end
 
     # XML representation of a reminder
