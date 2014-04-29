@@ -224,9 +224,9 @@ module Google
       event.calendar = self
       if block_given?
       	yield(event)
-	event.title = event.title.encode(:xml => :text) if event.title
-	event.content = event.content.encode(:xml => :text) if event.content
-	event.where = event.where.encode(:xml => :text) if event.where
+      	event.title = event.title.encode(:xml => :text) if event.title
+      	event.content = event.content.encode(:xml => :text) if event.content
+      	event.where = event.where.encode(:xml => :text) if event.where
       end
       event.save
       event
