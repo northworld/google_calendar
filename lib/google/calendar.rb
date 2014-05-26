@@ -79,8 +79,8 @@ module Google
     def find_events_in_range(start_min, start_max,options = {})
       options[:max_results] ||=  25
       options[:order_by] ||= 'lastmodified' # other option is 'starttime'
-      formatted_start_min = start_min.strftime("%Y-%m-%dT%H:%M:%S")
-      formatted_start_max = start_max.strftime("%Y-%m-%dT%H:%M:%S")
+      formatted_start_min = Addressable::URI.encode_component(start_min.strftime("%FT%T%:z"), Addressable::URI::CharacterClasses::UNRESERVED)
+      formatted_start_max = Addressable::URI.encode_component(start_max.strftime("%FT%T%:z"), Addressable::URI::CharacterClasses::UNRESERVED)
       query = "?start-min=#{formatted_start_min}&start-max=#{formatted_start_max}&recurrence-expansion-start=#{formatted_start_min}&recurrence-expansion-end=#{formatted_start_max}"
       query = "#{query}&orderby=#{options[:order_by]}&max-results=#{options[:max_results]}"
       event_lookup(query)
