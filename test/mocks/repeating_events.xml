@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:openSearch="http://a9.com/-/spec/opensearchrss/1.0/" xmlns:gCal="http://schemas.google.com/gCal/2005" xmlns:gd="http://schemas.google.com/g/2005">
+  <id>http://www.google.com/calendar/feeds/default/private/full</id>
+  <updated>2010-12-10T07:09:25.000Z</updated>
+  <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/g/2005#event"/>
+  <title type="text">Some Guy</title>
+  <subtitle type="text">Some Guy</subtitle>
+  <link rel="alternate" type="text/html" href="https://www.google.com/calendar/embed?src=some.guy@gmail.com"/>
+  <link rel="http://schemas.google.com/g/2005#feed" type="application/atom+xml" href="https://www.google.com/calendar/feeds/default/private/full"/>
+  <link rel="http://schemas.google.com/g/2005#post" type="application/atom+xml" href="https://www.google.com/calendar/feeds/default/private/full"/>
+  <link rel="http://schemas.google.com/g/2005#batch" type="application/atom+xml" href="https://www.google.com/calendar/feeds/default/private/full/batch"/>
+  <link rel="self" type="application/atom+xml" href="https://www.google.com/calendar/feeds/default/private/full?q=Test&amp;max-results=25"/>
+  <author>
+    <name>Some Guy</name>
+    <email>some.guy@gmail.com</email>
+  </author>
+  <generator version="1.0" uri="http://www.google.com/calendar">Google Calendar</generator>
+  <openSearch:totalResults>1</openSearch:totalResults>
+  <openSearch:startIndex>1</openSearch:startIndex>
+  <openSearch:itemsPerPage>25</openSearch:itemsPerPage>
+  <gCal:timezone value="America/Los_Angeles"/>
+  <gCal:timesCleaned value="0"/>
+  <entry>
+    <id>http://www.google.com/calendar/feeds/default/private/full/oj6fmpaulbvk9ouoj0lj4v6hio</id>
+    <published>2010-04-22T16:05:29.000Z</published>
+    <updated>2010-05-01T05:14:18.000Z</updated>
+    <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/g/2005#event"/>
+    <title type="text">Test</title>
+    <content type="text"/>
+    <link rel="alternate" type="text/html" href="https://www.google.com/calendar/event?eid=b2o2Zm1wYXVsYnZrOW91b2owbGo0djZoaW8gc3RldmUuemljaEBt" title="alternate"/>
+    <link rel="self" type="application/atom+xml" href="https://www.google.com/calendar/feeds/default/private/full/oj6fmpaulbvk9ouoj0lj4v6hio"/>
+    <link rel="edit" type="application/atom+xml" href="https://www.google.com/calendar/feeds/default/private/full/oj6fmpaulbvk9ouoj0lj4v6hio/63408374058"/>
+    <author>
+      <name>Some Guy</name>
+      <email>some.guy@gmail.com</email>
+    </author>
+    <gd:comments>
+      <gd:feedLink href="https://www.google.com/calendar/feeds/default/private/full/oj6fmpaulbvk9ouoj0lj4v6hio/comments"/>
+    </gd:comments>
+    <gd:eventStatus value="http://schemas.google.com/g/2005#event.confirmed"/>
+    <gd:where valueString=""/>
+    <gd:who email="some.guy@gmail.com" rel="http://schemas.google.com/g/2005#event.organizer" valueString="some.guy@gmail.com"/>
+    <gd:when endTime="2010-04-09" startTime="2010-04-08">
+      <gd:reminder method="alert" minutes="10"/>
+    </gd:when>
+    <gd:when endTime="2010-04-10" startTime="2010-04-09">
+      <gd:reminder method="alert" minutes="10"/>
+    </gd:when>
+    <gd:when endTime="2010-04-11" startTime="2010-04-10">
+      <gd:reminder method="alert" minutes="10"/>
+    </gd:when>
+    <gd:transparency value="http://schemas.google.com/g/2005#event.transparent"/>
+    <gd:visibility value="http://schemas.google.com/g/2005#event.default"/>
+    <gCal:anyoneCanAddSelf value="false"/>
+    <gCal:guestsCanInviteOthers value="true"/>
+    <gCal:guestsCanModify value="false"/>
+    <gCal:guestsCanSeeGuests value="true"/>
+    <gCal:sequence value="0"/>
+    <gCal:uid value="oj6fmpaulbvk9ouoj0lj4v6hio@google.com"/>
+  </entry>
+  <entry>
+    <id>http://www.google.com/calendar/feeds/default/private/full/oj6fmpaulbvk9ouoj0lj4v6hio</id>
+    <published>2010-04-22T16:05:29.000Z</published>
+    <updated>2010-05-01T05:14:18.000Z</updated>
+    <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/g/2005#event"/>
+    <title type="text">Test</title>
+    <content type="text"/>
+    <link rel="alternate" type="text/html" href="https://www.google.com/calendar/event?eid=b2o2Zm1wYXVsYnZrOW91b2owbGo0djZoaW8gc3RldmUuemljaEBt" title="alternate"/>
+    <link rel="self" type="application/atom+xml" href="https://www.google.com/calendar/feeds/default/private/full/oj6fmpaulbvk9ouoj0lj4v6hio"/>
+    <link rel="edit" type="application/atom+xml" href="https://www.google.com/calendar/feeds/default/private/full/oj6fmpaulbvk9ouoj0lj4v6hio/63408374058"/>
+    <author>
+      <name>Some Guy</name>
+      <email>some.guy@gmail.com</email>
+    </author>
+    <gd:comments>
+      <gd:feedLink href="https://www.google.com/calendar/feeds/default/private/full/oj6fmpaulbvk9ouoj0lj4v6hio/comments"/>
+    </gd:comments>
+    <gd:eventStatus value="http://schemas.google.com/g/2005#event.confirmed"/>
+    <gd:where valueString=""/>
+    <gd:who email="some.guy@gmail.com" rel="http://schemas.google.com/g/2005#event.organizer" valueString="some.guy@gmail.com"/>
+    <gd:when endTime="2010-04-09" startTime="2010-04-08">
+      <gd:reminder method="alert" minutes="10"/>
+    </gd:when>
+    <gd:transparency value="http://schemas.google.com/g/2005#event.transparent"/>
+    <gd:visibility value="http://schemas.google.com/g/2005#event.default"/>
+    <gCal:anyoneCanAddSelf value="false"/>
+    <gCal:guestsCanInviteOthers value="true"/>
+    <gCal:guestsCanModify value="false"/>
+    <gCal:guestsCanSeeGuests value="true"/>
+    <gCal:sequence value="0"/>
+    <gCal:uid value="oj6fmpaulbvk9ouoj0lj4v6hio@google.com"/>
+  </entry>
+  <entry>
+    <id>http://www.google.com/calendar/feeds/default/private/full/oj6fmpaulbvk9ouoj0lj4v6hio</id>
+    <published>2010-04-22T16:05:29.000Z</published>
+    <updated>2010-05-01T05:14:18.000Z</updated>
+    <category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/g/2005#event"/>
+    <title type="text">Test</title>
+    <content type="text"/>
+    <link rel="alternate" type="text/html" href="https://www.google.com/calendar/event?eid=b2o2Zm1wYXVsYnZrOW91b2owbGo0djZoaW8gc3RldmUuemljaEBt" title="alternate"/>
+    <link rel="self" type="application/atom+xml" href="https://www.google.com/calendar/feeds/default/private/full/oj6fmpaulbvk9ouoj0lj4v6hio"/>
+    <link rel="edit" type="application/atom+xml" href="https://www.google.com/calendar/feeds/default/private/full/oj6fmpaulbvk9ouoj0lj4v6hio/63408374058"/>
+    <author>
+      <name>Some Guy</name>
+      <email>some.guy@gmail.com</email>
+    </author>
+    <gd:comments>
+      <gd:feedLink href="https://www.google.com/calendar/feeds/default/private/full/oj6fmpaulbvk9ouoj0lj4v6hio/comments"/>
+    </gd:comments>
+    <gd:eventStatus value="http://schemas.google.com/g/2005#event.confirmed"/>
+    <gd:where valueString=""/>
+    <gd:who email="some.guy@gmail.com" rel="http://schemas.google.com/g/2005#event.organizer" valueString="some.guy@gmail.com"/>
+    <gd:when endTime="2010-04-09" startTime="2010-04-08">
+      <gd:reminder method="alert" minutes="10"/>
+    </gd:when>
+    <gd:transparency value="http://schemas.google.com/g/2005#event.transparent"/>
+    <gd:visibility value="http://schemas.google.com/g/2005#event.default"/>
+    <gCal:anyoneCanAddSelf value="false"/>
+    <gCal:guestsCanInviteOthers value="true"/>
+    <gCal:guestsCanModify value="false"/>
+    <gCal:guestsCanSeeGuests value="true"/>
+    <gCal:sequence value="0"/>
+    <gCal:uid value="oj6fmpaulbvk9ouoj0lj4v6hio@google.com"/>
+  </entry>
+</feed>

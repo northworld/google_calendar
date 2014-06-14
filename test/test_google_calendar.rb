@@ -161,6 +161,13 @@ class TestGoogleCalendar < Test::Unit::TestCase
         assert_equal @calendar.find_event_by_id('1234'), nil
       end
 
+      should "collect repeating events" do
+        @http_mock.stubs(:body).returns( get_mock_body("repeating_events.xml") )
+        events = @calendar.events
+        assert_equal events.class.to_s, "Array"
+        assert_equal (1+1+3), events.count
+      end
+
       should "create an event with block" do
         @http_mock.stubs(:body).returns( get_mock_body("create_event.xml") )
 
