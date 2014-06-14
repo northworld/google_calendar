@@ -138,7 +138,7 @@ module Google
     # Used to build an array of events from a Google feed.
     #
     def self.build_from_google_feed(xml, calendar)
-      Nokogiri::XML(xml).xpath("//xmlns:entry").collect {|e| new_from_xml(e, calendar)}
+      Nokogiri::XML(xml).xpath("//xmlns:entry").collect {|e| new_from_xml(e, calendar)}.flatten
     end
 
     # Google XMl representation of an event object.
@@ -219,21 +219,21 @@ module Google
     # Create a new event from a google 'entry' xml block.
     #
     def self.new_from_xml(xml, calendar) #:nodoc:
-      event_time_data = xml.at_xpath("gd:when")
-
-      Event.new(:id           => parse_id(xml),
-                :calendar     => calendar,
-                :raw_xml      => xml,
-                :title        => xml.at_xpath("xmlns:title").content,
-                :content      => xml.at_xpath("xmlns:content").content,
-                :where        => xml.at_xpath("gd:where")['valueString'],
-                :start_time   => (event_time_data.nil? ? nil : event_time_data['startTime']),
-                :end_time     => (event_time_data.nil? ? nil : event_time_data['endTime']),
-                :transparency => xml.at_xpath("gd:transparency")['value'].split('.').last,
-                :quickadd     => (xml.at_xpath("gCal:quickadd") ? (xml.at_xpath("gCal:quickadd")['quickadd']) : nil),
-                :html_link    => xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href'],
-                :published    => xml.at_xpath("xmlns:published").content,
-                :updated      => xml.at_xpath("xmlns:updated").content )
+      xml.xpath("gd:when").collect do |event_time|
+        Event.new(:id           => parse_id(xml),
+                  :calendar     => calendar,
+                  :raw_xml      => xml,
+                  :title        => xml.at_xpath("xmlns:title").content,
+                  :content      => xml.at_xpath("xmlns:content").content,
+                  :where        => xml.at_xpath("gd:where")['valueString'],
+                  :start_time   => (event_time.nil? ? nil : event_time['startTime']),
+                  :end_time     => (event_time.nil? ? nil : event_time['endTime']),
+                  :transparency => xml.at_xpath("gd:transparency")['value'].split('.').last,
+                  :quickadd     => (xml.at_xpath("gCal:quickadd") ? (xml.at_xpath("gCal:quickadd")['quickadd']) : nil),
+                  :html_link    => xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href'],
+                  :published    => xml.at_xpath("xmlns:published").content,
+                  :updated      => xml.at_xpath("xmlns:updated").content )
+      end
     end
 
     # Set the ID after google assigns it (only necessary when we are creating a new event)
