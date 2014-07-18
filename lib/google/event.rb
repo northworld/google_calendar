@@ -83,7 +83,7 @@ module Google
     # Returns whether the Event is an all-day event, based on whether the event starts at the beginning and ends at the end of the day.
     #
     def all_day?
-      time = Time.parse(@start_time)
+      time = (@start_time.is_a?  String) ? Time.parse(@start_time) : @start_time.dup.utc
       duration % (24 * 60 * 60) == 0 && time == Time.local(time.year,time.month,time.day)
     end
 
