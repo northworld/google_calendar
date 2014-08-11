@@ -142,7 +142,7 @@ module Google
     end
 
     # Google XMl representation of an event object.
-    #
+    #  2014-09-03T15:30:00.000-06:00
     def to_xml
       unless quickadd
         "<entry xmlns='http://www.w3.org/2005/Atom' xmlns:gd='http://schemas.google.com/g/2005' xmlns:gCal='http://schemas.google.com/gCal/2005'>
@@ -153,7 +153,7 @@ module Google
           <gd:transparency value='http://schemas.google.com/g/2005#event.#{transparency}'></gd:transparency>
           <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'></gd:eventStatus>
           <gd:where valueString=\"#{where}\"></gd:where>
-          <gd:when startTime=\"#{start_time.strftime('%F %T%:z')}\" endTime=\"#{end_time.strftime('%F %T%:z')}\">
+          <gd:when startTime=\"#{start_time.strftime('%FT%T%:z')}\" endTime=\"#{end_time.strftime('%FT%T%:z')}\">
             #{reminder_xml}
           </gd:when>
           #{attendees_xml}
