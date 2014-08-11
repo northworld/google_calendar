@@ -83,8 +83,8 @@ module Google
     # Returns whether the Event is an all-day event, based on whether the event starts at the beginning and ends at the end of the day.
     #
     def all_day?
-      time = Time.parse(@start_time)
-      duration % (24 * 60 * 60) == 0 && time == Time.local(time.year,time.month,time.day)
+         time = (@start_time.is_a?  String) ? Time.parse(@start_time) : @start_time.dup.utc
+         duration % (24 * 60 * 60) == 0 && time == Time.local(time.year,time.month,time.day)
     end
 
     # Makes an event all day, by setting it's start time to the passed in time and it's end time 24 hours later.
@@ -232,7 +232,7 @@ module Google
                   :quickadd     => (xml.at_xpath("gCal:quickadd") ? (xml.at_xpath("gCal:quickadd")['quickadd']) : nil),
                   :html_link    => xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href'],
                   :published    => xml.at_xpath("xmlns:published").content,
-                  :updated      => xml.at_xpath("xmlns:updated").content )
+                  :updated      => xml.at_xpath("xmlns:updated").content ) unless ( event_time["startTime"].nil? )
       end
     end
 
