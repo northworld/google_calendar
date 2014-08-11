@@ -153,7 +153,7 @@ module Google
           <gd:transparency value='http://schemas.google.com/g/2005#event.#{transparency}'></gd:transparency>
           <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'></gd:eventStatus>
           <gd:where valueString=\"#{where}\"></gd:where>
-          <gd:when startTime=\"#{start_time}\" endTime=\"#{end_time}\">
+          <gd:when startTime=\"#{start_time.strftime('%F %T%:z')}\" endTime=\"#{end_time.strftime('%F %T%:z')}\">
             #{reminder_xml}
           </gd:when>
           #{attendees_xml}
