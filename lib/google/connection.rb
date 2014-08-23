@@ -1,44 +1,39 @@
 require "addressable/uri"
 require 'google/net/https'
+require 'cgi'
 
 module Google
 
-  # This is a utility class that performs all of the
-  # communication with the google calendar api.
+  # This is a utility class that performs communication with the google calendar api.
   #
   class Connection
-    # set the username, password, auth_url, app_name, and login.
-    #
-    def initialize(params)
-      @username = params[:username]
-      @password = params[:password]
-      @auth_url = params[:auth_url] || "https://www.google.com/accounts/ClientLogin"
-      @app_name = params[:app_name] || "northworld.com-googlecalendar-integration"
+    BASE_URI = "https://www.google.com/calendar/feeds"
 
-      login()
+    # Depending on wether the credentials are provided or not, establish a authenticated or unauthenticated connection to google
+    #  the +params+ paramater accepts
+    # * :username => the username of the specified calendar (e.g. some.guy@gmail.com)
+    # * :password => the password for the specified user (e.g. super-secret)
+    # * :calendar_name => the name of the calendar you would like to work with (i.e. the human friendly name of the calendar)
+    # * :calendar_id => the id of the calendar you would like to work with (e.g. en.singapore#holiday@group.v.calendar.google.com)
+    # * :app_name => the name of your application (defaults to 'northworld.com-googlecalendar-integration')
+    # * :auth_url => the base url that is used to connect to google (defaults to 'https://www.google.com/accounts/ClientLogin')
+    #
+    # If neither the calendar_name nor the calendar_id is provided, the connection will attempt to fetch events from the user's default calendar
+    # If both the calendar_name and the calendar_id are provided, the calendar_name will take priority (The current implementation of Calendar makes this case impossible)
+    #
+    def self.connect params
+      if credentials_provided? params[:username], params[:password]
+        AuthenticatedConnection.new params
+      else
+        self.new params[:calendar_id]
+      end
     end
 
-    # login to the google calendar and grab an auth token.
-    #
-    def login()
-      content = {
-        'Email' => @username,
-        'Passwd' => @password,
-        'source' => @app_name,
-        'accountType' => 'HOSTED_OR_GOOGLE',
-        'service' => 'cl'}
-
-      response = send(Addressable::URI.parse(@auth_url), :post_form, content)
-
-      raise HTTPRequestFailed unless response.kind_of? Net::HTTPSuccess
-
-      @token = response.body.split('=').last
-      @headers = {
-         'Authorization' => "GoogleLogin auth=#{@token}",
-         'Content-Type'  => 'application/atom+xml'
-       }
-       @update_header = @headers.clone
-       @update_header["If-Match"] = "*"
+    # Prepare an unauthenticated connection to google for fetching a public calendar events
+    # calendar_id: the id of the calendar you would like to work with (e.g. en.singapore#holiday@group.v.calendar.google.com)
+    def initialize(calendar_id)
+      raise CalenarIDMissing unless calendar_id
+      @events_url = "#{BASE_URI}/#{CGI::escape calendar_id}/public/full"
     end
 
     # send a request to google.
@@ -61,10 +56,16 @@ module Google
       return response
     end
 
+    # wraps `send` method. send a event related request to google.
+    #
+    def send_events_request(path_and_query_string, method, content = '')
+      send(Addressable::URI.parse(@events_url + path_and_query_string), method, content)
+    end
+
     protected
 
     # Check to see if we are using a session and extract it's values if required.
-    # 
+    #
     def set_session_if_necessary(uri) #:nodoc:
       # only extract the session if we don't already have one.
       @session_id = uri.query_values['gsessionid'] if @session_id == nil && uri.query
@@ -115,6 +116,12 @@ module Google
       end
     end
 
-  end
+    private
 
+    def self.credentials_provided? username, password
+      blank = /[^[:space:]]/
+      !(username !~ blank) && !(password !~ blank)
+    end
+
+  end
 end

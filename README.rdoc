@@ -14,8 +14,13 @@ Note: Google requests that you set the name of your application so they can bett
   require 'rubygems'
   require 'google_calendar'
 
+  # private calendar
   cal = Google::Calendar.new(:username => 'some.person@gmail.com',
                              :password => 'super-secret',
+                             :app_name => 'mycompany.com-googlecalendar-integration')
+
+  # public calendar
+  cal = Google::Calendar.new(:calendar => 'en.singapore#holiday@group.v.calendar.google.com',
                              :app_name => 'mycompany.com-googlecalendar-integration')
 
   event = cal.create_event do |e|

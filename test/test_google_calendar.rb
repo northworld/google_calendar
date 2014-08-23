@@ -68,20 +68,39 @@ class TestGoogleCalendar < Test::Unit::TestCase
         end
       end
 
-      should "login properly with a calendar" do
+      should "login properly with a calendar name" do
         assert_nothing_thrown do
-          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
-          :calendar => "Little Giants")
+          AuthenticatedConnection.any_instance.stubs(:login)
 
           #mock calendar list request
           calendar_uri = mock("get calendar uri")
           Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").once.returns(calendar_uri)
-          Connection.any_instance.expects(:send).with(calendar_uri, :get).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
+          AuthenticatedConnection.any_instance.expects(:send).with(calendar_uri, :get).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
+
+          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
+          :calendar => "Little Giants")
 
           #mock events list request
           events_uri = mock("get events uri")
           Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/rf1c66uld6dgk2t5lh43svev6g%40group.calendar.google.com/private/full").once.returns(events_uri)
-          Connection.any_instance.expects(:send).with(events_uri, :get).once.returns(mock("response", :body => get_mock_body('events.xml')))
+          AuthenticatedConnection.any_instance.expects(:send).with(events_uri, :get, anything).once.returns(mock("response", :body => get_mock_body('events.xml')))
+
+          cal.events
+        end
+      end
+
+      should "login properly with a calendar id" do
+        assert_nothing_thrown do
+          AuthenticatedConnection.any_instance.stubs(:login)
+          Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").never
+
+          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
+          :calendar => "rf1c66uld6dgk2t5lh43svev6g@group.calendar.google.com")
+
+          #mock events list request
+          events_uri = mock("get events uri")
+          Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/rf1c66uld6dgk2t5lh43svev6g%40group.calendar.google.com/private/full").once.returns(events_uri)
+          AuthenticatedConnection.any_instance.expects(:send).with(events_uri, :get, anything).once.returns(mock("response", :body => get_mock_body('events.xml')))
 
           cal.events
         end
@@ -90,13 +109,15 @@ class TestGoogleCalendar < Test::Unit::TestCase
       should "catch login with invalid calendar" do
 
         assert_raise(InvalidCalendar) do
-          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
-          :calendar => "invalid calendar")
+          AuthenticatedConnection.any_instance.stubs(:login)
 
           #mock calendar list request
           calendar_uri = mock("get calendar uri")
           Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").once.returns(calendar_uri)
-          Connection.any_instance.expects(:send).with(calendar_uri, :get).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
+          AuthenticatedConnection.any_instance.expects(:send).with(calendar_uri, :get, anything).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
+
+          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
+          :calendar => "invalid calendar")
 
           cal.events
         end
@@ -104,14 +125,43 @@ class TestGoogleCalendar < Test::Unit::TestCase
 
     end # login context
 
+    context "Username and password not provided" do
+      context "with a valid public calendar id" do
+        should "fetch event data" do
+          assert_nothing_thrown do
+            cal = Calendar.new(:calendar => 'en.singapore#holiday@group.v.calendar.google.com')
+
+            #mock events list request
+            events_uri = mock("get events uri")
+            Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/en.singapore%23holiday%40group.v.calendar.google.com/public/full").once.returns(events_uri)
+            Connection.any_instance.expects(:send).with(events_uri, :get, anything).once.returns(mock("response", :body => get_mock_body('events.xml')))
+
+            cal.events
+          end
+        end
+      end
+
+      context "without specifying a public calendar id" do
+        should "raise error" do
+          assert_raise(CalenarIDMissing) do
+            Calendar.new(calendar: nil)
+          end
+        end
+      end
+    end
+
     context "Logged on" do
       setup do
         @calendar = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret')
       end
 
-      should "reload connection" do
-        old_connection = @calendar.connection
-        assert_not_equal old_connection, @calendar.reload.connection
+      should "reload connection by re-perform login" do
+        connection = @calendar.connection
+        connection.instance_variable_set(:@session_id, :session)
+        connection.expects(:login).once
+
+        connection.reload
+        assert_equal connection.instance_variable_get(:@session_id), nil
       end
 
       should "find all events" do
