@@ -1,55 +1,81 @@
+require 'signet/oauth_2/client'
 require "addressable/uri"
-require 'google/net/https'
-require 'cgi'
 
 module Google
 
   # This is a utility class that performs communication with the google calendar api.
   #
   class Connection
-    BASE_URI = "https://www.google.com/calendar/feeds"
+    BASE_URI = "https://www.googleapis.com/calendar/v3"
 
-    # Depending on wether the credentials are provided or not, establish a authenticated or unauthenticated connection to google
-    #  the +params+ paramater accepts
-    # * :username => the username of the specified calendar (e.g. some.guy@gmail.com)
-    # * :password => the password for the specified user (e.g. super-secret)
-    # * :calendar_name => the name of the calendar you would like to work with (i.e. the human friendly name of the calendar)
-    # * :calendar_id => the id of the calendar you would like to work with (e.g. en.singapore#holiday@group.v.calendar.google.com)
-    # * :app_name => the name of your application (defaults to 'northworld.com-googlecalendar-integration')
-    # * :auth_url => the base url that is used to connect to google (defaults to 'https://www.google.com/accounts/ClientLogin')
-    #
-    # If neither the calendar_name nor the calendar_id is provided, the connection will attempt to fetch events from the user's default calendar
-    # If both the calendar_name and the calendar_id are provided, the calendar_name will take priority (The current implementation of Calendar makes this case impossible)
-    #
-    def self.connect params
-      if credentials_provided? params[:username], params[:password]
-        AuthenticatedConnection.new params
-      else
-        self.new params[:calendar_id]
-      end
-    end
+    attr_accessor :client
 
     # Prepare an unauthenticated connection to google for fetching a public calendar events
     # calendar_id: the id of the calendar you would like to work with (e.g. en.singapore#holiday@group.v.calendar.google.com)
-    def initialize(calendar_id)
-      raise CalenarIDMissing unless calendar_id
-      @events_url = "#{BASE_URI}/#{CGI::escape calendar_id}/public/full"
+    def initialize(params)
+
+      @client = Signet::OAuth2::Client.new(
+        :client_id => params[:client_id],
+        :client_secret => params[:client_secret],
+        :redirect_uri => params[:redirect_url],
+        :refresh_token => params[:refresh_token],
+        :authorization_uri => 'https://accounts.google.com/o/oauth2/auth',
+        :token_credential_uri => 'https://accounts.google.com/o/oauth2/token',
+        :scope => "https://www.googleapis.com/auth/calendar"
+      )
+
+      calendar_id = params[:calendar_id]
+
+      # raise CalenarIDMissing unless calendar_id
+      @events_url = "#{BASE_URI}/calendars/#{CGI::escape calendar_id}/events"
+
+      # try to get an access token if possible.
+      if params[:refresh_token]
+        @client.refresh_token = params[:refresh_token]
+        @client.grant_type = 'refresh_token'
+        @client.fetch_access_token!
+      end
+
+    end
+
+    def authorize_url
+      @client.authorization_uri
+    end
+
+    def auth_code
+      @client.code
+    end
+
+    def access_token
+      @client.access_token
+    end
+
+    def refresh_token
+      @client.refresh_token
+    end
+
+    def login_with_auth_code(auth_code)
+      @client.code = auth_code
+      @client.fetch_access_token!
+      @client.refresh_token
+    end
+
+    def login_with_refresh_token(refresh_token)
+      @client.refresh_token = refresh_token
+      @client.grant_type = 'refresh_token'
+      @client.fetch_access_token!
     end
 
     # send a request to google.
     #
-    def send(uri, method, content = '', redirect_count = 10)
-      raise HTTPTooManyRedirections if redirect_count == 0
+    def send(uri, method, content = '')
 
-      set_session_if_necessary(uri)
-
-      http = (uri.scheme == 'https' ? Net::HTTPS.new(uri.host, uri.inferred_port) : Net::HTTP.new(uri.host, uri.inferred_port))
-      response =  http.request(build_request(uri, method, content))
-
-      # recurse if necessary.
-      if response.kind_of? Net::HTTPRedirection
-        response = send(Addressable::URI.parse(response['location']), method, content, redirect_count - 1)
-      end
+      response = @client.fetch_protected_resource(
+        :uri => uri,
+        :method => method,
+        :body  => content,
+        :headers => {'Content-type' => 'application/json'}
+      )
 
       check_for_errors(response)
 
@@ -64,55 +90,13 @@ module Google
 
     protected
 
-    # Check to see if we are using a session and extract it's values if required.
-    #
-    def set_session_if_necessary(uri) #:nodoc:
-      # only extract the session if we don't already have one.
-      @session_id = uri.query_values['gsessionid'] if @session_id == nil && uri.query
-
-      if @session_id
-        uri.query ||= ''
-        uri.query_values = uri.query_values.merge({'gsessionid' => @session_id})
-      end
-    end
-
-    # Construct the appropriate request object.
-    #
-    def build_request(uri, method, content) #:nodoc
-      case method
-      when :delete
-        request = Net::HTTP::Delete.new(uri.to_s, @update_header)
-
-      when :get
-        request = Net::HTTP::Get.new(uri.to_s, @headers)
-
-      when :post_form
-        request = Net::HTTP::Post.new(uri.to_s, @headers)
-        request.set_form_data(content)
-
-      when :post
-        request = Net::HTTP::Post.new(uri.to_s, @headers)
-        request.body = content
-
-      when :put
-        request = Net::HTTP::Put.new(uri.to_s, @update_header)
-        request.body = content
-      end # case
-
-      return request
-    end
-
     # Check for common HTTP Errors and raise the appropriate response.
     #
     def check_for_errors(response) #:nodoc
-      if response.kind_of? Net::HTTPForbidden
-        raise HTTPAuthorizationFailed, response.body
-
-      elsif response.kind_of? Net::HTTPBadRequest
-        raise HTTPRequestFailed, response.body
-
-      elsif response.kind_of? Net::HTTPNotFound
-        raise HTTPNotFound, response.body
+      case response.status
+        when 400 then raise HTTPRequestFailed, response.body
+        when 403 then raise HTTPAuthorizationFailed, response.body
+        when 404 then raise HTTPNotFound, response.body
       end
     end
 

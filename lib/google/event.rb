@@ -1,4 +1,3 @@
-require 'nokogiri'
 require 'time'
 
 module Google
@@ -9,24 +8,24 @@ module Google
   #
   # * +id+ - The google assigned id of the event (nil until saved), read only.
   # * +title+ - The title of the event, read/write.
-  # * +content+ - The content of the event, read/write.
+  # * +description+ - The content of the event, read/write.
   # * +start_time+ - The start time of the event (Time object, defaults to now), read/write.
   # * +end_time+ - The end time of the event (Time object, defaults to one hour from now), read/write.
   # * +calendar+ - What calendar the event belongs to, read/write.
-  # * +raw_xml+ - The full google xml representation of the event.
+  # * +raw+ - The full google json representation of the event.
   # * +html_link+ - An absolute link to this event in the Google Calendar Web UI. Read-only.
   # * +published_time+ - The time of the event creation. Read-only.
   # * +updated_time+ - The last update time of the event. Read-only.
   #
   class Event
-    attr_reader :id, :raw_xml, :html_link, :updated_time, :published_time
-    attr_accessor :title, :content, :where, :calendar, :quickadd, :transparency, :attendees, :send_event_notification
+    attr_reader :id, :raw, :html_link, :updated_time, :published_time
+    attr_accessor :title, :location, :calendar, :quickadd, :transparency, :attendees, :send_event_notification, :description
 
     # Create a new event, and optionally set it's attributes.
     #
     # ==== Example
     #  Event.new(:title => 'Swimming',
-    #           :content => 'Do not forget a towel this time',
+    #           :description => 'Do not forget a towel this time',
     #           :where => 'The Ocean',
     #           :start_time => Time.now,
     #           :end_time => Time.now + (60 * 60),
@@ -38,8 +37,8 @@ module Google
     #           ]
     #
     def initialize(params = {})
-      [:id, :title, :where, :raw_xml, :content, :calendar, :start_time, 
-       :end_time, :quickadd, :html_link, :transparency, :reminders, :attendees, :send_event_notification].each do |attribute|
+      [:id, :title, :where, :raw, :calendar, :start_time, :location,
+       :end_time, :quickadd, :html_link, :transparency, :reminders, :attendees, :send_event_notification, :description].each do |attribute|
         instance_variable_set("@#{attribute}", params[attribute])
       end
 
@@ -137,52 +136,47 @@ module Google
 
     # Used to build an array of events from a Google feed.
     #
-    def self.build_from_google_feed(xml, calendar)
-      Nokogiri::XML(xml).xpath("//xmlns:entry").collect {|e| new_from_xml(e, calendar)}.flatten
+    def self.build_from_google_feed(response, calendar)
+      events = response['items'] ? response['items'] : [response]
+      events.collect {|e| new_from_feed(e, calendar)}.flatten
     end
 
-    # Google XMl representation of an event object.
+    # Google JSON representation of an event object.
     #
-    def to_xml
-      unless quickadd
-        "<entry xmlns='http://www.w3.org/2005/Atom' xmlns:gd='http://schemas.google.com/g/2005' xmlns:gCal='http://schemas.google.com/gCal/2005'>
-          <category scheme='http://schemas.google.com/g/2005#kind' term='http://schemas.google.com/g/2005#event'></category>
-          <title type='text'>#{title}</title>
-          #{send_event_notification_xml}
-          <content type='text'>#{content}</content>
-          <gd:transparency value='http://schemas.google.com/g/2005#event.#{transparency}'></gd:transparency>
-          <gd:eventStatus value='http://schemas.google.com/g/2005#event.confirmed'></gd:eventStatus>
-          <gd:where valueString=\"#{where}\"></gd:where>
-          <gd:when startTime=\"#{start_time}\" endTime=\"#{end_time}\">
-            #{reminder_xml}
-          </gd:when>
-          #{attendees_xml}
-         </entry>"
-      else
-        %Q{<entry xmlns='http://www.w3.org/2005/Atom' xmlns:gCal='http://schemas.google.com/gCal/2005'>
-            <content type="html">#{content}</content>
-            <gCal:quickadd value="true"/>
-          </entry>}
-      end
+    def to_json
+      "{
+        \"summary\": \"#{title}\",
+        \"description\": \"#{description}\", 
+        \"location\": \"#{location}\", 
+        \"start\": {
+          \"dateTime\": \"#{start_time}\"
+        },
+        \"end\": {
+          \"dateTime\": \"#{end_time}\"
+        }, 
+          \"reminders\": {
+          \"useDefault\": true
+        }
+      }"
     end
     
-    #Send email notification about creation of the event, to all attendees.
+    # Send email notification about creation of the event, to all attendees.
     #
-    def send_event_notification_xml
+    def send_event_notification_json
       "<gCal:sendEventNotifications value=\"true\" />" if @send_event_notification
     end
 
-    #XML representation of attendees
+    # JSON representation of attendees
     #
-    def attendees_xml
+    def attendees_json
       @attendees.map do |attendee|
         "<gd:who email=\"#{attendee[:email]}\" rel=\"#{attendee[:relation]}\" valueString=\"#{attendee[:name]}\" gd:attendeeType=\"#{attendee[:required] ? 'http://schemas.google.com/g/2005#event.required' : 'http://schemas.google.com/g/2005#event.optional'}\"/>"
       end.join if @attendees
     end
 
-    # XML representation of a reminder
+    # JSON representation of a reminder
     #
-    def reminder_xml
+    def reminders_json
       reminders.map{|r|
         timescale = [:minutes, :hours, :days].select{|t| r[t]}.first || :minutes
         "<gd:reminder method=\"#{r[:method] || "alert"}\" #{timescale}=\"#{r[timescale] || 10}\"></gd:reminder>"
@@ -192,13 +186,11 @@ module Google
     # String representation of an event object.
     #
     def to_s
-      s = "#{title} (#{self.id})\n\t#{start_time}\n\t#{end_time}\n\t#{where}\n\t#{content}"
-      s << "\n\t#{quickadd}" if quickadd
-      s
+      "Event Id '#{self.id}'\n\tTitle: #{title}\n\tStarts: #{start_time}\n\tEnds: #{end_time}\n\tLocation: #{location}\n\tDescription: #{description}\n\n"
     end
 
     # Saves an event.
-    #  Note: If using this on an event you created without using a calendar object,
+    #  Note: If calling this on an event you created without setting a calendar object during initialization,
     #  make sure to set the calendar before calling this method.
     #
     def save
@@ -218,50 +210,45 @@ module Google
 
     # Create a new event from a google 'entry' xml block.
     #
-    def self.new_from_xml(xml, calendar) #:nodoc:
-      xml.xpath("gd:when").collect do |event_time|
-        Event.new(:id           => parse_id(xml),
-                  :calendar     => calendar,
-                  :raw_xml      => xml,
-                  :title        => xml.at_xpath("xmlns:title").content,
-                  :content      => xml.at_xpath("xmlns:content").content,
-                  :where        => xml.at_xpath("gd:where")['valueString'],
-                  :start_time   => (event_time.nil? ? nil : event_time['startTime']),
-                  :end_time     => (event_time.nil? ? nil : event_time['endTime']),
-                  :transparency => xml.at_xpath("gd:transparency")['value'].split('.').last,
-                  :quickadd     => (xml.at_xpath("gCal:quickadd") ? (xml.at_xpath("gCal:quickadd")['quickadd']) : nil),
-                  :html_link    => xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href'],
-                  :published    => xml.at_xpath("xmlns:published").content,
-                  :updated      => xml.at_xpath("xmlns:updated").content )
-      end
+    def self.new_from_feed(e, calendar) #:nodoc:
+      Event.new(:id           => e['id'],
+                :calendar     => calendar,
+                :raw          => e,
+                :title        => e['summary'],
+                :description  => e['description'],
+                :location     => e['location'],
+                # :start_time   => (event_time.nil? ? nil : event_time['startTime']),
+                # :end_time     => (event_time.nil? ? nil : event_time['endTime']),
+                :transparency => e['transparency'],
+                :html_link    => e['htmlLink'],
+                :updated      => e['updated'] )
+
     end
 
     # Set the ID after google assigns it (only necessary when we are creating a new event)
     #
     def update_after_save(respose) #:nodoc:
       return if @id && @id != ''
-
-      xml = Nokogiri::XML(respose.body).at_xpath("//xmlns:entry")
-      @id = xml.at_xpath("gCal:uid")['value'].split('@').first
-      @html_link    = xml.at_xpath('//xmlns:link[@title="alternate" and @rel="alternate" and @type="text/html"]')['href']
-      @raw_xml = xml
+      @raw = JSON.parse(respose.body)
+      @id = @raw['id']
+      @html_link = @raw['htmlLink']
     end
 
-    # A utility method used to parse id of the event
-    #
-    def self.parse_id(xml) #:nodoc:
-      id = xml.at_xpath("gCal:uid")['value'].split('@').first
+    # # A utility method used to parse id of the event
+    # #
+    # def self.parse_id(xml) #:nodoc:
+    #   id = xml.at_xpath("gCal:uid")['value'].split('@').first
 
-      # Check if this event came from an apple program (ios, iCal, Calendar, etc)
-      # Id format ex: E52411E2-8DB9-4A26-AD5A-8B6104320D3C
-      if id.match( /[0-9A-Z]{8}-([0-9A-Z]{4}-){3}[0-9A-Z]{12}/ )
-        # Use the ID field instead of the UID which apple overwrites for its own purposes.
-        # TODO With proper testing, this should be way to parse all event id's
-        id = xml.at_xpath("xmlns:id").content.split('/').last
-      end
+    #   # Check if this event came from an apple program (ios, iCal, Calendar, etc)
+    #   # Id format ex: E52411E2-8DB9-4A26-AD5A-8B6104320D3C
+    #   if id.match( /[0-9A-Z]{8}-([0-9A-Z]{4}-){3}[0-9A-Z]{12}/ )
+    #     # Use the ID field instead of the UID which apple overwrites for its own purposes.
+    #     # TODO With proper testing, this should be way to parse all event id's
+    #     id = xml.at_xpath("xmlns:id").content.split('/').last
+    #   end
 
-      return id
-    end
+    #   return id
+    # end
 
     # A utility method used centralize time parsing.
     #

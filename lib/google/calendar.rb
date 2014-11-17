@@ -1,5 +1,3 @@
-require 'nokogiri'
-
 module Google
 
   # Calendar is the main object you use to interact with events.
@@ -34,22 +32,38 @@ module Google
     #
     def initialize(params)
       options = {
-        :username => params[:username],
-        :password => params[:password],
-        :app_name => params[:app_name],
-        :auth_url => params[:auth_url]
+        :client_id => params[:client_id],
+        :client_secret => params[:client_secret],
+        :refresh_token => params[:refresh_token],
+        :redirect_url => params[:redirect_url],
+        :calendar_id => params[:calendar]
       }
 
-      calendar_name_or_id = params[:calendar]
-      if calendar_name_or_id and !calendar_name_or_id.include?("@")
-        @calendar_name = calendar_name_or_id
-        options[:calendar_name] = @calendar_name
-      else
-        @calendar_id = calendar_name_or_id
-        options[:calendar_id] = @calendar_id
-      end
+      @connection = Connection.new options
+    end
 
-      @connection = Connection.connect options
+    def authorize_url
+      @connection.authorize_url
+    end
+
+    def auth_code
+      @connection.auth_code
+    end
+
+    def access_token
+      @connection.access_token
+    end
+
+    def refresh_token
+      @connection.refresh_token
+    end
+
+    def login_with_auth_code(auth_code)
+      @connection.login_with_auth_code(auth_code)
+    end
+
+    def login_with_refresh_token(refresh_token)
+      @connection.login_with_refresh_token(refresh_token)
     end
 
     # Find all of the events associated with this calendar.
@@ -145,9 +159,15 @@ module Google
     # This is a callback used by the Event class.
     #
     def save_event(event)
-      method = (event.id == nil || event.id == '') ? :post : :put
-      query_string = (method == :put) ? "/#{event.id}" : ''
-      @connection.send_events_request(query_string, method, event.to_xml)
+      
+      if event.quickadd && event.id == nil && event.title != nil && event.title != ''
+        query_string = "/quickAdd?text=#{ Addressable::URI.encode_component(event.title)}"
+        @connection.send_events_request(query_string, :post)
+      else
+        method = (event.id == nil || event.id == '') ? :post : :put
+        query_string = (method == :put) ? "/#{event.id}" : ''
+        @connection.send_events_request(query_string, method, event.to_json)
+      end
     end
 
     # Deletes the specified event.
@@ -184,7 +204,7 @@ module Google
     def event_lookup(query_string = '') #:nodoc:
       begin
         response = @connection.send_events_request(query_string, :get)
-        events = Event.build_from_google_feed(response.body, self) || []
+        events = Event.build_from_google_feed( JSON.parse(response.body) , self) || []
         return events if events.empty?
         events.length > 1 ? events : [events[0]]
       rescue Google::HTTPNotFound
@@ -196,9 +216,6 @@ module Google
       event.calendar = self
       if block_given?
         yield(event)
-        event.title = event.title.encode(:xml => :text) if event.title
-        event.content = event.content.encode(:xml => :text) if event.content
-        event.where = event.where.encode(:xml => :text) if event.where
       end
       event.save
       event

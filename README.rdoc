@@ -8,20 +8,54 @@ A fast lightweight and minimalist wrapper around the google calendar api.
 == Install
   [sudo] gem install 'google_calendar'
 
-Note: Google requests that you set the name of your application so they can better monitor the use of their services.
+== Setup 
+
+  Obtain a Client ID and Secret from Google
+
+  Go to the {Google Developers Console}[https://console.developers.google.com/].
+  Select a project, or create a new one.
+  In the sidebar on the left, expand APIs & auth. Next, click APIs. In the list of APIs, make sure the status is ON for the Calendar API.
+  In the sidebar on the left, select Credentials.
+  In either case, you end up on the Credentials page and can create your project's credentials from here.
+
+  If you haven't done so already, create your OAuth 2.0 credentials by clicking Create new Client ID under the OAuth heading. Next, look for your application's client ID and client secret in the relevant table. You may also create and edit redirect URIs from this page.
+
+  Take note of the Client ID as you'll need to add it to your code later.
 
 == Usage
-  require 'rubygems'
-  require 'google_calendar'
+  # Create an instance of the calendar.
+  cal = Google::Calendar.new(:client_id => YOUR_CLIENT_ID, 
+                             :client_secret => YOUR_SECRET,
+                             :calendar => YOUR_CALENDAR_ID,
+                             :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
+                             )
 
-  # private calendar
-  cal = Google::Calendar.new(:username => 'some.person@gmail.com',
-                             :password => 'super-secret',
-                             :app_name => 'mycompany.com-googlecalendar-integration')
+  puts "Do you already have a refresh token? (y/n)"
+  has_token = $stdin.gets.chomp
 
-  # public calendar
-  cal = Google::Calendar.new(:calendar => 'en.singapore#holiday@group.v.calendar.google.com',
-                             :app_name => 'mycompany.com-googlecalendar-integration')
+  if has_token.downcase != 'y'
+
+    # A user needs to approve access in order to work with their calendars.
+    puts "Visit the following web page in your browser and approve access."
+    puts cal.authorize_url
+    puts "\nCopy the code that Google returned and paste it here:"
+
+    # Pass the ONE TIME USE access code here to login and get a refresh token that you can use for access from now on.
+    refresh_token = cal.login_with_auth_code( $stdin.gets.chomp )
+
+    puts "\nMake sure you SAVE YOUR REFRESH TOKEN so you don't have to prompt the user to approve access again."
+    puts "your refresh token is:\n\t#{refresh_token}\n"
+    puts "Press return to continue"
+    $stdin.gets.chomp
+
+  else
+    puts "Enter your refresh token"
+    refresh_token = $stdin.gets.chomp
+    cal.login_with_refresh_token(refresh_token)
+
+    # Note: You can also pass your refresh_token to the constructor and it will login at that time.
+
+  end
 
   event = cal.create_event do |e|
     e.title = 'A Cool Event'
@@ -29,20 +63,20 @@ Note: Google requests that you set the name of your application so they can bett
     e.end_time = Time.now + (60 * 60) # seconds * min
   end
 
-  puts event[0]
+  puts event
 
   event = cal.find_or_create_event_by_id(event.id) do |e|
     e.title = 'An Updated Cool Event'
     e.end_time = Time.now + (60 * 60 * 2) # seconds * min * hours
   end
 
-  puts event[0]
+  puts event
 
   # All events
   puts cal.events
 
   # Query events
-  puts cal.find_events('my search string')
+  puts cal.find_events('your search string')
 
 
 Note: This is not a complete implementation of the calendar api, it just includes the features we needed to support our internal calendar integration.

@@ -1,0 +1,30 @@
+{
+  "status": "confirmed", 
+  "kind": "calendar#event", 
+  "end": {
+    "dateTime": "2014-11-16T22:21:24-08:00"
+  }, 
+  "created": "2014-11-17T05:21:24.000Z", 
+  "iCalUID": "fhru34kt6ikmr20knd2456l08n@google.com", 
+  "reminders": {
+    "useDefault": true
+  }, 
+  "htmlLink": "https://www.google.com/calendar/event?eid=cHBtNzMybzBqOWpuZDI0M25zZWx1ZjllYjQgZ3FlYjBpNnY3MzdrZnU1bWQwZjNldWtqbGdAZw", 
+  "sequence": 0, 
+  "updated": "2014-11-17T05:21:24.614Z", 
+  "summary": "Test Event", 
+  "start": {
+    "dateTime": "2014-11-16T21:21:24-08:00"
+  }, 
+  "etag": "\"2832403369228000\"", 
+  "organizer": {
+    "self": true, 
+    "displayName": "Some Person", 
+    "email": "klei8jnelo09nflqehnvfzipgs@group.calendar.google.com"
+  }, 
+  "creator": {
+    "displayName": "Some Person", 
+    "email": "some.person@gmail.com"
+  }, 
+  "id": "fhru34kt6ikmr20knd2456l08n"
+}
