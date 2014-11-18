@@ -312,80 +312,78 @@ class TestGoogleCalendar < Minitest::Test
 
   end # Connected context
 
-  # context "Event instance methods" do
-  #   context "#all_day?" do
-  #     context "when the event is marked as All Day in google calendar" do
-  #       should "be true" do
-  #         @event = Event.new(:start_time => "2012-03-31", :end_time => "2012-04-01")
-  #         assert @event.all_day?
-  #       end
-  #     end
-  #     context "when the event is marked as All Day in google calendar and have more than one day" do
-  #       should "be true" do
-  #         @event = Event.new(:start_time => "2012-03-31", :end_time => "2012-04-03")
-  #         assert @event.all_day?
-  #       end
-  #     end
-  #     context "when the event is not marked as All Day in google calendar and has duration of one whole day" do
-  #       should "be false" do
-  #         @event = Event.new(:start_time => "2012-03-27T10:00:00.000-07:00", :end_time => "2012-03-28T10:00:00.000-07:00")
-  #         assert !@event.all_day?
-  #       end
-  #     end
-  #     context "when the event is not an all-day event" do
-  #       should "be false" do
-  #         @event = Event.new(:start_time => "2012-03-27T10:00:00.000-07:00", :end_time => "2012-03-27T10:30:00.000-07:00")
-  #         assert !@event.all_day?
-  #       end
-  #     end
-  #   end
+  context "Event instance methods" do
+    context "#all_day?" do
+      context "when the event is marked as All Day in google calendar" do
+        should "be true" do
+          @event = Event.new(:start_time => "2012-03-31", :end_time => "2012-04-01")
+          assert @event.all_day?
+        end
+      end
+      context "when the event is marked as All Day in google calendar and have more than one day" do
+        should "be true" do
+          @event = Event.new(:start_time => "2012-03-31", :end_time => "2012-04-03")
+          assert @event.all_day?
+        end
+      end
+      context "when the event is not marked as All Day in google calendar and has duration of one whole day" do
+        should "be false" do
+          @event = Event.new(:start_time => "2012-03-27T10:00:00.000-07:00", :end_time => "2012-03-28T10:00:00.000-07:00")
+          assert !@event.all_day?
+        end
+      end
+      context "when the event is not an all-day event" do
+        should "be false" do
+          @event = Event.new(:start_time => "2012-03-27T10:00:00.000-07:00", :end_time => "2012-03-27T10:30:00.000-07:00")
+          assert !@event.all_day?
+        end
+      end
+    end
 
-  #   context "#all_day=" do
-  #     context "sets the start and end time to the appropriate values for an all day event on that day" do
-  #       should "set the start time" do
-  #         @event = Event.new :all_day => Time.parse("2012-05-02 12:24")
-  #         assert_equal @event.start_time, "2012-05-02"
-  #       end
-  #       should "set the end time" do
-  #         @event = Event.new :all_day => Time.parse("2012-05-02 12:24")
-  #         assert_equal @event.end_time, "2012-05-03"
-  #       end
-  #       should "be able to handle strings" do
-  #         @event = Event.new :all_day => "2012-05-02 12:24"
-  #         assert_equal @event.start_time, "2012-05-02"
-  #         assert_equal @event.end_time, "2012-05-03"
-  #       end
-  #     end
-  #   end
+    context "#all_day=" do
+      context "sets the start and end time to the appropriate values for an all day event on that day" do
+        should "set the start time" do
+          @event = Event.new :all_day => Time.parse("2012-05-02 12:24")
+          assert_equal @event.start_time, "2012-05-02"
+        end
+        should "set the end time" do
+          @event = Event.new :all_day => Time.parse("2012-05-02 12:24")
+          assert_equal @event.end_time, "2012-05-03"
+        end
+        should "be able to handle strings" do
+          @event = Event.new :all_day => "2012-05-02 12:24"
+          assert_equal @event.start_time, "2012-05-02"
+          assert_equal @event.end_time, "2012-05-03"
+        end
+      end
+    end
 
-  #   context "reminders" do
-  #     context "reminders array" do
-  #       should "set reminder time" do
-  #         @event = Event.new :reminders => [minutes: 6]
-  #         assert_equal @event.reminders.first[:minutes], 6
-  #       end
+    context "reminders" do
+      context "reminders array" do
+        should "set reminder time" do
+          @event = Event.new :reminders => [minutes: 6]
+          assert_equal @event.reminders.first[:minutes], 6
+        end
 
-  #       should "use different time scales" do
-  #         @event = Event.new :reminders => [hours: 5]
-  #         assert_equal @event.reminders.first[:hours], 5
-  #       end
+        should "use different time scales" do
+          @event = Event.new :reminders => [hours: 5]
+          assert_equal @event.reminders.first[:hours], 5
+        end
 
-  #       should "set reminder method" do
-  #         @event = Event.new :reminders => [minutes: 6, method: "sms"]
-  #         assert_equal @event.reminders.first[:minutes], 6
-  #         assert_equal @event.reminders.first[:method], "sms"
-  #       end
+        should "set reminder method" do
+          @event = Event.new :reminders => [minutes: 6, method: "sms"]
+          assert_equal @event.reminders.first[:minutes], 6
+          assert_equal @event.reminders.first[:method], "sms"
+        end
 
-  #       should "default to minutes -> hours -> days" do
-  #         @event = Event.new :reminders => [minutes: 6, hours: 8]
-  #         assert_equal @event.reminders.first[:minutes], 6
-  #         assert_equal @event.reminders.first[:hours], 8
-  #         assert_equal @event.to_xml["hours"], nil
-  #         refute_equal @event.to_xml["minutes"], nil
-  #       end
-  #     end
-  #   end
-  # end
+        should "default to minutes -> hours -> days" do
+          @event = Event.new :reminders => [minutes: 6, hours: 8]
+          assert_equal @event.reminders.first[:minutes], 6
+          assert_equal @event.reminders.first[:hours], 8
+        end
+      end
+    end
+  end
 
   protected
 
