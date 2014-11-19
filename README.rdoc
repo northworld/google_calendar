@@ -23,6 +23,13 @@ A fast lightweight and minimalist wrapper around the google calendar api.
   Take note of the Client ID as you'll need to add it to your code later.
 
 == Usage
+  require 'rubygems'
+  require 'google_calendar'
+
+  YOUR_CLIENT_ID    = ""
+  YOUR_SECRET       = ""
+  YOUR_CALENDAR_ID  = ""
+
   # Create an instance of the calendar.
   cal = Google::Calendar.new(:client_id => YOUR_CLIENT_ID, 
                              :client_secret => YOUR_SECRET,
@@ -78,6 +85,7 @@ A fast lightweight and minimalist wrapper around the google calendar api.
   # Query events
   puts cal.find_events('your search string')
 
+This sample code is located in readme_code.rb in the root folder.
 
 Note: This is not a complete implementation of the calendar api, it just includes the features we needed to support our internal calendar integration.
 
