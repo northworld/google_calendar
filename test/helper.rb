@@ -21,5 +21,5 @@ require 'google_calendar'
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 
 class Minitest::Test
-    @@mock_path = File.expand_path(File.join(File.dirname(__FILE__), 'mocks'))
+  @@mock_path = File.expand_path(File.join(File.dirname(__FILE__), 'mocks'))
 end

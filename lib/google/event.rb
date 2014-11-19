@@ -153,9 +153,10 @@ module Google
         },
         \"end\": {
           \"dateTime\": \"#{end_time}\"
-        }, 
-          \"reminders\": {
-          \"useDefault\": true
+        },
+        #{attendees_json}
+        \"reminders\": {
+          #{reminders_json}
         }
       }"
     end
@@ -169,18 +170,33 @@ module Google
     # JSON representation of attendees
     #
     def attendees_json
-      @attendees.map do |attendee|
-        "<gd:who email=\"#{attendee[:email]}\" rel=\"#{attendee[:relation]}\" valueString=\"#{attendee[:name]}\" gd:attendeeType=\"#{attendee[:required] ? 'http://schemas.google.com/g/2005#event.required' : 'http://schemas.google.com/g/2005#event.optional'}\"/>"
-      end.join if @attendees
+      return unless @attendees
+
+      attendees = @attendees.map do |attendee|
+        "{
+          \"displayName\": \"#{attendee['displayName']}\", 
+          \"email\": \"#{attendee['email']}\",
+          \"responseStatus\": \"#{attendee['responseStatus']}\"
+        }"
+      end.join(",\n")
+
+      "\"attendees\": [\n#{attendees}],"
     end
 
     # JSON representation of a reminder
     #
     def reminders_json
-      reminders.map{|r|
-        timescale = [:minutes, :hours, :days].select{|t| r[t]}.first || :minutes
-        "<gd:reminder method=\"#{r[:method] || "alert"}\" #{timescale}=\"#{r[timescale] || 10}\"></gd:reminder>"
-      }.join("\n")
+      if @reminders && @reminders['overrides']
+        overrides = @reminders['overrides'].map do |reminder|
+          "{
+            \"method\": \"#{reminder['method']}\", 
+            \"minutes\": #{reminder['minutes']}
+          }"
+        end.join(",\n")
+        "\n\"useDefault\"=>false,\n\"overrides\": [\n#{overrides}]"
+      else
+        "\"useDefault\": true"
+      end
     end
 
     # String representation of an event object.
@@ -217,11 +233,13 @@ module Google
                 :title        => e['summary'],
                 :description  => e['description'],
                 :location     => e['location'],
-                # :start_time   => (event_time.nil? ? nil : event_time['startTime']),
-                # :end_time     => (event_time.nil? ? nil : event_time['endTime']),
+                :start_time   => (e['start'] ? e['start']['dateTime'] : ''),
+                :end_time     => (e['end']   ? e['end']['dateTime'] : ''),
                 :transparency => e['transparency'],
                 :html_link    => e['htmlLink'],
-                :updated      => e['updated'] )
+                :updated      => e['updated'],
+                :reminders    => e['reminders'],
+                :attendees    => e['attendees'] )
 
     end
 
@@ -233,22 +251,6 @@ module Google
       @id = @raw['id']
       @html_link = @raw['htmlLink']
     end
-
-    # # A utility method used to parse id of the event
-    # #
-    # def self.parse_id(xml) #:nodoc:
-    #   id = xml.at_xpath("gCal:uid")['value'].split('@').first
-
-    #   # Check if this event came from an apple program (ios, iCal, Calendar, etc)
-    #   # Id format ex: E52411E2-8DB9-4A26-AD5A-8B6104320D3C
-    #   if id.match( /[0-9A-Z]{8}-([0-9A-Z]{4}-){3}[0-9A-Z]{12}/ )
-    #     # Use the ID field instead of the UID which apple overwrites for its own purposes.
-    #     # TODO With proper testing, this should be way to parse all event id's
-    #     id = xml.at_xpath("xmlns:id").content.split('/').last
-    #   end
-
-    #   return id
-    # end
 
     # A utility method used centralize time parsing.
     #
