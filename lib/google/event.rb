@@ -19,26 +19,29 @@ module Google
   #
   class Event
     attr_reader :id, :raw, :html_link, :updated_time, :published_time
-    attr_accessor :title, :location, :calendar, :quickadd, :transparency, :attendees, :send_event_notification, :description
+    attr_accessor :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders
 
     # Create a new event, and optionally set it's attributes.
     #
     # ==== Example
-    #  Event.new(:title => 'Swimming',
-    #           :description => 'Do not forget a towel this time',
-    #           :where => 'The Ocean',
-    #           :start_time => Time.now,
-    #           :end_time => Time.now + (60 * 60),
-    #           :send_event_notification => true/false,
-    #           :calendar => calendar_object)
-    #           :attendees => [
-    #             {:email => 'murtuzafirst@gmail.com', :name => 'Murtuza Kutub', :relation => 'http://schemas.google.com/g/2005#event.organizer', :required => true/false},
-    #             {:email => 'hariharasudhan@live.com', :name => 'Hari Harasudhan', :relation => 'http://schemas.google.com/g/2005#event.attendee', :required => true/false}
-    #           ]
+    #
+    # event = Google::Event.new
+    # event.calendar = AnInstanceOfGoogleCalendaer
+    # event.start_time = Time.now
+    # event.end_time = Time.now + (60 * 60)
+    # event.title = "Go Swimming"
+    # event.description = "The polar bear plunge"
+    # event.location = "In the arctic ocean"
+    # event.transparency = "opaque"
+    # event.reminders = { 'useDefault'  => false, 'overrides' => ['minutes' => 10, 'method' => "popup"]}
+    # event.attendees = [
+    #                     {'email' => 'some.a.one@gmail.com', 'displayName' => 'Some A One', 'responseStatus' => 'tentative'},
+    #                     {'email' => 'some.b.one@gmail.com', 'displayName' => 'Some B One', 'responseStatus' => 'tentative'}
+    #                   ]
     #
     def initialize(params = {})
-      [:id, :title, :where, :raw, :calendar, :start_time, :location,
-       :end_time, :quickadd, :html_link, :transparency, :reminders, :attendees, :send_event_notification, :description].each do |attribute|
+      [:id, :title, :raw, :calendar, :start_time, :location,
+       :end_time, :quickadd, :html_link, :transparency, :attendees, :description, :reminders].each do |attribute|
         instance_variable_set("@#{attribute}", params[attribute])
       end
 
@@ -117,7 +120,7 @@ module Google
     # event = Event.new :start_time => "2012-03-31", :end_time => "2012-04-03", :reminders => [minutes: 6, method: "sms"]
     #
     def reminders
-      @reminders ||= []
+      @reminders ||= {}
     end
 
     # Returns true if the event is transparent otherwise returns false.
@@ -161,12 +164,6 @@ module Google
       }"
     end
     
-    # Send email notification about creation of the event, to all attendees.
-    #
-    def send_event_notification_json
-      "<gCal:sendEventNotifications value=\"true\" />" if @send_event_notification
-    end
-
     # JSON representation of attendees
     #
     def attendees_json
@@ -186,14 +183,14 @@ module Google
     # JSON representation of a reminder
     #
     def reminders_json
-      if @reminders && @reminders['overrides']
-        overrides = @reminders['overrides'].map do |reminder|
+      if reminders && reminders.is_a?(Hash) && reminders['overrides'] 
+        overrides = reminders['overrides'].map do |reminder|
           "{
             \"method\": \"#{reminder['method']}\", 
             \"minutes\": #{reminder['minutes']}
           }"
         end.join(",\n")
-        "\n\"useDefault\"=>false,\n\"overrides\": [\n#{overrides}]"
+        "\n\"useDefault\": false,\n\"overrides\": [\n#{overrides}]"
       else
         "\"useDefault\": true"
       end

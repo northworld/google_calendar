@@ -76,8 +76,8 @@ module Google
       event_lookup()
     end
 
-    # This is equivalnt to running a search in
-    # the google calendar web application.  Google does not provide a way to easily specify
+    # This is equivalent to running a search in
+    # the Google calendar web application.  Google does not provide a way to specify
     # what attributes you would like to search (i.e. title), by default it searches everything.
     # If you would like to find specific attribute value (i.e. title=Picnic), run a query
     # and parse the results.
