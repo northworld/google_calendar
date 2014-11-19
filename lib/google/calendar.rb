@@ -159,7 +159,6 @@ module Google
     # This is a callback used by the Event class.
     #
     def save_event(event)
-      
       if event.quickadd && event.id == nil && event.title != nil && event.title != ''
         query_string = "/quickAdd?text=#{ Addressable::URI.encode_component(event.title)}"
         @connection.send_events_request(query_string, :post)
@@ -177,27 +176,9 @@ module Google
       @connection.send_events_request("/#{event.id}", :delete)
     end
 
-    # Explicitly reload the connection to google calendar
-    #
-    # Examples
-    # class User
-    #   def calendar
-    #     @calendar ||= Google::Calendar.new :username => "foo@gmail.com", :password => "bar"
-    #   end
+    # def display_color
+    #   @connection.list_calendars.xpath("//entry[title='#{@calendar_name}']/color/@value").first.value
     # end
-    # user = User.new
-    # 2.times { user.calendar }     #only one HTTP authentication request to google
-    # user.calendar.reload          #new HTTP authentication request to google
-    #
-    # Returns Google::Calendar instance
-    def reload
-      @connection.reload
-      self
-    end
-
-    def display_color
-      @connection.list_calendars.xpath("//entry[title='#{@calendar_name}']/color/@value").first.value
-    end
 
     protected
 
