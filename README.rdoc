@@ -3,7 +3,7 @@
 
 A fast lightweight and minimalist wrapper around the google calendar api.
 
-{<img src="https://travis-ci.org/northworld/google_calendar.png?branch=master" alt="Build Status" />}[https://travis-ci.org/northworld/google_calendar] {<img src="https://gemnasium.com/northworld/google_calendar.png" alt="Dependency Status" />}[https://gemnasium.com/northworld/google_calendar] {<img src="https://codeclimate.com/github/northworld/google_calendar.png" />}[https://codeclimate.com/github/northworld/google_calendar] {<img src="https://d3o0mnbgv6k92a.cloudfront.net/assets/hack-s-v1-7475db0cf93fe5d1e29420c928ebc614.png" alt="Hack northworld/google_calendar on Nitrous.IO" />}[https://www.nitrous.io/hack_button?source=embed&runtime=rails&repo=northworld%2Fgoogle_calendar&file_to_open=README.rdoc]
+{<img src="https://travis-ci.org/northworld/google_calendar.png?branch=master" alt="Build Status" />}[https://travis-ci.org/northworld/google_calendar] {<img src="https://gemnasium.com/northworld/google_calendar.png" alt="Dependency Status" />}[https://gemnasium.com/northworld/google_calendar] {<img src="https://codeclimate.com/github/northworld/google_calendar.png" />}[https://codeclimate.com/github/northworld/google_calendar]
 
 == Install
   [sudo] gem install 'google_calendar'
