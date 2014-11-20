@@ -22,6 +22,12 @@ A fast lightweight and minimalist wrapper around the google calendar api.
 
   Take note of the Client ID as you'll need to add it to your code later.
 
+=== How to find your calendar ID
+  Visit Google calendar in your web browser.
+  In the calendar list on the left, click the down-arrow button next to the appropriate calendar, then select Calendar settings.
+  In the Calendar Address section, locate the Calendar ID listed next to the XML, ICAL and HTML buttons.
+  Copy the Calendar ID.
+
 == Usage
   require 'rubygems'
   require 'google_calendar'

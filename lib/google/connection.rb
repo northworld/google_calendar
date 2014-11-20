@@ -14,6 +14,8 @@ module Google
     # calendar_id: the id of the calendar you would like to work with (e.g. en.singapore#holiday@group.v.calendar.google.com)
     def initialize(params)
 
+      raise ArgumentError unless Connection.credentials_provided?(params)
+
       @client = Signet::OAuth2::Client.new(
         :client_id => params[:client_id],
         :client_secret => params[:client_secret],
@@ -33,7 +35,7 @@ module Google
       if params[:refresh_token]
         @client.refresh_token = params[:refresh_token]
         @client.grant_type = 'refresh_token'
-        @client.fetch_access_token!
+        Connection.get_new_access_token(@client)
       end
 
     end
@@ -56,14 +58,14 @@ module Google
 
     def login_with_auth_code(auth_code)
       @client.code = auth_code
-      @client.fetch_access_token!
+      Connection.get_new_access_token(@client)
       @client.refresh_token
     end
 
     def login_with_refresh_token(refresh_token)
       @client.refresh_token = refresh_token
       @client.grant_type = 'refresh_token'
-      @client.fetch_access_token!
+      Connection.get_new_access_token(@client)
     end
 
     # send a request to google.
@@ -90,21 +92,28 @@ module Google
 
     protected
 
+    def self.get_new_access_token(client)
+      begin 
+        client.fetch_access_token!
+      rescue Signet::AuthorizationError
+        raise HTTPAuthorizationFailed
+      end
+    end
+
     # Check for common HTTP Errors and raise the appropriate response.
     #
     def check_for_errors(response) #:nodoc
       case response.status
         when 400 then raise HTTPRequestFailed, response.body
-        when 403 then raise HTTPAuthorizationFailed, response.body
         when 404 then raise HTTPNotFound, response.body
       end
     end
 
     private
 
-    def self.credentials_provided? username, password
+    def self.credentials_provided? params
       blank = /[^[:space:]]/
-      !(username !~ blank) && !(password !~ blank)
+      !(params[:client_id] !~ blank) && !(params[:client_secret] !~ blank)
     end
 
   end

@@ -30,7 +30,7 @@ module Google
     #   # Specify a public calendar
     #   Calendar.new(:calendar => 'en.singapore#holiday@group.v.calendar.google.com')
     #
-    def initialize(params)
+    def initialize(params={})
       options = {
         :client_id => params[:client_id],
         :client_secret => params[:client_secret],

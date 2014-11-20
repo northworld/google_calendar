@@ -41,13 +41,14 @@ module Google
     #
     def initialize(params = {})
       [:id, :title, :raw, :calendar, :start_time, :location,
-       :end_time, :quickadd, :html_link, :transparency, :attendees, :description, :reminders].each do |attribute|
+       :end_time, :quickadd, :html_link, :attendees, :description, :reminders].each do |attribute|
         instance_variable_set("@#{attribute}", params[attribute])
       end
 
-      @published_time = params[:published]
-      @updated_time   = params[:updated]
-      self.all_day    = params[:all_day] if params[:all_day]
+      @published_time   = params[:published]
+      @updated_time     = params[:updated]
+      self.transparency = params[:transparency]
+      self.all_day      = params[:all_day] if params[:all_day]
     end
 
     # Sets the start time of the Event.  Must be a Time object or a parsable string representation of a time.
@@ -123,18 +124,26 @@ module Google
       @reminders ||= {}
     end
 
+    def transparency=(val)
+      if val == false || val.to_s.downcase == 'opaque'
+        @transparency = 'opaque'
+      else
+        @transparency = 'transparent'
+      end
+    end
+
     # Returns true if the event is transparent otherwise returns false.
     # Transparent events do not block time on a calendar.
     #
     def transparent?
-      transparency == "transparent"
+      @transparency == "transparent"
     end
 
     # Returns true if the event is opaque otherwise returns false.
     # Opaque events block time on a calendar.
     # 
     def opaque?
-      transparency == "opaque"
+      @transparency == "opaque"
     end
 
     # Used to build an array of events from a Google feed.
