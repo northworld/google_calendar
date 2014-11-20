@@ -1,0 +1,12 @@
+{
+  "kind": "calendar#events", 
+  "defaultReminders": [], 
+  "description": "My Personal Events Calendar", 
+  "items": [], 
+  "updated": "2014-11-15T22:32:46.965Z", 
+  "summary": "My Events Calendar", 
+  "etag": "\"1234567890123000\"", 
+  "nextSyncToken": "AKi8uge987ECEIjyiZnV_cECGAU=", 
+  "timeZone": "America/Los_Angeles", 
+  "accessRole": "owner"
+}

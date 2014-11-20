@@ -1,62 +1,118 @@
+require 'signet/oauth_2/client'
 require "addressable/uri"
-require 'google/net/https'
-require 'cgi'
 
 module Google
 
-  # This is a utility class that performs communication with the google calendar api.
+  #
+  # This is a utility class that communicates with the google calendar api.
   #
   class Connection
-    BASE_URI = "https://www.google.com/calendar/feeds"
+    BASE_URI = "https://www.googleapis.com/calendar/v3"
 
-    # Depending on wether the credentials are provided or not, establish a authenticated or unauthenticated connection to google
+    attr_accessor :client
+
+    #
+    # Prepare a connection to google for fetching a calendar events
+    #
     #  the +params+ paramater accepts
-    # * :username => the username of the specified calendar (e.g. some.guy@gmail.com)
-    # * :password => the password for the specified user (e.g. super-secret)
-    # * :calendar_name => the name of the calendar you would like to work with (i.e. the human friendly name of the calendar)
-    # * :calendar_id => the id of the calendar you would like to work with (e.g. en.singapore#holiday@group.v.calendar.google.com)
-    # * :app_name => the name of your application (defaults to 'northworld.com-googlecalendar-integration')
-    # * :auth_url => the base url that is used to connect to google (defaults to 'https://www.google.com/accounts/ClientLogin')
+    # * :client_id => the client ID that you received from Google after registering your application with them (https://console.developers.google.com/)
+    # * :client_secret => the client secret you received from Google after registering your application with them.
+    # * :redirect_uri => the url where your users will be redirected to after they have successfully permitted access to their calendars. Use 'urn:ietf:wg:oauth:2.0:oob' if you are using an 'application'"
+    # * :refresh_token => if a user has already given you access to their calendars, you can specify their refresh token here and you will be 'logged on' automatically (i.e. they don't need to authorize access again)
     #
-    # If neither the calendar_name nor the calendar_id is provided, the connection will attempt to fetch events from the user's default calendar
-    # If both the calendar_name and the calendar_id are provided, the calendar_name will take priority (The current implementation of Calendar makes this case impossible)
-    #
-    def self.connect params
-      if credentials_provided? params[:username], params[:password]
-        AuthenticatedConnection.new params
-      else
-        self.new params[:calendar_id]
+    def initialize(params)
+
+      raise ArgumentError unless Connection.credentials_provided?(params)
+
+      @client = Signet::OAuth2::Client.new(
+        :client_id => params[:client_id],
+        :client_secret => params[:client_secret],
+        :redirect_uri => params[:redirect_url],
+        :refresh_token => params[:refresh_token],
+        :authorization_uri => 'https://accounts.google.com/o/oauth2/auth',
+        :token_credential_uri => 'https://accounts.google.com/o/oauth2/token',
+        :scope => "https://www.googleapis.com/auth/calendar"
+      )
+
+      calendar_id = params[:calendar_id]
+
+      # raise CalenarIDMissing unless calendar_id
+      @events_url = "#{BASE_URI}/calendars/#{CGI::escape calendar_id}/events"
+
+      # try to get an access token if possible.
+      if params[:refresh_token]
+        @client.refresh_token = params[:refresh_token]
+        @client.grant_type = 'refresh_token'
+        Connection.get_new_access_token(@client)
       end
+
     end
 
-    # Prepare an unauthenticated connection to google for fetching a public calendar events
-    # calendar_id: the id of the calendar you would like to work with (e.g. en.singapore#holiday@group.v.calendar.google.com)
-    def initialize(calendar_id)
-      raise CalenarIDMissing unless calendar_id
-      @events_url = "#{BASE_URI}/#{CGI::escape calendar_id}/public/full"
+    #
+    # The URL you need to send a user in order to let them grant you access to their calendars.
+    #
+    def authorize_url
+      @client.authorization_uri
     end
 
-    # send a request to google.
     #
-    def send(uri, method, content = '', redirect_count = 10)
-      raise HTTPTooManyRedirections if redirect_count == 0
+    # The single use auth code that google uses during the auth process.
+    #
+    def auth_code
+      @client.code
+    end
 
-      set_session_if_necessary(uri)
+    #
+    # The current access token.  Used during a session, typically expires in a hour.
+    #
+    def access_token
+      @client.access_token
+    end
 
-      http = (uri.scheme == 'https' ? Net::HTTPS.new(uri.host, uri.inferred_port) : Net::HTTP.new(uri.host, uri.inferred_port))
-      response =  http.request(build_request(uri, method, content))
+    #
+    # The refresh token is used to obtain a new access token.  It remains valid until a user revokes access.
+    #
+    def refresh_token
+      @client.refresh_token
+    end
 
-      # recurse if necessary.
-      if response.kind_of? Net::HTTPRedirection
-        response = send(Addressable::URI.parse(response['location']), method, content, redirect_count - 1)
-      end
+    #
+    # Convenience method used to streamline the process of logging in with a auth code.
+    #
+    def login_with_auth_code(auth_code)
+      @client.code = auth_code
+      Connection.get_new_access_token(@client)
+      @client.refresh_token
+    end
+
+    #
+    # Convenience method used to streamline the process of logging in with a refresh token.
+    #
+    def login_with_refresh_token(refresh_token)
+      @client.refresh_token = refresh_token
+      @client.grant_type = 'refresh_token'
+      Connection.get_new_access_token(@client)
+    end
+
+    #
+    # Send a request to google.
+    #
+    def send(uri, method, content = '')
+
+      response = @client.fetch_protected_resource(
+        :uri => uri,
+        :method => method,
+        :body  => content,
+        :headers => {'Content-type' => 'application/json'}
+      )
 
       check_for_errors(response)
 
       return response
     end
 
-    # wraps `send` method. send a event related request to google.
+    #
+    # Wraps the `send` method. Send an event related request to Google.
     #
     def send_events_request(path_and_query_string, method, content = '')
       send(Addressable::URI.parse(@events_url + path_and_query_string), method, content)
@@ -64,63 +120,35 @@ module Google
 
     protected
 
-    # Check to see if we are using a session and extract it's values if required.
     #
-    def set_session_if_necessary(uri) #:nodoc:
-      # only extract the session if we don't already have one.
-      @session_id = uri.query_values['gsessionid'] if @session_id == nil && uri.query
-
-      if @session_id
-        uri.query ||= ''
-        uri.query_values = uri.query_values.merge({'gsessionid' => @session_id})
+    # Utility method to centralize the process of getting an access token.
+    #
+    def self.get_new_access_token(client) #:nodoc:
+      begin 
+        client.fetch_access_token!
+      rescue Signet::AuthorizationError
+        raise HTTPAuthorizationFailed
       end
     end
 
-    # Construct the appropriate request object.
     #
-    def build_request(uri, method, content) #:nodoc
-      case method
-      when :delete
-        request = Net::HTTP::Delete.new(uri.to_s, @update_header)
-
-      when :get
-        request = Net::HTTP::Get.new(uri.to_s, @headers)
-
-      when :post_form
-        request = Net::HTTP::Post.new(uri.to_s, @headers)
-        request.set_form_data(content)
-
-      when :post
-        request = Net::HTTP::Post.new(uri.to_s, @headers)
-        request.body = content
-
-      when :put
-        request = Net::HTTP::Put.new(uri.to_s, @update_header)
-        request.body = content
-      end # case
-
-      return request
-    end
-
     # Check for common HTTP Errors and raise the appropriate response.
     #
     def check_for_errors(response) #:nodoc
-      if response.kind_of? Net::HTTPForbidden
-        raise HTTPAuthorizationFailed, response.body
-
-      elsif response.kind_of? Net::HTTPBadRequest
-        raise HTTPRequestFailed, response.body
-
-      elsif response.kind_of? Net::HTTPNotFound
-        raise HTTPNotFound, response.body
+      case response.status
+        when 400 then raise HTTPRequestFailed, response.body
+        when 404 then raise HTTPNotFound, response.body
       end
     end
 
     private
 
-    def self.credentials_provided? username, password
+    #
+    # 
+    #
+    def self.credentials_provided?(params) #:nodoc:
       blank = /[^[:space:]]/
-      !(username !~ blank) && !(password !~ blank)
+      !(params[:client_id] !~ blank) && !(params[:client_secret] !~ blank)
     end
 
   end

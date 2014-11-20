@@ -1,274 +1,183 @@
 require 'helper'
 
-class TestGoogleCalendar < Test::Unit::TestCase
+class TestGoogleCalendar < Minitest::Test
   include Google
 
-  context "Connected" do
+  context "When connected" do
 
     setup do
-      @http_mock = mock('Net::HTTPResponse')
-      @http_mock.stubs(:code => '200', :kind_of? => false, :message => "OK")
-      @http_mock.stubs(:kind_of?).with(Net::HTTPSuccess).returns(true)
-      @http_mock.stubs(:body).returns(get_mock_body('successful_login.txt'))
-      @http_request_mock = mock('Net::HTTPS')
-      @http_request_mock.stubs(:set_form_data => '', :request => @http_mock)
+      @client_mock = mock('Faraday::Response')
+      @client_mock.stubs(:body).returns(get_mock_body('successful_login.json'))
+      @client_mock.stubs(:finish).returns('')
+      @client_mock.stubs(:status).returns(200)
+      Faraday::Response.stubs(:new).returns(@client_mock)
 
-      Net::HTTPS.stubs(:new).returns(@http_request_mock)
+      @client_id = "671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com"
+      @client_secret = "roBgdbfEmJwPgrgi2mRbbO-f"
+      @refresh_token = "1/eiqBWx8aj-BsdhwvlzDMFOUN1IN_HyThvYTujyksO4c"
+      @calendar_id = "klei8jnelo09nflqehnvfzipgs@group.calendar.google.com"
+      @access_token = 'ya29.hYjPO0uHt63uWr5qmQtMEReZEvILcdGlPCOHDy6quKPyEQaQQvqaVAlLAVASaRm_O0a7vkZ91T8xyQ'
+
+      @calendar = Calendar.new(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => "urn:ietf:wg:oauth:2.0:oob", :refresh_token => @refresh_token, :calendar => @calendar_id)
+
     end
 
-    context "Login" do
+    context "a calendar" do
 
-      should "login properly" do
-        assert_nothing_thrown do
-          Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret')
-        end
+      should "generate auth url" do
+        assert_equal @calendar.authorize_url.to_s, 'https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code&scope=https://www.googleapis.com/auth/calendar'
+      end
+
+      should "login with auth code" do
+        @client_mock.stubs(:body).returns( get_mock_body("login_with_auth_code_success.json") )
+        @calendar.login_with_auth_code('4/QzBU-n6GXnHUkorG0fiu6AhoZtIjW53qKLOREiJWFpQ.wn0UfiyaDlEfEnp6UAPFm0EazsV1kwI')
+        assert_equal @calendar.auth_code, nil # the auth_code is discarded after it is used.
+        assert_equal @calendar.access_token, @access_token
+        assert_equal @calendar.refresh_token, '1/aJUy7pQzc4fUMX89BMMLeAfKcYteBKRMpQvf4fQFX0'
+      end
+
+      should "login with refresh token" do
+        # no refresh_token specified
+        cal = Calendar.new(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => "urn:ietf:wg:oauth:2.0:oob", :calendar => @calendar_id)
+        @client_mock.stubs(:body).returns( get_mock_body("login_with_refresh_token_success.json") )
+        cal.login_with_refresh_token(@refresh_token)
+        assert_equal @calendar.access_token, @access_token
       end
 
       should "catch login with invalid credentials" do
-        @http_mock.stubs(:kind_of?).with(Net::HTTPForbidden).returns(true)
-        @http_mock.stubs(:body).returns('Error=BadAuthentication')
-        assert_raise(HTTPAuthorizationFailed) do
-          Calendar.new(:username => 'some.one@gmail.com', :password => 'wrong-password')
+        @client_mock.stubs(:status).returns(403)
+        @client_mock.stubs(:body).returns( get_mock_body("403.json") )
+        assert_raises(HTTPAuthorizationFailed) do
+          Calendar.new(:client_id => 'abadid', :client_secret => 'abadsecret', :redirect_url => "urn:ietf:wg:oauth:2.0:oob", :refresh_token => @refresh_token, :calendar => @calendar_id)
         end
       end
 
-      should "login properly with an app_name" do
-        assert_nothing_thrown do
-          Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
-          :app_name => 'northworld.com-googlecalendar-integration'
-          )
-        end
-      end
-
-      should "catch login with invalid app_name" do
-        @http_mock.stubs(:kind_of?).with(Net::HTTPForbidden).returns(true)
-        @http_mock.stubs(:body).returns('Error=BadAuthentication')
-        assert_raise(HTTPAuthorizationFailed) do
-          Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
-          :app_name => 'northworld.com-silly-cal'
-          )
-        end
-      end
-
-      should "login properly with an auth_url" do
-        assert_nothing_thrown do
-          Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
-          :auth_url => "https://www.google.com/accounts/ClientLogin"
-          )
-        end
-      end
-
-      should "catch login with invalid auth_url" do
-        @http_mock.stubs(:kind_of?).with(Net::HTTPForbidden).returns(true)
-        @http_mock.stubs(:body).returns('Error=BadAuthentication')
-        assert_raise(HTTPAuthorizationFailed) do
-          Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
-          :auth_url => "https://www.google.com/accounts/ClientLogin/waffles"
-          )
-        end
-      end
-
-      should "login properly with a calendar name" do
-        assert_nothing_thrown do
-          AuthenticatedConnection.any_instance.stubs(:login)
-
-          #mock calendar list request
-          calendar_uri = mock("get calendar uri")
-          Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").once.returns(calendar_uri)
-          AuthenticatedConnection.any_instance.expects(:send).with(calendar_uri, :get).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
-
-          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
-          :calendar => "Little Giants")
-
-          #mock events list request
-          events_uri = mock("get events uri")
-          Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/rf1c66uld6dgk2t5lh43svev6g%40group.calendar.google.com/private/full").once.returns(events_uri)
-          AuthenticatedConnection.any_instance.expects(:send).with(events_uri, :get, anything).once.returns(mock("response", :body => get_mock_body('events.xml')))
-
-          cal.events
-        end
-      end
-
-      should "login properly with a calendar id" do
-        assert_nothing_thrown do
-          AuthenticatedConnection.any_instance.stubs(:login)
-          Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").never
-
-          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
-          :calendar => "rf1c66uld6dgk2t5lh43svev6g@group.calendar.google.com")
-
-          #mock events list request
-          events_uri = mock("get events uri")
-          Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/rf1c66uld6dgk2t5lh43svev6g%40group.calendar.google.com/private/full").once.returns(events_uri)
-          AuthenticatedConnection.any_instance.expects(:send).with(events_uri, :get, anything).once.returns(mock("response", :body => get_mock_body('events.xml')))
-
-          cal.events
-        end
-      end
-
-      should "catch login with invalid calendar" do
-
-        assert_raise(InvalidCalendar) do
-          AuthenticatedConnection.any_instance.stubs(:login)
-
-          #mock calendar list request
-          calendar_uri = mock("get calendar uri")
-          Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/default/allcalendars/full").once.returns(calendar_uri)
-          AuthenticatedConnection.any_instance.expects(:send).with(calendar_uri, :get, anything).once.returns(mock("response", :body => get_mock_body('list_calendars.xml')))
-
-          cal = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret',
-          :calendar => "invalid calendar")
-
-          cal.events
+      should "catch login with missing credentials" do
+        assert_raises(ArgumentError) do
+        @client_mock.stubs(:status).returns(401)
+        @client_mock.stubs(:body).returns( get_mock_body("401.json") )
+          Calendar.new()
         end
       end
 
     end # login context
 
-    context "Username and password not provided" do
-      context "with a valid public calendar id" do
-        should "fetch event data" do
-          assert_nothing_thrown do
-            cal = Calendar.new(:calendar => 'en.singapore#holiday@group.v.calendar.google.com')
-
-            #mock events list request
-            events_uri = mock("get events uri")
-            Addressable::URI.expects(:parse).with("https://www.google.com/calendar/feeds/en.singapore%23holiday%40group.v.calendar.google.com/public/full").once.returns(events_uri)
-            Connection.any_instance.expects(:send).with(events_uri, :get, anything).once.returns(mock("response", :body => get_mock_body('events.xml')))
-
-            cal.events
-          end
-        end
-      end
-
-      context "without specifying a public calendar id" do
-        should "raise error" do
-          assert_raise(CalenarIDMissing) do
-            Calendar.new(calendar: nil)
-          end
-        end
-      end
-    end
-
-    context "Logged on" do
+    context "and logged in" do
       setup do
-        @calendar = Calendar.new(:username => 'some.one@gmail.com', :password => 'super-secret')
-      end
-
-      should "reload connection by re-perform login" do
-        connection = @calendar.connection
-        connection.instance_variable_set(:@session_id, :session)
-        connection.expects(:login).once
-
-        connection.reload
-        assert_equal connection.instance_variable_get(:@session_id), nil
+        @calendar = Calendar.new(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => "urn:ietf:wg:oauth:2.0:oob", :refresh_token => @refresh_token, :calendar => @calendar_id)
       end
 
       should "find all events" do
-        @http_mock.stubs(:body).returns( get_mock_body("events.xml") )
+        @client_mock.stubs(:body).returns( get_mock_body("events.json") )
         assert_equal @calendar.events.length, 3
       end
 
       should "query events" do
-        @http_mock.stubs(:body).returns( get_mock_body("query_events.xml") )
+        @client_mock.stubs(:body).returns( get_mock_body("query_events.json") )
         event = @calendar.find_events('Test&gsessionid=12345')
-        assert_equal event[0].title, 'Test'
+        assert_equal event[0].title, 'Test Event'
       end
 
       should "find events in range" do
         start_min = DateTime.new(2011, 2, 1, 11, 1, 1)
         start_max = DateTime.new(2011, 2, 28, 23, 59, 59)
-        @calendar.expects(:event_lookup).with('?start-min=2011-02-01T11%3A01%3A01%2B00%3A00&start-max=2011-02-28T23%3A59%3A59%2B00%3A00&recurrence-expansion-start=2011-02-01T11%3A01%3A01%2B00%3A00&recurrence-expansion-end=2011-02-28T23%3A59%3A59%2B00%3A00&orderby=lastmodified&max-results=25')
+        @calendar.expects(:event_lookup).with('?timeMin=2011-02-01T11%3A01%3A01%2B00%3A00&timeMax=2011-02-28T23%3A59%3A59%2B00%3A00&orderBy=startTime&maxResults=25&singleEvents=true')
         events = @calendar.find_events_in_range(start_min, start_max)
       end
 
+      should "find future events" do
+        now = DateTime.now
+        DateTime.stubs(:now).returns(now)
+        formatted_time = Addressable::URI.encode_component(now.strftime("%FT%T%:z"), Addressable::URI::CharacterClasses::UNRESERVED)
+        @calendar.expects(:event_lookup).with("?timeMin=#{formatted_time}&orderBy=startTime&maxResults=25&singleEvents=true")
+        events = @calendar.find_future_events()
+      end
+
       should "return multiple events in range as array" do
-        @http_mock.stubs(:body).returns( get_mock_body("events.xml") )
+        @client_mock.stubs(:body).returns( get_mock_body("events.json") )
         events = @calendar.events
         assert_equal events.class.to_s, "Array"
       end
       
       should "return one event in range as array" do
-        @http_mock.stubs(:body).returns( get_mock_body("query_events.xml") )
+        @client_mock.stubs(:body).returns( get_mock_body("query_events.json") )
         events = @calendar.events
         assert_equal events.class.to_s, "Array"
       end
       
       should "return response of no events in range as array" do
-        @http_mock.stubs(:body).returns( get_mock_body("empty_events.xml") )
+        @client_mock.stubs(:body).returns( get_mock_body("empty_events.json") )
         events = @calendar.events
         assert_equal events.class.to_s, "Array"
+        assert_equal events, []
       end
 
       should "find an event by id" do
-        @http_mock.stubs(:body).returns( get_mock_body("find_event_by_id.xml") )
-        event = @calendar.find_event_by_id('oj6fmpaulbvk9ouoj0lj4v6hio')
-        assert_equal event[0].id, 'oj6fmpaulbvk9ouoj0lj4v6hio'
+        @client_mock.stubs(:body).returns( get_mock_body("find_event_by_id.json") )
+        event = @calendar.find_event_by_id('fhru34kt6ikmr20knd2456l08n')
+        assert_equal event[0].id, 'fhru34kt6ikmr20knd2456l08n'
       end
 
       should "throw NotFound with invalid event id" do
-        @http_mock.stubs(:kind_of?).with(Net::HTTPNotFound).returns(true)
+        @client_mock.stubs(:status).returns(404)
+        @client_mock.stubs(:body).returns( get_mock_body("404.json") )
         assert_equal @calendar.find_event_by_id('1234'), nil
       end
 
-      should "collect repeating events" do
-        @http_mock.stubs(:body).returns( get_mock_body("repeating_events.xml") )
-        events = @calendar.events
-        assert_equal events.class.to_s, "Array"
-        assert_equal (1+1+3), events.count
-      end
-
       should "create an event with block" do
-        @http_mock.stubs(:body).returns( get_mock_body("create_event.xml") )
+        @client_mock.stubs(:body).returns( get_mock_body("create_event.json") )
 
         event = @calendar.create_event do |e|
           e.title = 'New Event'
           e.start_time = Time.now + (60 * 60)
           e.end_time = Time.now + (60 * 60 * 2)
-          e.content = "A new event"
-          e.where = "Joe's House"
+          e.description = "A new event"
+          e.location = "Joe's House"
         end
 
         assert_equal event.title, 'New Event'
+        assert_equal event.id, "fhru34kt6ikmr20knd2456l08n"
       end
 
       should "create a quickadd event" do
-        @http_mock.stubs(:body).returns( get_mock_body("create_quickadd_event.xml") )
+        @client_mock.stubs(:body).returns( get_mock_body("create_quickadd_event.json") )
 
         event = @calendar.create_event do |e|
-          e.content = "movie tomorrow 23:00 at AMC Van Ness"
+          e.title = "movie tomorrow 23:00 at AMC Van Ness"
           e.quickadd = true
         end
 
-        assert_equal event.content, "movie tomorrow 23:00 at AMC Van Ness"
+        assert_equal event.title, "movie tomorrow 23:00 at AMC Van Ness"
+        assert_equal event.id, 'fhru34kt6ikmr20knd2456l08n'
       end
 
       should "format create event with ampersand correctly" do
-	@http_mock.stubs(:body).returns( get_mock_body("create_event.xml") )
+        @client_mock.stubs(:body).returns( get_mock_body("create_event.json") )
 
-	event = @calendar.create_event do |e|
-	  e.title = 'New Event with &'
-	  e.start_time = Time.now + (60 * 60)
-	  e.end_time = Time.now + (60 * 60 * 2)
-	  e.content = "A new event with &"
-	  e.where = "Joe's House & Backyard"
-	end
+        event = @calendar.create_event do |e|
+          e.title = 'New Event with &'
+          e.start_time = Time.now + (60 * 60)
+          e.end_time = Time.now + (60 * 60 * 2)
+          e.description = "A new event with &"
+          e.location = "Joe's House & Backyard"
+        end
 
-	assert_equal event.title, 'New Event with &amp;'
-	assert_equal event.content, 'A new event with &amp;'
-	assert_equal event.where, "Joe's House &amp; Backyard"
+        assert_equal event.title, 'New Event with &'
+        assert_equal event.description, 'A new event with &'
+        assert_equal event.location, "Joe's House & Backyard"
       end
 
       should "format to_s properly" do
-        @http_mock.stubs(:body).returns( get_mock_body("query_events.xml") )
+        @client_mock.stubs(:body).returns( get_mock_body("query_events.json") )
         event = @calendar.find_events('Test')
-        assert_equal event[0].to_s, "Test (oj6fmpaulbvk9ouoj0lj4v6hio)\n\t2010-04-08\n\t2010-04-09\n\tAt School\n\t"
+        e = event[0]
+        assert_equal e.to_s, "Event Id '#{e.id}'\n\tTitle: #{e.title}\n\tStarts: #{e.start_time}\n\tEnds: #{e.end_time}\n\tLocation: #{e.location}\n\tDescription: #{e.description}\n\n"
       end
 
       should "update an event by id" do
-        @http_mock.stubs(:body).returns( get_mock_body("find_event_by_id.xml") )
+        @client_mock.stubs(:body).returns( get_mock_body("find_event_by_id.json") )
 
-        event = @calendar.find_or_create_event_by_id('oj6fmpaulbvk9ouoj0lj4v6hio') do |e|
+        event = @calendar.find_or_create_event_by_id('t00jnpqc08rcabi6pa549ttjlk') do |e|
           e.title = 'New Event Update'
         end
 
@@ -276,30 +185,22 @@ class TestGoogleCalendar < Test::Unit::TestCase
       end
 
       should "delete an event" do
-        @http_mock.stubs(:body).returns( get_mock_body("create_event.xml") )
+        @client_mock.stubs(:body).returns( get_mock_body("create_event.json") )
 
         event = @calendar.create_event do |e|
           e.title = 'Delete Me'
         end
 
-        assert_equal event.id, 'b1vq6rj4r4mg85kcickc7iomb0'
+        assert_equal event.id, 'fhru34kt6ikmr20knd2456l08n'
 
-        @http_mock.stubs(:body).returns("")
+        @client_mock.stubs(:body).returns('')
         event.delete
         assert_equal event.id, nil
       end
 
-      should "not redirect forever" do
-        @http_mock.stubs(:kind_of?).with(Net::HTTPRedirection).returns(true)
-        @http_mock.stubs(:[]).with('location').returns('https://www.google.com')
-        assert_raise(HTTPTooManyRedirections) do
-          @calendar.events
-        end
-      end
-
       should "throw exception on bad request" do
-        @http_mock.stubs(:kind_of?).with(Net::HTTPBadRequest).returns(true)
-        assert_raise(HTTPRequestFailed) do
+        @client_mock.stubs(:status).returns(400)
+        assert_raises(HTTPRequestFailed) do
           @calendar.events
         end
       end
@@ -354,6 +255,39 @@ class TestGoogleCalendar < Test::Unit::TestCase
       end
     end
 
+    context "transparency" do
+      should "be transparent" do
+        @event = Event.new(:transparency => true)
+        assert @event.transparent?
+      end
+
+      should "be opaque?" do
+        @event = Event.new(:transparency => false)
+        assert @event.opaque?
+      end
+    end
+
+    context "event json" do
+      should "be correct format" do
+        now = Time.now
+        @event = Event.new
+        @event.start_time = now
+        @event.end_time = now + (60 * 60)
+        @event.title = "Go Swimming"
+        @event.description = "The polar bear plunge"
+        @event.location = "In the arctic ocean"
+        @event.transparency = "opaque"
+        @event.reminders = { 'useDefault'  => false, 'overrides' => ['minutes' => 10, 'method' => "popup"]}
+        @event.attendees = [
+                            {'email' => 'some.a.one@gmail.com', 'displayName' => 'Some A One', 'responseStatus' => 'tentative'},
+                            {'email' => 'some.b.one@gmail.com', 'displayName' => 'Some B One', 'responseStatus' => 'tentative'}
+                          ]
+
+        correct_json = "{ \"summary\": \"Go Swimming\", \"description\": \"The polar bear plunge\", \"location\": \"In the arctic ocean\", \"start\": { \"dateTime\": \"#{@event.start_time}\" }, \"end\": { \"dateTime\": \"#{@event.end_time}\" }, \"attendees\": [{ \"displayName\": \"Some A One\", \"email\": \"some.a.one@gmail.com\", \"responseStatus\": \"tentative\" },{ \"displayName\": \"Some B One\", \"email\": \"some.b.one@gmail.com\", \"responseStatus\": \"tentative\" }], \"reminders\": { \"useDefault\": false,\"overrides\": [{ \"method\": \"popup\", \"minutes\": 10 }] } }"
+        assert_equal @event.to_json.gsub("\n", "").gsub(/\s+/, ' '), correct_json
+      end
+    end
+
     context "reminders" do
       context "reminders array" do
         should "set reminder time" do
@@ -376,17 +310,8 @@ class TestGoogleCalendar < Test::Unit::TestCase
           @event = Event.new :reminders => [minutes: 6, hours: 8]
           assert_equal @event.reminders.first[:minutes], 6
           assert_equal @event.reminders.first[:hours], 8
-          assert_equal @event.to_xml["hours"], nil
-          assert_not_equal @event.to_xml["minutes"], nil
         end
       end
-    end
-  end
-
-  def test_https_extension
-    assert_nothing_thrown do
-      uri = Addressable::URI.parse('https://www.google.com')
-      Net::HTTPS.new(uri.host, uri.port)
     end
   end
 

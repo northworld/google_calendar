@@ -1,0 +1,12 @@
+error: {
+  errors: [
+    {
+      "domain": "global",
+      "reason": "appNotInstalled",
+      "message": "The authenticated user has not installed the app with client id clientId"
+   }
+  ],
+  "code": 403,
+  "message": "The authenticated user has not installed the app with client id clientId"
+ }
+}
