@@ -253,6 +253,20 @@ module Google
       @id = nil
     end
 
+    #
+    # Returns true if the event will use quickadd when it is saved.
+    #
+    def use_quickadd?
+      quickadd && id == nil
+    end
+
+    #
+    # Returns true if this a new event.
+    #
+    def new_event?
+      id == nil || id == ''
+    end
+
     protected
 
     #

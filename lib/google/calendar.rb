@@ -121,15 +121,10 @@ module Google
     #   an array with one element if only one found.
     #   an array of events if many found.
     #
-    def find_events_in_range(start_min, start_max, options = {})
-      options[:max_results] ||=  25
-      options[:order_by] ||= 'startTime' # other option is 'updated'
-      options[:expand_recurring_events] ||= true
-      
+    def find_events_in_range(start_min, start_max, options = {})     
       formatted_start_min = encode_time(start_min)
       formatted_start_max = encode_time(start_max)
-      query = "?timeMin=#{formatted_start_min}&timeMax=#{formatted_start_max}"
-      query = "#{query}&orderBy=#{options[:order_by]}&maxResults=#{options[:max_results]}&singleEvents=#{options[:expand_recurring_events]}"
+      query = "?timeMin=#{formatted_start_min}&timeMax=#{formatted_start_max}#{parse_options(options)}"
       event_lookup(query)
     end
 
@@ -147,12 +142,8 @@ module Google
     #   an array of events if many found.
     #
     def find_future_events(options={})
-      options[:max_results] ||=  25
-      options[:order_by] ||= 'startTime' # other option is 'updated'
-      options[:expand_recurring_events] ||= true
-
       formatted_start_min = encode_time(DateTime.now)
-      query = "?timeMin=#{formatted_start_min}&orderBy=#{options[:order_by]}&maxResults=#{options[:max_results]}&singleEvents=#{options[:expand_recurring_events]}"
+      query = "?timeMin=#{formatted_start_min}#{parse_options(options)}"
       event_lookup(query)
     end
 
@@ -204,14 +195,18 @@ module Google
     # This is a callback used by the Event class.
     #
     def save_event(event)
-      if event.quickadd && event.id == nil && event.title != nil && event.title != ''
-        query_string = "/quickAdd?text=#{ Addressable::URI.encode_component(event.title)}"
-        @connection.send_events_request(query_string, :post)
-      else
-        method = (event.id == nil || event.id == '') ? :post : :put
-        query_string = (method == :put) ? "/#{event.id}" : ''
-        @connection.send_events_request(query_string, method, event.to_json)
+      method = event.new_event? ? :post : :put
+      body = event.use_quickadd? ? nil : event.to_json
+
+      query_string =  if event.use_quickadd?
+        "/quickAdd?text=#{ Addressable::URI.encode_component(event.quickadd)}"
+      elsif event.new_event?
+        ''
+      else # update existing event.
+        "/#{event.id}"
       end
+
+      @connection.send_events_request(query_string, method, body)
     end
 
     #
@@ -223,6 +218,16 @@ module Google
     end
 
     protected
+
+    #
+    # Utility method used to centralize the parsing of common query parameters.
+    #
+    def parse_options(options) # :nodoc
+      options[:max_results] ||=  25
+      options[:order_by] ||= 'startTime' # other option is 'updated'
+      options[:expand_recurring_events] ||= true
+      "&orderBy=#{options[:order_by]}&maxResults=#{options[:max_results]}&singleEvents=#{options[:expand_recurring_events]}"
+    end
 
     #
     # Utility method to centralize time encoding.
