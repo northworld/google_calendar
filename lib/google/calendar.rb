@@ -147,7 +147,7 @@ module Google
     def save_event(event)
       method = (event.id == nil || event.id == '') ? :post : :put
       query_string = (method == :put) ? "/#{event.id}" : ''
-      @connection.send_events_request(query_string, :method, event.to_xml)
+      @connection.send_events_request(query_string, method, event.to_xml)
     end
 
     # Deletes the specified event.
