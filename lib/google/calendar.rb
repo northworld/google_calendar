@@ -98,20 +98,25 @@ module Google
     #   an array with one element if only one found.
     #   an array of events if many found.
     #
-    def find_events_in_range(start_min, start_max,options = {})
+    def find_events_in_range(start_min, start_max, options = {})
       options[:max_results] ||=  25
-      options[:order_by] ||= 'lastmodified' # other option is 'starttime'
-      formatted_start_min = Addressable::URI.encode_component(start_min.strftime("%FT%T%:z"), Addressable::URI::CharacterClasses::UNRESERVED)
-      formatted_start_max = Addressable::URI.encode_component(start_max.strftime("%FT%T%:z"), Addressable::URI::CharacterClasses::UNRESERVED)
-      query = "?start-min=#{formatted_start_min}&start-max=#{formatted_start_max}&recurrence-expansion-start=#{formatted_start_min}&recurrence-expansion-end=#{formatted_start_max}"
-      query = "#{query}&orderby=#{options[:order_by]}&max-results=#{options[:max_results]}"
+      options[:order_by] ||= 'startTime' # other option is 'updated'
+      options[:expand_recurring_events] ||= true
+      
+      formatted_start_min = encode_time(start_min)
+      formatted_start_max = encode_time(start_max)
+      query = "?timeMin=#{formatted_start_min}&timeMax=#{formatted_start_max}"
+      query = "#{query}&orderBy=#{options[:order_by]}&maxResults=#{options[:max_results]}&singleEvents=#{options[:expand_recurring_events]}"
       event_lookup(query)
     end
 
     def find_future_events(options={})
       options[:max_results] ||=  25
-      options[:order_by] ||= 'lastmodified' # other option is 'starttime'
-      query = "?futureevents=true&orderby=#{options[:order_by]}&max-results=#{options[:max_results]}"
+      options[:order_by] ||= 'startTime' # other option is 'updated'
+      options[:expand_recurring_events] ||= true
+
+      formatted_start_min = encode_time(DateTime.now)
+      query = "?timeMin=#{formatted_start_min}&orderBy=#{options[:order_by]}&maxResults=#{options[:max_results]}&singleEvents=#{options[:expand_recurring_events]}"
       event_lookup(query)
     end
 
@@ -181,6 +186,10 @@ module Google
     # end
 
     protected
+
+    def encode_time(time)
+      Addressable::URI.encode_component(time.strftime("%FT%T%:z"), Addressable::URI::CharacterClasses::UNRESERVED)
+    end
 
     def event_lookup(query_string = '') #:nodoc:
       begin
