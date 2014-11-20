@@ -1,5 +1,6 @@
 module Google
 
+  #
   # Calendar is the main object you use to interact with events.
   # use it to find, create, update and delete them.
   #
@@ -7,28 +8,23 @@ module Google
 
     attr_reader :connection
 
-    # Setup and connect to the specified google calendar.
+    #
+    # Setup and connect to the specified Google Calendar.
     #  the +params+ paramater accepts
-    # * :username => the username of the specified calendar (i.e. some.guy@gmail.com. Leave this out if you'd like to access a public calendar)
-    # * :password => the password for the specified user (i.e. super-secret. Leave this out if you'd like to access a public calendar)
-    # * :calendar => the name or ID of the calendar you would like to work with (Defaults to the calendar the user setup as their default one if credentials are provided. Set this value with the calendar's ID when accessing a public calendar)
-    # * :app_name => the name of your application (defaults to 'northworld.com-googlecalendar-integration')
-    # * :auth_url => the base url that is used to connect to google (defaults to 'https://www.google.com/accounts/ClientLogin')
+    # * :client_id => the client ID that you received from Google after registering your application with them (https://console.developers.google.com/). REQUIRED
+    # * :client_secret => the client secret you received from Google after registering your application with them. REQUIRED
+    # * :redirect_url => the url where your users will be redirected to after they have successfully permitted access to their calendars. Use 'urn:ietf:wg:oauth:2.0:oob' if you are using an 'application'" REQUIRED
+    # * :calendar_id => the id of the calendar you would like to work with (see Readme.rdoc for instructions on how to find yours)
+    # * :refresh_token => if a user has already given you access to their calendars, you can specify their refresh token here and you will be 'logged on' automatically (i.e. they don't need to authorize access again). OPTIONAL
     #
-    # After creating an instace you are immediatly logged on and ready to go.
+    # See Readme.rdoc or readme_code.rb for an explication on the OAuth2 authorization process.
     #
-    # ==== Examples
-    #   # Use the default calendar
-    #   Calendar.new(:username => 'some.guy@gmail.com', :password => 'ilovepie!')
-    #
-    #   # Specify the calendar
-    #   Calendar.new(:username => 'some.guy@gmail.com', :password => 'ilovepie!', :calendar => 'my.company@gmail.com')
-    #
-    #   # Specify the app_name
-    #   Calendar.new(:username => 'some.guy@gmail.com', :password => 'ilovepie!', :app_name => 'mycompany.com-googlecalendar-integration')
-    #
-    #   # Specify a public calendar
-    #   Calendar.new(:calendar => 'en.singapore#holiday@group.v.calendar.google.com')
+    # ==== Example
+    # Google::Calendar.new(:client_id => YOUR_CLIENT_ID, 
+    #                      :client_secret => YOUR_SECRET,
+    #                      :calendar => YOUR_CALENDAR_ID,
+    #                      :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications' 
+    #                     )
     #
     def initialize(params={})
       options = {
@@ -42,30 +38,49 @@ module Google
       @connection = Connection.new options
     end
 
+    #
+    # The URL you need to send a user in order to let them grant you access to their calendars.
+    #
     def authorize_url
       @connection.authorize_url
     end
 
+    #
+    # The single use auth code that google uses during the auth process.
+    #
     def auth_code
       @connection.auth_code
     end
 
+    #
+    # The current access token.  Used during a session, typically expires in a hour.
+    #
     def access_token
       @connection.access_token
     end
 
+    #
+    # The refresh token is used to obtain a new access token.  It remains valid until a user revokes access.
+    #
     def refresh_token
       @connection.refresh_token
     end
 
+    #
+    # Convenience method used to streamline the process of logging in with a auth code.
+    #
     def login_with_auth_code(auth_code)
       @connection.login_with_auth_code(auth_code)
     end
 
+    #
+    # Convenience method used to streamline the process of logging in with a refresh token.
+    #
     def login_with_refresh_token(refresh_token)
       @connection.login_with_refresh_token(refresh_token)
     end
 
+    #
     # Find all of the events associated with this calendar.
     #  Returns:
     #   an empty array if nothing found.
@@ -76,9 +91,10 @@ module Google
       event_lookup()
     end
 
-    # This is equivalent to running a search in
-    # the Google calendar web application.  Google does not provide a way to specify
-    # what attributes you would like to search (i.e. title), by default it searches everything.
+    #
+    # This is equivalent to running a search in the Google calendar web application.  
+    # Google does not provide a way to specify what attributes you would like to 
+    # search (i.e. title), by default it searches everything.
     # If you would like to find specific attribute value (i.e. title=Picnic), run a query
     # and parse the results.
     #  Returns:
@@ -90,9 +106,16 @@ module Google
       event_lookup("?q=#{query}")
     end
 
+    #
     # Find all of the events associated with this calendar that start in the given time frame.
     # The lower bound is inclusive, whereas the upper bound is exclusive.
     # Events that overlap the range are included.
+    #
+    # the +options+ parameter accepts
+    # :max_results => the maximum number of results to return defaults to 25 the largest number Google accepts is 2500
+    # :order_by => how you would like the results ordered, can be either 'startTime' or 'updated'. Defaults to 'startTime'. Note: it must be 'updated' if expand_recurring_events is set to false.
+    # :expand_recurring_events => When set to true each instance of a recurring event is returned. Defaults to true.
+    #
     #  Returns:
     #   an empty array if nothing found.
     #   an array with one element if only one found.
@@ -110,6 +133,19 @@ module Google
       event_lookup(query)
     end
 
+    #
+    # Find all events that are occurring at the time the method is run or later.
+    #
+    # the +options+ parameter accepts
+    # :max_results => the maximum number of results to return defaults to 25 the largest number Google accepts is 2500
+    # :order_by => how you would like the results ordered, can be either 'startTime' or 'updated'. Defaults to 'startTime'. Note: it must be 'updated' if expand_recurring_events is set to false.
+    # :expand_recurring_events => When set to true each instance of a recurring event is returned. Defaults to true.
+    #
+    #  Returns:
+    #   an empty array if nothing found.
+    #   an array with one element if only one found.
+    #   an array of events if many found.
+    #
     def find_future_events(options={})
       options[:max_results] ||=  25
       options[:order_by] ||= 'startTime' # other option is 'updated'
@@ -120,6 +156,7 @@ module Google
       event_lookup(query)
     end
 
+    #
     # Attempts to find the event specified by the id
     #  Returns:
     #   an empty array if nothing found.
@@ -131,8 +168,9 @@ module Google
       event_lookup("/#{id}")
     end
 
-    # Creates a new event and immediatly saves it.
-    # returns the event
+    #
+    # Creates a new event and immediately saves it.
+    # Returns the event
     #
     # ==== Examples
     #   # Use a block
@@ -141,7 +179,7 @@ module Google
     #     e.where = "Room 101"
     #   end
     #
-    #   # Don't use a block (need to call save maunally)
+    #   # Don't use a block (need to call save manually)
     #   event  = cal.create_event
     #   event.title = "A New Event"
     #   event.where = "Room 101"
@@ -151,7 +189,8 @@ module Google
       setup_event(Event.new, &blk)
     end
 
-    # looks for the spedified event id.
+    #
+    # Looks for the specified event id.
     # If it is found it, updates it's vales and returns it.
     # If the event is no longer on the server it creates a new one with the specified values.
     # Works like the create_event method.
@@ -160,6 +199,7 @@ module Google
       setup_event(find_event_by_id(id)[0] || Event.new, &blk)
     end
 
+    #
     # Saves the specified event.
     # This is a callback used by the Event class.
     #
@@ -174,6 +214,7 @@ module Google
       end
     end
 
+    #
     # Deletes the specified event.
     # This is a callback used by the Event class.
     #
@@ -181,16 +222,18 @@ module Google
       @connection.send_events_request("/#{event.id}", :delete)
     end
 
-    # def display_color
-    #   @connection.list_calendars.xpath("//entry[title='#{@calendar_name}']/color/@value").first.value
-    # end
-
     protected
 
-    def encode_time(time)
+    #
+    # Utility method to centralize time encoding.
+    #
+    def encode_time(time) #:nodoc:
       Addressable::URI.encode_component(time.strftime("%FT%T%:z"), Addressable::URI::CharacterClasses::UNRESERVED)
     end
 
+    #
+    # Utility method used to centralize event lookup.
+    #
     def event_lookup(query_string = '') #:nodoc:
       begin
         response = @connection.send_events_request(query_string, :get)
@@ -202,6 +245,9 @@ module Google
       end
     end
 
+    #
+    # Utility method used to centralize event setup
+    #
     def setup_event(event) #:nodoc:
       event.calendar = self
       if block_given?

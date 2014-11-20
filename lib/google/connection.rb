@@ -3,15 +3,23 @@ require "addressable/uri"
 
 module Google
 
-  # This is a utility class that performs communication with the google calendar api.
+  #
+  # This is a utility class that communicates with the google calendar api.
   #
   class Connection
     BASE_URI = "https://www.googleapis.com/calendar/v3"
 
     attr_accessor :client
 
-    # Prepare an unauthenticated connection to google for fetching a public calendar events
-    # calendar_id: the id of the calendar you would like to work with (e.g. en.singapore#holiday@group.v.calendar.google.com)
+    #
+    # Prepare a connection to google for fetching a calendar events
+    #
+    #  the +params+ paramater accepts
+    # * :client_id => the client ID that you received from Google after registering your application with them (https://console.developers.google.com/)
+    # * :client_secret => the client secret you received from Google after registering your application with them.
+    # * :redirect_uri => the url where your users will be redirected to after they have successfully permitted access to their calendars. Use 'urn:ietf:wg:oauth:2.0:oob' if you are using an 'application'"
+    # * :refresh_token => if a user has already given you access to their calendars, you can specify their refresh token here and you will be 'logged on' automatically (i.e. they don't need to authorize access again)
+    #
     def initialize(params)
 
       raise ArgumentError unless Connection.credentials_provided?(params)
@@ -40,35 +48,54 @@ module Google
 
     end
 
+    #
+    # The URL you need to send a user in order to let them grant you access to their calendars.
+    #
     def authorize_url
       @client.authorization_uri
     end
 
+    #
+    # The single use auth code that google uses during the auth process.
+    #
     def auth_code
       @client.code
     end
 
+    #
+    # The current access token.  Used during a session, typically expires in a hour.
+    #
     def access_token
       @client.access_token
     end
 
+    #
+    # The refresh token is used to obtain a new access token.  It remains valid until a user revokes access.
+    #
     def refresh_token
       @client.refresh_token
     end
 
+    #
+    # Convenience method used to streamline the process of logging in with a auth code.
+    #
     def login_with_auth_code(auth_code)
       @client.code = auth_code
       Connection.get_new_access_token(@client)
       @client.refresh_token
     end
 
+    #
+    # Convenience method used to streamline the process of logging in with a refresh token.
+    #
     def login_with_refresh_token(refresh_token)
       @client.refresh_token = refresh_token
       @client.grant_type = 'refresh_token'
       Connection.get_new_access_token(@client)
     end
 
-    # send a request to google.
+    #
+    # Send a request to google.
     #
     def send(uri, method, content = '')
 
@@ -84,7 +111,8 @@ module Google
       return response
     end
 
-    # wraps `send` method. send a event related request to google.
+    #
+    # Wraps the `send` method. Send an event related request to Google.
     #
     def send_events_request(path_and_query_string, method, content = '')
       send(Addressable::URI.parse(@events_url + path_and_query_string), method, content)
@@ -92,7 +120,10 @@ module Google
 
     protected
 
-    def self.get_new_access_token(client)
+    #
+    # Utility method to centralize the process of getting an access token.
+    #
+    def self.get_new_access_token(client) #:nodoc:
       begin 
         client.fetch_access_token!
       rescue Signet::AuthorizationError
@@ -100,6 +131,7 @@ module Google
       end
     end
 
+    #
     # Check for common HTTP Errors and raise the appropriate response.
     #
     def check_for_errors(response) #:nodoc
@@ -111,7 +143,10 @@ module Google
 
     private
 
-    def self.credentials_provided? params
+    #
+    # 
+    #
+    def self.credentials_provided?(params) #:nodoc:
       blank = /[^[:space:]]/
       !(params[:client_id] !~ blank) && !(params[:client_secret] !~ blank)
     end
