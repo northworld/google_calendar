@@ -142,7 +142,7 @@ module Google
     #   an array of events if many found.
     #
     def find_future_events(options={})
-      formatted_start_min = encode_time(DateTime.now)
+      formatted_start_min = encode_time(Time.now)
       query = "?timeMin=#{formatted_start_min}#{parse_options(options)}"
       event_lookup(query)
     end
@@ -199,7 +199,7 @@ module Google
       body = event.use_quickadd? ? nil : event.to_json
 
       query_string =  if event.use_quickadd?
-        "/quickAdd?text=#{ Addressable::URI.encode_component(event.quickadd)}"
+        "/quickAdd?text=#{event.title}"
       elsif event.new_event?
         ''
       else # update existing event.
@@ -233,7 +233,7 @@ module Google
     # Utility method to centralize time encoding.
     #
     def encode_time(time) #:nodoc:
-      Addressable::URI.encode_component(time.strftime("%FT%T%:z"), Addressable::URI::CharacterClasses::UNRESERVED)
+      time.strftime("%FT%T%z")
     end
 
     #

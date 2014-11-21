@@ -81,14 +81,14 @@ class TestGoogleCalendar < Minitest::Test
       should "find events in range" do
         start_min = DateTime.new(2011, 2, 1, 11, 1, 1)
         start_max = DateTime.new(2011, 2, 28, 23, 59, 59)
-        @calendar.expects(:event_lookup).with('?timeMin=2011-02-01T11%3A01%3A01%2B00%3A00&timeMax=2011-02-28T23%3A59%3A59%2B00%3A00&orderBy=startTime&maxResults=25&singleEvents=true')
+        @calendar.expects(:event_lookup).with('?timeMin=2011-02-01T11:01:01+0000&timeMax=2011-02-28T23:59:59+0000&orderBy=startTime&maxResults=25&singleEvents=true')
         events = @calendar.find_events_in_range(start_min, start_max)
       end
 
       should "find future events" do
         now = DateTime.now
         DateTime.stubs(:now).returns(now)
-        formatted_time = Addressable::URI.encode_component(now.strftime("%FT%T%:z"), Addressable::URI::CharacterClasses::UNRESERVED)
+        formatted_time = now.strftime("%FT%T%z")
         @calendar.expects(:event_lookup).with("?timeMin=#{formatted_time}&orderBy=startTime&maxResults=25&singleEvents=true")
         events = @calendar.find_future_events()
       end
@@ -289,27 +289,21 @@ class TestGoogleCalendar < Minitest::Test
     end
 
     context "reminders" do
-      context "reminders array" do
+      context "reminders hash" do
         should "set reminder time" do
-          @event = Event.new :reminders => [minutes: 6]
-          assert_equal @event.reminders.first[:minutes], 6
+          @event = Event.new(:reminders => { 'useDefault'  => false, 'overrides' => ['minutes' => 6, 'method' => "popup"]})
+          assert_equal @event.reminders['overrides'].first['minutes'], 6
         end
 
         should "use different time scales" do
-          @event = Event.new :reminders => [hours: 5]
-          assert_equal @event.reminders.first[:hours], 5
+          @event = Event.new(:reminders => { 'useDefault'  => false, 'overrides' => ['hours' => 6, 'method' => "popup"]})
+          assert_equal @event.reminders['overrides'].first['hours'], 6
         end
 
         should "set reminder method" do
-          @event = Event.new :reminders => [minutes: 6, method: "sms"]
-          assert_equal @event.reminders.first[:minutes], 6
-          assert_equal @event.reminders.first[:method], "sms"
-        end
-
-        should "default to minutes -> hours -> days" do
-          @event = Event.new :reminders => [minutes: 6, hours: 8]
-          assert_equal @event.reminders.first[:minutes], 6
-          assert_equal @event.reminders.first[:hours], 8
+          @event = Event.new(:reminders => { 'useDefault'  => false, 'overrides' => ['minutes' => 6, 'method' => "sms"]})
+          assert_equal @event.reminders['overrides'].first['minutes'], 6
+          assert_equal @event.reminders['overrides'].first['method'], 'sms'
         end
       end
     end

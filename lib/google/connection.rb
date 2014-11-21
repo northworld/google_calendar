@@ -1,5 +1,4 @@
 require 'signet/oauth_2/client'
-require "addressable/uri"
 
 module Google
 
@@ -78,6 +77,7 @@ module Google
 
     #
     # Convenience method used to streamline the process of logging in with a auth code.
+    # Returns the refresh token.
     #
     def login_with_auth_code(auth_code)
       @client.code = auth_code
@@ -115,7 +115,7 @@ module Google
     # Wraps the `send` method. Send an event related request to Google.
     #
     def send_events_request(path_and_query_string, method, content = '')
-      send(Addressable::URI.parse(@events_url + path_and_query_string), method, content)
+      send(@events_url + path_and_query_string, method, content)
     end
 
     protected
@@ -144,7 +144,7 @@ module Google
     private
 
     #
-    # 
+    # Utility method to centralize credential validation.
     #
     def self.credentials_provided?(params) #:nodoc:
       blank = /[^[:space:]]/

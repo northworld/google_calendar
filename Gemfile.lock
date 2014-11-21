@@ -2,7 +2,6 @@ PATH
   remote: .
   specs:
     google_calendar (0.4.0)
-      addressable (>= 2.2.2)
       signet (>= 0.5.1)
 
 GEM
