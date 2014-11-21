@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Google calendar by northworld</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Google calendar</h1>
+        <h2>A minimal wrapper around the google calendar API, which uses nokogiri for fast parsing</h2>
+        <a href="https://github.com/northworld/google_calendar" class="button"><small>View project on</small> GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>
+<a id="google-calendar" class="anchor" href="#google-calendar" aria-hidden="true"><span class="octicon octicon-link"></span></a>Google Calendar</h1>
+
+<p>A fast lightweight and minimalist wrapper around the {Google Calendar}[<a href="https://www.google.com/calendar/">https://www.google.com/calendar/</a>] api.</p>
+
+<p><a href="https://travis-ci.org/northworld/google_calendar"><img src="https://travis-ci.org/northworld/google_calendar.png?branch=master" alt="Build Status"></a> <a href="https://gemnasium.com/northworld/google_calendar"><img src="https://gemnasium.com/northworld/google_calendar.png" alt="Dependency Status"></a> <a href="https://codeclimate.com/github/northworld/google_calendar"><img src="https://codeclimate.com/github/northworld/google_calendar/badges/gpa.svg" alt="Code Climate"></a> <a href="https://codeclimate.com/github/northworld/google_calendar"><img src="https://codeclimate.com/github/northworld/google_calendar/badges/coverage.svg" alt="Test Coverage"></a></p>
+
+<h2>
+<a id="install" class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install</h2>
+
+<pre><code>  [sudo] gem install 'google_calendar'
+</code></pre>
+
+<h2>
+<a id="setup" class="anchor" href="#setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h2>
+
+<p><b>Obtain a Client ID and Secret</b></p>
+
+<ol>
+<li>Go to the {Google Developers Console}[<a href="https://console.developers.google.com/">https://console.developers.google.com/</a>].</li>
+<li>Select a project, or create a new one.</li>
+<li>In the sidebar on the left, expand APIs &amp; auth. Next, click APIs. In the list of APIs, make sure the status is ON for the Calendar API.</li>
+<li>In the sidebar on the left, select Credentials.</li>
+<li>In either case, you end up on the Credentials page and can create your project's credentials from here.</li>
+<li>If you haven't done so already, create your OAuth 2.0 credentials by clicking Create new Client ID under the OAuth heading. Next, look for your application's client ID and client secret in the relevant table. You may also create and edit redirect URIs from this page.</li>
+</ol>
+
+<p><em>Take note of the Client ID as you'll need to add it to your code later.</em></p>
+
+<p><b>Find your calendar ID</b></p>
+
+<ol>
+<li>Visit {Google Calendar}[<a href="https://www.google.com/calendar/">https://www.google.com/calendar/</a>] in your web browser.</li>
+<li>In the calendar list on the left, click the down-arrow button next to the appropriate calendar, then select Calendar settings.</li>
+<li>In the Calendar Address section, locate the Calendar ID listed next to the XML, ICAL and HTML buttons.</li>
+<li>Copy the Calendar ID.</li>
+</ol>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<pre><code>  require 'rubygems'
+  require 'google_calendar'
+
+  YOUR_CLIENT_ID    = ""
+  YOUR_SECRET       = ""
+  YOUR_CALENDAR_ID  = ""
+
+  # Create an instance of the calendar.
+  cal = Google::Calendar.new(:client_id =&gt; YOUR_CLIENT_ID, 
+                             :client_secret =&gt; YOUR_SECRET,
+                             :calendar =&gt; YOUR_CALENDAR_ID,
+                             :redirect_url =&gt; "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
+                             )
+
+  puts "Do you already have a refresh token? (y/n)"
+  has_token = $stdin.gets.chomp
+
+  if has_token.downcase != 'y'
+
+    # A user needs to approve access in order to work with their calendars.
+    puts "Visit the following web page in your browser and approve access."
+    puts cal.authorize_url
+    puts "\nCopy the code that Google returned and paste it here:"
+
+    # Pass the ONE TIME USE access code here to login and get a refresh token that you can use for access from now on.
+    refresh_token = cal.login_with_auth_code( $stdin.gets.chomp )
+
+    puts "\nMake sure you SAVE YOUR REFRESH TOKEN so you don't have to prompt the user to approve access again."
+    puts "your refresh token is:\n\t#{refresh_token}\n"
+    puts "Press return to continue"
+    $stdin.gets.chomp
+
+  else
+    puts "Enter your refresh token"
+    refresh_token = $stdin.gets.chomp
+    cal.login_with_refresh_token(refresh_token)
+
+    # Note: You can also pass your refresh_token to the constructor and it will login at that time.
+
+  end
+
+  event = cal.create_event do |e|
+    e.title = 'A Cool Event'
+    e.start_time = Time.now
+    e.end_time = Time.now + (60 * 60) # seconds * min
+  end
+
+  puts event
+
+  event = cal.find_or_create_event_by_id(event.id) do |e|
+    e.title = 'An Updated Cool Event'
+    e.end_time = Time.now + (60 * 60 * 2) # seconds * min * hours
+  end
+
+  puts event
+
+  # All events
+  puts cal.events
+
+  # Query events
+  puts cal.find_events('your search string')
+</code></pre>
+
+<p>This sample code is located in readme_code.rb in the root folder.</p>
+
+<p>Note: This is not a complete implementation of the calendar api, it just includes the features we needed to support our internal calendar integration.</p>
+
+<h2>
+<a id="contributing-to-google_calendar" class="anchor" href="#contributing-to-google_calendar" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contributing to google_calendar</h2>
+
+<ul>
+<li>Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet</li>
+<li>Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it</li>
+<li>Fork the project</li>
+<li>Start a feature/bugfix branch</li>
+<li>Commit and push until you are happy with your contribution</li>
+<li>Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.</li>
+<li>Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.</li>
+</ul>
+
+<p>== Copyright</p>
+
+<p>Copyright (c) 2010-2014 Steve Zich. See LICENSE.txt for further details.</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/northworld/google_calendar/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/northworld/google_calendar/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/northworld/google_calendar"></a> is maintained by <a href="https://github.com/northworld">northworld</a>.</p>
+
+          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
