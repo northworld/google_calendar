@@ -72,10 +72,10 @@
   require 'google_calendar'
 
   # Create an instance of the calendar.
-  cal = Google::Calendar.new(:client_id =&gt; YOUR_CLIENT_ID, 
+  cal = Google::Calendar.new(:client_id     =&gt; YOUR_CLIENT_ID, 
                              :client_secret =&gt; YOUR_SECRET,
-                             :calendar =&gt; YOUR_CALENDAR_ID,
-                             :redirect_url =&gt; "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
+                             :calendar      =&gt; YOUR_CALENDAR_ID,
+                             :redirect_url  =&gt; "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
                              )
 
   puts "Do you already have a refresh token? (y/n)"
