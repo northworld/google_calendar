@@ -39,6 +39,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency(%q<mocha>, [">= 0"])
   s.add_development_dependency(%q<rake>, ["> 10"])
   s.add_development_dependency(%q<rdoc>, [">= 3"])
-  s.add_development_dependency(%q<simplecov>, ["~> 0.9.0"])
+  # s.add_development_dependency(%q<simplecov>, ["~> 0.9.0"])
   
 end

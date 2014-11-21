@@ -13,6 +13,8 @@ GEM
     builder (3.2.2)
     celluloid (0.16.0)
       timers (~> 4.0.0)
+    codeclimate-test-reporter (0.4.1)
+      simplecov (>= 0.7.1, < 1.0.0)
     coderay (1.1.0)
     docile (1.1.5)
     faraday (0.9.0)
@@ -81,6 +83,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (>= 1.0.0)
+  codeclimate-test-reporter
   google_calendar!
   guard-minitest
   minitest (~> 5.1)
@@ -90,5 +93,4 @@ DEPENDENCIES
   rb-fsevent
   rdoc (>= 3)
   shoulda-context
-  simplecov (~> 0.9.0)
   terminal-notifier-guard
