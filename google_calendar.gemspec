@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.authors = ["Steve Zich"]
   s.email = "steve.zich@gmail.com"
 
-  s.summary = "A lightweight google calendar API wrapper"
+  s.summary = "A lightweight Google calendar API wrapper"
   s.description = "A minimal wrapper around the google calendar API"
   s.homepage = "http://github.com/northworld/google_calendar"
   s.licenses = ["MIT"]  
@@ -29,16 +29,11 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<signet>, [">= 0.5.1"])
   s.add_runtime_dependency(%q<addressable>, [">= 2.2.2"])
 
-  s.add_development_dependency(%q<terminal-notifier-guard>, [">= 0"])
-  s.add_development_dependency(%q<rb-fsevent>, [">= 0"])
-  s.add_development_dependency(%q<guard-minitest>, [">= 0"])
   s.add_development_dependency(%q<minitest>, ["~> 5.1"])
-  s.add_development_dependency(%q<minitest-reporters>, [">=0"])
   s.add_development_dependency(%q<shoulda-context>, [">= 0"])
   s.add_development_dependency(%q<bundler>, [">= 1.0.0"])
   s.add_development_dependency(%q<mocha>, [">= 0"])
   s.add_development_dependency(%q<rake>, ["> 10"])
   s.add_development_dependency(%q<rdoc>, [">= 3"])
-  # s.add_development_dependency(%q<simplecov>, ["~> 0.9.0"])
   
 end

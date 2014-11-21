@@ -142,7 +142,7 @@ module Google
     #   an array of events if many found.
     #
     def find_future_events(options={})
-      formatted_start_min = encode_time(DateTime.now)
+      formatted_start_min = encode_time(Time.now)
       query = "?timeMin=#{formatted_start_min}#{parse_options(options)}"
       event_lookup(query)
     end
@@ -231,11 +231,13 @@ module Google
 
     #
     # Utility method to centralize time encoding.
+    # Google format: yyyy-mm-ddTHH:MM:ss        ex: 2011-06-03T10:00:00         — without a offset.
+    # with offset    yyyy-mm-ddTHH:MM:ss-HH:MM  ex: 2011-06-03T10:00:00-07:00   — with a numerical offset.
     #
     def encode_time(time) #:nodoc:
-      Addressable::URI.encode_component(time.strftime("%FT%T%:z"), Addressable::URI::CharacterClasses::UNRESERVED)
+      time.strftime("%FT%T%z")
     end
-
+    
     #
     # Utility method used to centralize event lookup.
     #

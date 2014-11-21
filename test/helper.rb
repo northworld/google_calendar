@@ -1,8 +1,3 @@
-#require 'simplecov'
-#SimpleCov.start
-require "codeclimate-test-reporter"
-CodeClimate::TestReporter.start
-
 require 'rubygems'
 require 'bundler'
 begin
@@ -14,7 +9,6 @@ rescue Bundler::BundlerError => e
 end
 
 require "minitest/autorun"
-require 'minitest/reporters' 
 require 'shoulda/context'
 require 'mocha/setup'
 require 'faraday'
@@ -22,8 +16,6 @@ require 'faraday'
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'google_calendar'
-
-Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 
 class Minitest::Test
   @@mock_path = File.expand_path(File.join(File.dirname(__FILE__), 'mocks'))
