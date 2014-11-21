@@ -97,6 +97,7 @@
     $stdin.gets.chomp
 
   else
+
     puts "Enter your refresh token"
     refresh_token = $stdin.gets.chomp
     cal.login_with_refresh_token(refresh_token)
