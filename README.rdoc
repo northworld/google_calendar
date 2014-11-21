@@ -1,7 +1,7 @@
 
 = Google Calendar
 
-A fast lightweight and minimalist wrapper around the google calendar api.
+A fast lightweight and minimalist wrapper around the {Google Calendar}[https://www.google.com/calendar/] api.
 
 {<img src="https://travis-ci.org/northworld/google_calendar.png?branch=master" alt="Build Status" />}[https://travis-ci.org/northworld/google_calendar] {<img src="https://gemnasium.com/northworld/google_calendar.png" alt="Dependency Status" />}[https://gemnasium.com/northworld/google_calendar] {<img src="https://codeclimate.com/github/northworld/google_calendar/badges/gpa.svg" />}[https://codeclimate.com/github/northworld/google_calendar]
 == Install
@@ -9,23 +9,23 @@ A fast lightweight and minimalist wrapper around the google calendar api.
 
 == Setup 
 
-Obtain a Client ID and Secret from Google
+<b>Obtain a Client ID and Secret</b>
 
-Go to the {Google Developers Console}[https://console.developers.google.com/].
-Select a project, or create a new one.
-In the sidebar on the left, expand APIs & auth. Next, click APIs. In the list of APIs, make sure the status is ON for the Calendar API.
-In the sidebar on the left, select Credentials.
-In either case, you end up on the Credentials page and can create your project's credentials from here.
+1. Go to the {Google Developers Console}[https://console.developers.google.com/].
+1. Select a project, or create a new one.
+1. In the sidebar on the left, expand APIs & auth. Next, click APIs. In the list of APIs, make sure the status is ON for the Calendar API.
+1. In the sidebar on the left, select Credentials.
+1. In either case, you end up on the Credentials page and can create your project's credentials from here.
+1. If you haven't done so already, create your OAuth 2.0 credentials by clicking Create new Client ID under the OAuth heading. Next, look for your application's client ID and client secret in the relevant table. You may also create and edit redirect URIs from this page.
 
-If you haven't done so already, create your OAuth 2.0 credentials by clicking Create new Client ID under the OAuth heading. Next, look for your application's client ID and client secret in the relevant table. You may also create and edit redirect URIs from this page.
+<em>Take note of the Client ID as you'll need to add it to your code later.</em>
 
-Take note of the Client ID as you'll need to add it to your code later.
+<b>Find your calendar ID</b>
 
-== How to find your calendar ID
-Visit Google calendar in your web browser.
-In the calendar list on the left, click the down-arrow button next to the appropriate calendar, then select Calendar settings.
-In the Calendar Address section, locate the Calendar ID listed next to the XML, ICAL and HTML buttons.
-Copy the Calendar ID.
+1. Visit {Google Calendar}[https://www.google.com/calendar/] in your web browser.
+1. In the calendar list on the left, click the down-arrow button next to the appropriate calendar, then select Calendar settings.
+1. In the Calendar Address section, locate the Calendar ID listed next to the XML, ICAL and HTML buttons.
+1. Copy the Calendar ID.
 
 == Usage
   require 'rubygems'
@@ -106,4 +106,4 @@ Note: This is not a complete implementation of the calendar api, it just include
 
 == Copyright
 
-Copyright (c) 2010 Steve Zich. See LICENSE.txt for further details.
+Copyright (c) 2010-2014 Steve Zich. See LICENSE.txt for further details.
