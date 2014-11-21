@@ -9,23 +9,23 @@ A fast lightweight and minimalist wrapper around the google calendar api.
 
 == Setup 
 
-  Obtain a Client ID and Secret from Google
+Obtain a Client ID and Secret from Google
 
-  Go to the {Google Developers Console}[https://console.developers.google.com/].
-  Select a project, or create a new one.
-  In the sidebar on the left, expand APIs & auth. Next, click APIs. In the list of APIs, make sure the status is ON for the Calendar API.
-  In the sidebar on the left, select Credentials.
-  In either case, you end up on the Credentials page and can create your project's credentials from here.
+Go to the {Google Developers Console}[https://console.developers.google.com/].
+Select a project, or create a new one.
+In the sidebar on the left, expand APIs & auth. Next, click APIs. In the list of APIs, make sure the status is ON for the Calendar API.
+In the sidebar on the left, select Credentials.
+In either case, you end up on the Credentials page and can create your project's credentials from here.
 
-  If you haven't done so already, create your OAuth 2.0 credentials by clicking Create new Client ID under the OAuth heading. Next, look for your application's client ID and client secret in the relevant table. You may also create and edit redirect URIs from this page.
+If you haven't done so already, create your OAuth 2.0 credentials by clicking Create new Client ID under the OAuth heading. Next, look for your application's client ID and client secret in the relevant table. You may also create and edit redirect URIs from this page.
 
-  Take note of the Client ID as you'll need to add it to your code later.
+Take note of the Client ID as you'll need to add it to your code later.
 
-=== How to find your calendar ID
-  Visit Google calendar in your web browser.
-  In the calendar list on the left, click the down-arrow button next to the appropriate calendar, then select Calendar settings.
-  In the Calendar Address section, locate the Calendar ID listed next to the XML, ICAL and HTML buttons.
-  Copy the Calendar ID.
+== How to find your calendar ID
+Visit Google calendar in your web browser.
+In the calendar list on the left, click the down-arrow button next to the appropriate calendar, then select Calendar settings.
+In the Calendar Address section, locate the Calendar ID listed next to the XML, ICAL and HTML buttons.
+Copy the Calendar ID.
 
 == Usage
   require 'rubygems'
