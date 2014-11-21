@@ -5,22 +5,14 @@
 # $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), 'lib'))
 # $LOAD_PATH.unshift(File.dirname(__FILE__))
 
-#
-# Comment out the require lines out if you want to run against 
-# the local version of the gem.
-#
 require 'rubygems'
 require 'google_calendar'
 
-YOUR_CLIENT_ID    = ""
-YOUR_SECRET       = ""
-YOUR_CALENDAR_ID  = ""
-
 # Create an instance of the calendar.
-cal = Google::Calendar.new(:client_id => YOUR_CLIENT_ID, 
+cal = Google::Calendar.new(:client_id     => YOUR_CLIENT_ID, 
                            :client_secret => YOUR_SECRET,
-                           :calendar => YOUR_CALENDAR_ID,
-                           :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
+                           :calendar      => YOUR_CALENDAR_ID,
+                           :redirect_url  => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
                            )
 
 puts "Do you already have a refresh token? (y/n)"
@@ -42,6 +34,7 @@ if has_token.downcase != 'y'
   $stdin.gets.chomp
 
 else
+
   puts "Enter your refresh token"
   refresh_token = $stdin.gets.chomp
   cal.login_with_refresh_token(refresh_token)
