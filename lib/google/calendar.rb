@@ -233,7 +233,7 @@ module Google
     # Utility method to centralize time encoding.
     #
     def encode_time(time) #:nodoc:
-      time.strftime("%FT%T%z")
+      time.utc.strftime("%FT%TZ")
     end
 
     #
