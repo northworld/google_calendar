@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    google_calendar (0.4.0)
-      signet (>= 0.5.1)
+    google_calendar (0.4.1)
+      signet (~> 0.5)
 
 GEM
   remote: http://rubygems.org/
@@ -81,15 +81,15 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bundler (>= 1.0.0)
+  bundler (>= 1.2)
   codeclimate-test-reporter
   google_calendar!
-  guard-minitest
+  guard-minitest (~> 2.3)
   minitest (~> 5.1)
-  minitest-reporters
-  mocha
-  rake (> 10)
-  rb-fsevent
-  rdoc (>= 3)
-  shoulda-context
-  terminal-notifier-guard
+  minitest-reporters (~> 1.0)
+  mocha (~> 1.1)
+  rake (~> 10)
+  rb-fsevent (~> 0.9)
+  rdoc (~> 4.1)
+  shoulda-context (~> 1.2)
+  terminal-notifier-guard (~> 1.6)
