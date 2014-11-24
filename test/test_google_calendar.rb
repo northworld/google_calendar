@@ -79,9 +79,11 @@ class TestGoogleCalendar < Minitest::Test
       end
 
       should "find events in range" do
-        start_min = Time.new(2011, 2, 1, 11, 1, 1).utc
-        start_max = Time.new(2011, 2, 28, 23, 59, 59).utc
-        @calendar.expects(:event_lookup).with('?timeMin=2011-02-01T19:01:01Z&timeMax=2011-03-01T07:59:59Z&orderBy=startTime&maxResults=25&singleEvents=true')
+        now = Time.now.utc
+        Time.stubs(:now).returns(now)
+        start_min = now
+        start_max = (now + 60*60*24)
+        @calendar.expects(:event_lookup).with("?timeMin=#{start_min.strftime("%FT%TZ")}&timeMax=#{start_max.strftime("%FT%TZ")}&orderBy=startTime&maxResults=25&singleEvents=true")
         events = @calendar.find_events_in_range(start_min, start_max)
       end
 
