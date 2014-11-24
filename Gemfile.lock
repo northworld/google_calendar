@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    google_calendar (0.4.1)
+    google_calendar (0.4.2)
       signet (~> 0.5)
 
 GEM

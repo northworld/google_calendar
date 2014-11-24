@@ -60,7 +60,7 @@ module Google
     # Sets the start time of the Event.  Must be a Time object or a parse-able string representation of a time.
     #
     def start_time=(time)
-      @start_time = parse_time(time)
+      @start_time = Event.parse_time(time)
     end
 
     #
@@ -87,7 +87,7 @@ module Google
     # Sets the end time of the Event.  Must be a Time object or a parse-able string representation of a time.
     #
     def end_time=(time)
-      @end_time = parse_time(time)
+      @end_time = Event.parse_time(time)
       raise ArgumentError, "End Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
       @end_time = (time.is_a? String) ? Time.parse(time) : time.dup.utc
     end
@@ -279,8 +279,8 @@ module Google
                 :title        => e['summary'],
                 :description  => e['description'],
                 :location     => e['location'],
-                :start_time   => (e['start'] ? e['start']['dateTime'] : ''),
-                :end_time     => (e['end']   ? e['end']['dateTime'] : ''),
+                :start_time   => Event.parse_json_time(e['start']),
+                :end_time     => Event.parse_json_time(e['end']),
                 :transparency => e['transparency'],
                 :html_link    => e['htmlLink'],
                 :updated      => e['updated'],
@@ -299,10 +299,20 @@ module Google
       @html_link = @raw['htmlLink']
     end
 
+    def self.parse_json_time(time_hash)
+      if time_hash['date']
+        Time.parse(time_hash['date']).utc
+      elsif time_hash['dateTime']
+        Time.parse(time_hash['dateTime']).utc
+      else
+        Time.now.utc
+      end      
+    end
+
     #
     # A utility method used centralize time parsing.
     #
-    def parse_time(time) #:nodoc
+    def self.parse_time(time) #:nodoc
       raise ArgumentError, "Start Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
       (time.is_a? String) ? Time.parse(time) : time.dup.utc
     end
