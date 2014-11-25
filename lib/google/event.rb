@@ -47,8 +47,7 @@ module Google
     #                   ]
     #
     def initialize(params = {})
-      [:id, :raw, :html_link, 
-       :title, :location, :calendar, :quickadd, :attendees, :description, :reminders, :start_time, :end_time,  ].each do |attribute|
+      [:id, :raw, :html_link, :title, :location, :calendar, :quickadd, :attendees, :description, :reminders, :start_time, :end_time,  ].each do |attribute|
         instance_variable_set("@#{attribute}", params[attribute])
       end
 

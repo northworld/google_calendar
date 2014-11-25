@@ -141,6 +141,23 @@ class TestGoogleCalendar < Minitest::Test
         assert_equal event.id, "fhru34kt6ikmr20knd2456l08n"
       end
 
+      should "find properly parse all day event" do
+        @client_mock.stubs(:body).returns( get_mock_body("find__all_day_event_by_id.json") )
+        event = @calendar.find_event_by_id('fhru34kt6ikmr20knd2456l10n')
+        assert_equal event[0].id, 'fhru34kt6ikmr20knd2456l10n'
+        assert_equal event[0].start_time, "2008-09-24T17:30:00Z"
+      end
+
+      should "find properly parse missing date event" do
+        now = Time.now.utc
+        Time.stubs(:now).returns(now)
+        formatted_time = now.strftime("%FT%TZ")
+        @client_mock.stubs(:body).returns( get_mock_body("missing_date.json") )
+        event = @calendar.find_event_by_id('fhru34kt6ikmr20knd2456l12n')
+        assert_equal event[0].id, 'fhru34kt6ikmr20knd2456l12n'
+        assert_equal event[0].start_time, formatted_time
+      end
+
       should "create a quickadd event" do
         @client_mock.stubs(:body).returns( get_mock_body("create_quickadd_event.json") )
 
