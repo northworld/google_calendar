@@ -1,4 +1,4 @@
-require_relative 'helper'
+require 'helper'
 
 class TestGoogleCalendar < Minitest::Test
   include Google
