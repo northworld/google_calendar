@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    google_calendar (0.4.2)
+    google_calendar (0.4.3)
       signet (~> 0.5)
 
 GEM
@@ -31,7 +31,7 @@ GEM
       minitest (>= 3.0)
     hitimes (1.2.2)
     json (1.8.1)
-    jwt (1.0.0)
+    jwt (1.2.0)
     listen (2.8.0)
       celluloid (>= 0.15.2)
       rb-fsevent (>= 0.9.3)
