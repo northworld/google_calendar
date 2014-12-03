@@ -1,4 +1,5 @@
 require 'time'
+require 'json'
 
 module Google
 
@@ -8,6 +9,7 @@ module Google
   # === Attributes
   #
   # * +id+ - The google assigned id of the event (nil until saved). Read only.
+  # * +status+ - The status of the event (confirmed, tentative or cancelled). Read only.
   # * +title+ - The title of the event. Read Write.
   # * +description+ - The content of the event. Read Write.
   # * +location+ - The location of the event. Read Write.
@@ -24,7 +26,7 @@ module Google
   # * +raw+ - The full google json representation of the event. Read only.
   #
   class Event
-    attr_reader :id, :raw, :html_link
+    attr_reader :id, :raw, :html_link, :status
     attr_accessor :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders
 
     #
@@ -47,7 +49,7 @@ module Google
     #                   ]
     #
     def initialize(params = {})
-      [:id, :raw, :html_link, :title, :location, :calendar, :quickadd, :attendees, :description, :reminders, :start_time, :end_time,  ].each do |attribute|
+      [:id, :status, :raw, :html_link, :title, :location, :calendar, :quickadd, :attendees, :description, :reminders, :start_time, :end_time,  ].each do |attribute|
         instance_variable_set("@#{attribute}", params[attribute])
       end
 
@@ -231,7 +233,7 @@ module Google
     # String representation of an event object.
     #
     def to_s
-      "Event Id '#{self.id}'\n\tTitle: #{title}\n\tStarts: #{start_time}\n\tEnds: #{end_time}\n\tLocation: #{location}\n\tDescription: #{description}\n\n"
+      "Event Id '#{self.id}'\n\tStatus: #{status}\n\tTitle: #{title}\n\tStarts: #{start_time}\n\tEnds: #{end_time}\n\tLocation: #{location}\n\tDescription: #{description}\n\n"
     end
 
     #
@@ -274,6 +276,7 @@ module Google
     def self.new_from_feed(e, calendar) #:nodoc:
       Event.new(:id           => e['id'],
                 :calendar     => calendar,
+                :status       => e['status'],
                 :raw          => e,
                 :title        => e['summary'],
                 :description  => e['description'],
