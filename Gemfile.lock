@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    google_calendar (0.4.3)
+    google_calendar (0.4.4)
       json (~> 1.8)
       signet (~> 0.5)
 
