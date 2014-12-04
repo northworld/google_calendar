@@ -89,7 +89,9 @@ A fast lightweight and minimalist wrapper around the {Google Calendar}[https://w
 
 This sample code is located in readme_code.rb in the root folder.
 
-Note: This is not a complete implementation of the calendar api, it just includes the features we needed to support our internal calendar integration.
+== Notes
+* This is not a complete implementation of the calendar api, it just includes the features we needed to support our internal calendar integration. Feel free to add additional features and we will happily integrate them.
+* Did you get an SSL exception?  If so take a look at this: https://gist.github.com/fnichol/867550
 
 == Contributing to google_calendar
 
