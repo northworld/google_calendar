@@ -6,10 +6,13 @@ class TestGoogleCalendar < Minitest::Test
   context "When connected" do
 
     setup do
+      @header = {}
+      @header['content-type'] = 'application/json; charset=utf-8'
       @client_mock = mock('Faraday::Response')
       @client_mock.stubs(:body).returns(get_mock_body('successful_login.json'))
       @client_mock.stubs(:finish).returns('')
       @client_mock.stubs(:status).returns(200)
+      @client_mock.stubs(:headers).returns(@header)
       Faraday::Response.stubs(:new).returns(@client_mock)
 
       @client_id = "671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com"

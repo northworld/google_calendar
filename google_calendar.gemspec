@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubygems_version = "2.2.2"
 
-  s.add_runtime_dependency(%q<signet>, ["~> 0.5"])
+  s.add_runtime_dependency(%q<signet>, ["~> 0.6"])
   s.add_runtime_dependency(%q<json>, ["~> 1.8"])
 
   s.add_development_dependency(%q<terminal-notifier-guard>, ["~> 1.6"])
