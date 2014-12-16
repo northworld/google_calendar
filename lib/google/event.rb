@@ -183,10 +183,12 @@ module Google
         \"description\": \"#{description}\", 
         \"location\": \"#{location}\", 
         \"start\": {
-          \"dateTime\": \"#{start_time}\"
+          #{("\"date\": \"" + start_time+ "\"" )if all_day?}
+          #{("\"dateTime\": \"" + start_time + "\"" )if !all_day?}
         },
         \"end\": {
-          \"dateTime\": \"#{end_time}\"
+          #{("\"date\": \"" + end_time + "\"" )if all_day?}
+          #{("\"dateTime\": \"" + end_time + "\"" )if !all_day?}
         },
         #{attendees_json}
         \"reminders\": {
