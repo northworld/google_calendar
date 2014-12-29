@@ -202,6 +202,9 @@ module Google
       method = event.new_event? ? :post : :put
       body = event.use_quickadd? ? nil : event.to_json
 
+      # p event         # fuck
+      # p event.to_json # fuck
+
       query_string =  if event.use_quickadd?
         "/quickAdd?text=#{event.title}"
       elsif event.new_event?

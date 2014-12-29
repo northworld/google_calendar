@@ -339,6 +339,41 @@ class TestGoogleCalendar < Minitest::Test
         end
       end
     end
+
+    context "at recurring events" do
+      should "create json in correct format" do
+        now = Time.now
+        @event = Event.new
+        @event.start_time = now
+        @event.end_time = now + (60 * 60)
+        @event.title = "Go Swimming"
+        @event.description = "The polar bear plunge"
+        @event.location = "In the arctic ocean"
+        @event.transparency = "opaque"
+        @event.reminders = { 'useDefault'  => false, 'overrides' => ['minutes' => 10, 'method' => "popup"]}
+        @event.attendees = [
+                            {'email' => 'some.a.one@gmail.com', 'displayName' => 'Some A One', 'responseStatus' => 'tentative'},
+                            {'email' => 'some.b.one@gmail.com', 'displayName' => 'Some B One', 'responseStatus' => 'tentative'}
+                          ]
+        @event.recurrence = {freq: "monthly", count: "5", interval: "2"}
+        correct_json = "{ \"summary\": \"Go Swimming\", \"description\": \"The polar bear plunge\", \"location\": \"In the arctic ocean\", \"start\": { \"dateTime\": \"#{@event.start_time}\" ,\"timeZone\" : \"#{Time.now.getlocal.zone}\" }, \"end\": { \"dateTime\": \"#{@event.end_time}\" ,\"timeZone\" : \"#{Time.now.getlocal.zone}\" }, \"recurrence\": [\"RRULE:FREQ=MONTHLY;COUNT=5;INTERVAL=2\"], \"attendees\": [{ \"displayName\": \"Some A One\", \"email\": \"some.a.one@gmail.com\", \"responseStatus\": \"tentative\" },{ \"displayName\": \"Some B One\", \"email\": \"some.b.one@gmail.com\", \"responseStatus\": \"tentative\" }], \"reminders\": { \"useDefault\": false,\"overrides\": [{ \"method\": \"popup\", \"minutes\": 10 }] } }"
+        assert_equal @event.to_json.gsub("\n", "").gsub(/\s+/, ' '), correct_json
+      end
+
+      should "parse recurrence rule strings corectly" do
+        rrule = ["RRULE:FREQ=MONTHLY;INTERVAL=2;BYDAY=-1MO"]
+        correct_hash = {"freq" => "monthly", "interval" => "2", "byday" => "-1mo"}
+        assert_equal correct_hash.inspect, Event.parse_recurrence_rule(rrule).inspect
+
+        rrule = ["RRULE:FREQ=MONTHLY;UNTIL=20170629T080000Z;INTERVAL=6"]
+        correct_hash = {"freq" =>  "monthly", "until" => "20170629t080000z", "interval" => "6"}
+        assert_equal correct_hash.inspect, Event.parse_recurrence_rule(rrule).inspect
+
+        rrule = ["RRULE:FREQ=WEEKLY;BYDAY=MO,TH"]
+        correct_hash = {"freq" => "weekly", "byday" => "mo,th"}
+        assert_equal correct_hash.inspect, Event.parse_recurrence_rule(rrule).inspect
+      end
+    end
   end
 
   protected
