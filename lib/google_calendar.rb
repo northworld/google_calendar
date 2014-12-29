@@ -1,4 +1,4 @@
-module Google   # fuck
+module Google
   require 'google/errors'
   require 'google/calendar'
   require 'google/connection'

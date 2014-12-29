@@ -281,9 +281,7 @@ module Google
     # JSON representation of recurrence rules for repeating events
     #
     def recurrence_json
-      # puts "converting to json" # fuck
       return unless @recurrence && @recurrence[:freq]
-      # puts "did not return"     # fuck
 
       @recurrence[:until] = @recurrence[:until].strftime('%Y%m%dT%H%M%SZ') if @recurrence[:until]
       rrule = "RRULE:" + @recurrence.collect { |k,v| "#{k}=#{v}" }.join(';').upcase
@@ -337,7 +335,6 @@ module Google
     # Create a new event from a google 'entry'
     #
     def self.new_from_feed(e, calendar) #:nodoc:
-      # p e   # fuck
       Event.new(:id           => e['id'],
                 :calendar     => calendar,
                 :status       => e['status'],
