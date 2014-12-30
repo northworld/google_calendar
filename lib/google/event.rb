@@ -15,6 +15,7 @@ module Google
   # * +location+ - The location of the event. Read Write.
   # * +start_time+ - The start time of the event (Time object, defaults to now). Read Write.
   # * +end_time+ - The end time of the event (Time object, defaults to one hour from now).  Read Write.
+  # * +recurrence+ - A hash containing recurrence info for repeating events. Read write. 
   # * +calendar+ - What calendar the event belongs to. Read Write.
   # * +all_day + - Does the event run all day. Read Write.
   # * +quickadd+ - A string that Google parses when setting up a new event.  If set and then saved it will take priority over any attributes you have set. Read Write.
@@ -27,7 +28,7 @@ module Google
   #
   class Event
     attr_reader :id, :raw, :html_link, :status
-    attr_accessor :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders
+    attr_accessor :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders, :recurrence
 
     #
     # Create a new event, and optionally set it's attributes.
@@ -38,18 +39,19 @@ module Google
     # event.calendar = AnInstanceOfGoogleCalendaer
     # event.start_time = Time.now
     # event.end_time = Time.now + (60 * 60)
+    # event.recurrence = {'freq' => 'monthly'}
     # event.title = "Go Swimming"
     # event.description = "The polar bear plunge"
     # event.location = "In the arctic ocean"
     # event.transparency = "opaque"
-    # event.reminders = { 'useDefault'  => false, 'overrides' => ['minutes' => 10, 'method' => "popup"]}
+    # event.reminders = {'useDefault'  => false, 'overrides' => ['minutes' => 10, 'method' => "popup"]}
     # event.attendees = [
     #                     {'email' => 'some.a.one@gmail.com', 'displayName' => 'Some A One', 'responseStatus' => 'tentative'},
     #                     {'email' => 'some.b.one@gmail.com', 'displayName' => 'Some B One', 'responseStatus' => 'tentative'}
     #                   ]
     #
     def initialize(params = {})
-      [:id, :status, :raw, :html_link, :title, :location, :calendar, :quickadd, :attendees, :description, :reminders, :start_time, :end_time,  ].each do |attribute|
+      [:id, :status, :raw, :html_link, :title, :location, :calendar, :quickadd, :attendees, :description, :reminders, :recurrence, :start_time, :end_time,  ].each do |attribute|
         instance_variable_set("@#{attribute}", params[attribute])
       end
 
@@ -138,6 +140,35 @@ module Google
       @reminders ||= {}
     end
 
+    #
+    # Stores recurrence rules for repeating events.
+    #
+    # Allowed contents:
+    # :freq => frequence information ("daily", "weekly", "monthly", "yearly")   REQUIRED
+    # :count => how many times the repeating event should occur                 OPTIONAL
+    # :until => Time class, until when the event should occur                   OPTIONAL
+    # :interval => how often should the event occur (every "2" weeks, ...)      OPTIONAL
+    # :byday => if frequence is "weekly", contains ordered (starting with       OPTIONAL
+    #             Sunday)comma separated abbreviations of days the event 
+    #             should occur on ("su,mo,th")                                  
+    #           if frequence is "monthly", can specify which day of month
+    #             the event should occur on ("2mo" - second Monday, "-1th" - last Thursday,
+    #             allowed indices are 1,2,3,4,-1)
+    #
+    # Note: The hash should not contain :count and :until keys simultaneously.
+    #
+    # ===== Example
+    # event = cal.create_event do |e|
+    #   e.title = 'Work-day Event'
+    #   e.start_time = Time.now
+    #   e.end_time = Time.now + (60 * 60) # seconds * min
+    #   e.recurrence = {freq: "weekly", byday: "mo,tu,we,th,fr"} 
+    # end
+    #
+    def recurrence
+      @recurrence ||= {}
+    end
+
     # 
     # Utility method that simplifies setting the transparency of an event.
     # You can pass true or false.  Defaults to transparent.
@@ -184,10 +215,13 @@ module Google
         \"location\": \"#{location}\", 
         \"start\": {
           \"dateTime\": \"#{start_time}\"
+          #{timezone_needed? ? local_timezone_json : ''}
         },
         \"end\": {
           \"dateTime\": \"#{end_time}\"
+          #{timezone_needed? ? local_timezone_json : ''}
         },
+        #{recurrence_json}
         #{attendees_json}
         \"reminders\": {
           #{reminders_json}
@@ -227,6 +261,33 @@ module Google
       else
         "\"useDefault\": true"
       end
+    end
+
+    #
+    # Timezone info is needed only at recurring events
+    #
+    def timezone_needed?
+      @recurrence && @recurrence[:freq]
+    end
+
+    #
+    # JSON representation of local timezone
+    #
+    def local_timezone_json
+      ",\"timeZone\" : \"#{Time.now.getlocal.zone}\""
+    end
+
+    #
+    # JSON representation of recurrence rules for repeating events
+    #
+    def recurrence_json
+      return unless @recurrence && @recurrence[:freq]
+
+      @recurrence[:until] = @recurrence[:until].strftime('%Y%m%dT%H%M%SZ') if @recurrence[:until]
+      rrule = "RRULE:" + @recurrence.collect { |k,v| "#{k}=#{v}" }.join(';').upcase
+      @recurrence[:until] = Time.parse(@recurrence[:until]) if @recurrence[:until]
+
+      "\"recurrence\": [\n\"#{rrule}\"],"
     end
 
     #
@@ -287,8 +348,23 @@ module Google
                 :html_link    => e['htmlLink'],
                 :updated      => e['updated'],
                 :reminders    => e['reminders'],
-                :attendees    => e['attendees'] )
+                :attendees    => e['attendees'],
+                :recurrence   => Event.parse_recurrence_rule(e['recurrence']) )
 
+    end
+
+    #
+    # Parse recurrence rule
+    # Returns hash with recurrence info
+    #
+    def self.parse_recurrence_rule(recurrence_entry)
+      return {} unless recurrence_entry && recurrence_entry != []
+      
+      rrule = recurrence_entry[0].sub('RRULE:', '')
+      rhash = Hash[*rrule.downcase.split(/[=;]/)]
+
+      rhash[:until] = Time.parse(rhash[:until]) if rhash[:until]
+      rhash
     end
 
     #
