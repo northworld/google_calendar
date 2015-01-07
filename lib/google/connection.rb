@@ -114,7 +114,7 @@ module Google
     # Utility method to centralize the process of getting an access token.
     #
     def self.get_new_access_token(client) #:nodoc:
-      begin 
+      begin
         client.fetch_access_token!
       rescue Signet::AuthorizationError
         raise HTTPAuthorizationFailed

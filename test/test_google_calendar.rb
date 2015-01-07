@@ -103,13 +103,13 @@ class TestGoogleCalendar < Minitest::Test
         events = @calendar.events
         assert_equal events.class.to_s, "Array"
       end
-      
+
       should "return one event in range as array" do
         @client_mock.stubs(:body).returns( get_mock_body("query_events.json") )
         events = @calendar.events
         assert_equal events.class.to_s, "Array"
       end
-      
+
       should "return response of no events in range as array" do
         @client_mock.stubs(:body).returns( get_mock_body("empty_events.json") )
         events = @calendar.events
@@ -226,7 +226,7 @@ class TestGoogleCalendar < Minitest::Test
           @calendar.events
         end
       end
-      
+
       should "create event when id is NIL" do
         @client_mock.stubs(:body).returns( get_mock_body("find_event_by_id.json") )
 

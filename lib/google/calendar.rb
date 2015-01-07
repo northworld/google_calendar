@@ -20,10 +20,10 @@ module Google
     # See Readme.rdoc or readme_code.rb for an explication on the OAuth2 authorization process.
     #
     # ==== Example
-    # Google::Calendar.new(:client_id => YOUR_CLIENT_ID, 
+    # Google::Calendar.new(:client_id => YOUR_CLIENT_ID,
     #                      :client_secret => YOUR_SECRET,
     #                      :calendar => YOUR_CALENDAR_ID,
-    #                      :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications' 
+    #                      :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
     #                     )
     #
     def initialize(params={})
@@ -95,8 +95,8 @@ module Google
     end
 
     #
-    # This is equivalent to running a search in the Google calendar web application.  
-    # Google does not provide a way to specify what attributes you would like to 
+    # This is equivalent to running a search in the Google calendar web application.
+    # Google does not provide a way to specify what attributes you would like to
     # search (i.e. title), by default it searches everything.
     # If you would like to find specific attribute value (i.e. title=Picnic), run a query
     # and parse the results.
@@ -124,7 +124,7 @@ module Google
     #   an array with one element if only one found.
     #   an array of events if many found.
     #
-    def find_events_in_range(start_min, start_max, options = {})     
+    def find_events_in_range(start_min, start_max, options = {})
       formatted_start_min = encode_time(start_min)
       formatted_start_max = encode_time(start_max)
       query = "?timeMin=#{formatted_start_min}&timeMax=#{formatted_start_max}#{parse_options(options)}"

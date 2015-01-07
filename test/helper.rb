@@ -14,7 +14,7 @@ rescue Bundler::BundlerError => e
 end
 
 require "minitest/autorun"
-require 'minitest/reporters' 
+require 'minitest/reporters'
 require 'shoulda/context'
 require 'mocha/setup'
 require 'faraday'
