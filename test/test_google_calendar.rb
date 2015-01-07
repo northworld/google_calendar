@@ -315,8 +315,19 @@ class TestGoogleCalendar < Minitest::Test
                             {'email' => 'some.b.one@gmail.com', 'displayName' => 'Some B One', 'responseStatus' => 'tentative'}
                           ]
 
-        correct_json = "{ \"summary\": \"Go Swimming\", \"description\": \"The polar bear plunge\", \"location\": \"In the arctic ocean\", \"start\": { \"dateTime\": \"#{@event.start_time}\" }, \"end\": { \"dateTime\": \"#{@event.end_time}\" }, \"attendees\": [{ \"displayName\": \"Some A One\", \"email\": \"some.a.one@gmail.com\", \"responseStatus\": \"tentative\" },{ \"displayName\": \"Some B One\", \"email\": \"some.b.one@gmail.com\", \"responseStatus\": \"tentative\" }], \"reminders\": { \"useDefault\": false,\"overrides\": [{ \"method\": \"popup\", \"minutes\": 10 }] } }"
-        assert_equal @event.to_json.gsub("\n", "").gsub(/\s+/, ' '), correct_json
+        expected_structure = {
+          "summary" => "Go Swimming",
+          "description" => "The polar bear plunge",
+          "location" => "In the arctic ocean",
+          "start" => {"dateTime" => "#{@event.start_time}"},
+          "end" => {"dateTime" => "#{@event.end_time}"},
+          "attendees" => [
+            {"displayName" => "Some A One", "email" => "some.a.one@gmail.com", "responseStatus" => "tentative"},
+            {"displayName" => "Some B One", "email" => "some.b.one@gmail.com", "responseStatus" => "tentative"}
+          ],
+          "reminders" => {"useDefault" => false, "overrides" => [{"method" => "popup", "minutes" => 10}]}
+        }
+        assert_equal JSON.parse(@event.to_json), expected_structure
       end
     end
 
@@ -356,8 +367,20 @@ class TestGoogleCalendar < Minitest::Test
                             {'email' => 'some.b.one@gmail.com', 'displayName' => 'Some B One', 'responseStatus' => 'tentative'}
                           ]
         @event.recurrence = {freq: "monthly", count: "5", interval: "2"}
-        correct_json = "{ \"summary\": \"Go Swimming\", \"description\": \"The polar bear plunge\", \"location\": \"In the arctic ocean\", \"start\": { \"dateTime\": \"#{@event.start_time}\" ,\"timeZone\" : \"#{Time.now.getlocal.zone}\" }, \"end\": { \"dateTime\": \"#{@event.end_time}\" ,\"timeZone\" : \"#{Time.now.getlocal.zone}\" }, \"recurrence\": [\"RRULE:FREQ=MONTHLY;COUNT=5;INTERVAL=2\"], \"attendees\": [{ \"displayName\": \"Some A One\", \"email\": \"some.a.one@gmail.com\", \"responseStatus\": \"tentative\" },{ \"displayName\": \"Some B One\", \"email\": \"some.b.one@gmail.com\", \"responseStatus\": \"tentative\" }], \"reminders\": { \"useDefault\": false,\"overrides\": [{ \"method\": \"popup\", \"minutes\": 10 }] } }"
-        assert_equal @event.to_json.gsub("\n", "").gsub(/\s+/, ' '), correct_json
+        expected_structure = {
+          "summary" => "Go Swimming",
+          "description" => "The polar bear plunge",
+          "location" => "In the arctic ocean",
+          "start" => {"dateTime" => "#{@event.start_time}", "timeZone" => "#{Time.now.getlocal.zone}"},
+          "end" => {"dateTime" => "#{@event.end_time}", "timeZone" => "#{Time.now.getlocal.zone}"},
+          "recurrence" => ["RRULE:FREQ=MONTHLY;COUNT=5;INTERVAL=2"],
+          "attendees" => [
+            {"displayName" => "Some A One", "email" => "some.a.one@gmail.com", "responseStatus" => "tentative"},
+            {"displayName" => "Some B One", "email" => "some.b.one@gmail.com", "responseStatus" => "tentative"}
+          ],
+          "reminders" => {"useDefault" => false, "overrides" => [{"method" => "popup", "minutes"=>10}]}
+        }
+        assert_equal JSON.parse(@event.to_json), expected_structure
       end
 
       should "parse recurrence rule strings corectly" do
