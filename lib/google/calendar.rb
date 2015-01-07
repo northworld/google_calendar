@@ -31,11 +31,14 @@ module Google
         :client_id => params[:client_id],
         :client_secret => params[:client_secret],
         :refresh_token => params[:refresh_token],
-        :redirect_url => params[:redirect_url],
-        :calendar_id => params[:calendar]
+        :redirect_url => params[:redirect_url]
       }
 
       @connection = Connection.new options
+
+      calendar_id = params[:calendar]
+      # raise CalendarIDMissing unless calendar_id
+      @events_base_path = "/calendars/#{CGI::escape calendar_id}/events"
     end
 
     #
@@ -210,7 +213,7 @@ module Google
         "/#{event.id}"
       end
 
-      @connection.send_events_request(query_string, method, body)
+      send_events_request(query_string, method, body)
     end
 
     #
@@ -218,7 +221,7 @@ module Google
     # This is a callback used by the Event class.
     #
     def delete_event(event)
-      @connection.send_events_request("/#{event.id}", :delete)
+      send_events_request("/#{event.id}", :delete)
     end
 
     protected
@@ -245,7 +248,7 @@ module Google
     #
     def event_lookup(query_string = '') #:nodoc:
       begin
-        response = @connection.send_events_request(query_string, :get)
+        response = send_events_request(query_string, :get)
         events = Event.build_from_google_feed( JSON.parse(response.body) , self) || []
         return events if events.empty?
         events.length > 1 ? events : [events[0]]
@@ -264,6 +267,13 @@ module Google
       end
       event.save
       event
+    end
+
+    #
+    # Wraps the `send` method. Send an event related request to Google.
+    #
+    def send_events_request(path_and_query_string, method, content = '')
+      @connection.send(@events_base_path + path_and_query_string, method, content)
     end
   end
 
