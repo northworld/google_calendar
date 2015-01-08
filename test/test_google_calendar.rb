@@ -56,6 +56,15 @@ class TestGoogleCalendar < Minitest::Test
         end
       end
 
+      should "accept a connection to re-use" do
+        @client_mock.stubs(:body).returns( get_mock_body("events.json") )
+        reusable_connection = mock('Google::Connection')
+        reusable_connection.expects(:send).returns(@client_mock)
+
+        calendar = Calendar.new({:calendar => @calendar_id}, reusable_connection)
+        calendar.events
+      end
+
     end # login context
 
     context "and logged in" do
@@ -425,6 +434,14 @@ class TestGoogleCalendar < Minitest::Test
       assert_equal calendar.time_zone, "Europe/London"
       assert_equal calendar.access_role, "owner"
       assert_equal calendar.primary?, true
+    end
+
+    should "accept a connection to re-use" do
+      reusable_connection = mock('Google::Connection')
+      reusable_connection.expects(:send).returns(@client_mock)
+
+      calendar_list = CalendarList.new({}, reusable_connection)
+      calendar_list.fetch_entries
     end
 
   end

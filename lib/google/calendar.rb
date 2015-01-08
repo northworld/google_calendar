@@ -26,15 +26,13 @@ module Google
     #                      :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
     #                     )
     #
-    def initialize(params={})
-      options = {
+    def initialize(params={}, connection=nil)
+      @connection = connection || Connection.new(
         :client_id => params[:client_id],
         :client_secret => params[:client_secret],
         :refresh_token => params[:refresh_token],
         :redirect_url => params[:redirect_url]
-      }
-
-      @connection = Connection.new options
+      )
 
       calendar_id = params[:calendar]
       # raise CalendarIDMissing unless calendar_id

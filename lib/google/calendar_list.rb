@@ -5,6 +5,8 @@ module Google
   #
   class CalendarList
 
+    attr_reader :connection
+
     #
     # Setup and connect to the user's list of Google Calendars.
     #
@@ -16,8 +18,8 @@ module Google
     #
     # See Readme.rdoc or readme_code.rb for an explication on the OAuth2 authorization process.
     #
-    def initialize(params)
-      @connection = Connection.new(
+    def initialize(params={}, connection=nil)
+      @connection = connection || Connection.new(
         :client_id => params[:client_id],
         :client_secret => params[:client_secret],
         :refresh_token => params[:refresh_token],
