@@ -6,14 +6,7 @@ class TestGoogleCalendar < Minitest::Test
   context "When connected" do
 
     setup do
-      @header = {}
-      @header['content-type'] = 'application/json; charset=utf-8'
-      @client_mock = mock('Faraday::Response')
-      @client_mock.stubs(:body).returns(get_mock_body('successful_login.json'))
-      @client_mock.stubs(:finish).returns('')
-      @client_mock.stubs(:status).returns(200)
-      @client_mock.stubs(:headers).returns(@header)
-      Faraday::Response.stubs(:new).returns(@client_mock)
+      @client_mock = setup_mock_client
 
       @client_id = "671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com"
       @client_secret = "roBgdbfEmJwPgrgi2mRbbO-f"
@@ -399,10 +392,57 @@ class TestGoogleCalendar < Minitest::Test
     end
   end
 
+  context "a calendar list" do
+
+    setup do
+      @client_mock = setup_mock_client
+
+      @client_id = "671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com"
+      @client_secret = "roBgdbfEmJwPgrgi2mRbbO-f"
+      @refresh_token = "1/eiqBWx8aj-BsdhwvlzDMFOUN1IN_HyThvYTujyksO4c"
+
+      @calendar_list = Google::CalendarList.new(
+        :client_id => @client_id,
+        :client_secret => @client_secret,
+        :redirect_url => "urn:ietf:wg:oauth:2.0:oob",
+        :refresh_token => @refresh_token
+      )
+
+      @client_mock.stubs(:body).returns(get_mock_body("find_calendar_list.json"))
+    end
+
+    should "find all calendars" do
+      calendars = @calendar_list.fetch_entries
+      assert_equal calendars.length, 3
+      assert_equal calendars.map(&:class).uniq, [CalendarListEntry]
+      assert_equal calendars.map(&:id), ["initech.com_ed493d0a9b46ea46c3a0d48611ce@resource.calendar.google.com", "initech.com_db18a4e59c230a5cc5d2b069a30f@resource.calendar.google.com", "bob@initech.com"]
+    end
+
+    should "set the calendar list entry parameters" do
+      calendar = @calendar_list.fetch_entries.find {|list_entry| list_entry.id == "bob@initech.com" }
+
+      assert_equal calendar.summary, "Bob's Calendar"
+      assert_equal calendar.time_zone, "Europe/London"
+      assert_equal calendar.access_role, "owner"
+      assert_equal calendar.primary?, true
+    end
+
+  end
+
   protected
 
   def get_mock_body(name)
     File.open(@@mock_path + '/' + name).read
+  end
+
+  def setup_mock_client
+    client = mock('Faraday::Response')
+    client.stubs(:finish).returns('')
+    client.stubs(:status).returns(200)
+    client.stubs(:headers).returns({'content-type' => 'application/json; charset=utf-8'})
+    client.stubs(:body).returns(get_mock_body('successful_login.json'))
+    Faraday::Response.stubs(:new).returns(client)
+    client
   end
 
 end
