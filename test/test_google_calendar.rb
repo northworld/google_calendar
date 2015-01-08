@@ -6,14 +6,7 @@ class TestGoogleCalendar < Minitest::Test
   context "When connected" do
 
     setup do
-      @header = {}
-      @header['content-type'] = 'application/json; charset=utf-8'
-      @client_mock = mock('Faraday::Response')
-      @client_mock.stubs(:body).returns(get_mock_body('successful_login.json'))
-      @client_mock.stubs(:finish).returns('')
-      @client_mock.stubs(:status).returns(200)
-      @client_mock.stubs(:headers).returns(@header)
-      Faraday::Response.stubs(:new).returns(@client_mock)
+      @client_mock = setup_mock_client
 
       @client_id = "671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com"
       @client_secret = "roBgdbfEmJwPgrgi2mRbbO-f"
@@ -63,6 +56,15 @@ class TestGoogleCalendar < Minitest::Test
         end
       end
 
+      should "accept a connection to re-use" do
+        @client_mock.stubs(:body).returns( get_mock_body("events.json") )
+        reusable_connection = mock('Google::Connection')
+        reusable_connection.expects(:send).returns(@client_mock)
+
+        calendar = Calendar.new({:calendar => @calendar_id}, reusable_connection)
+        calendar.events
+      end
+
     end # login context
 
     context "and logged in" do
@@ -87,7 +89,7 @@ class TestGoogleCalendar < Minitest::Test
         start_min = now
         start_max = (now + 60*60*24)
         @calendar.expects(:event_lookup).with("?timeMin=#{start_min.strftime("%FT%TZ")}&timeMax=#{start_max.strftime("%FT%TZ")}&orderBy=startTime&maxResults=25&singleEvents=true")
-        events = @calendar.find_events_in_range(start_min, start_max)
+        @calendar.find_events_in_range(start_min, start_max)
       end
 
       should "find future events" do
@@ -95,7 +97,7 @@ class TestGoogleCalendar < Minitest::Test
         Time.stubs(:now).returns(now)
         formatted_time = now.strftime("%FT%TZ")
         @calendar.expects(:event_lookup).with("?timeMin=#{formatted_time}&orderBy=startTime&maxResults=25&singleEvents=true")
-        events = @calendar.find_future_events()
+        @calendar.find_future_events()
       end
 
       should "return multiple events in range as array" do
@@ -103,13 +105,13 @@ class TestGoogleCalendar < Minitest::Test
         events = @calendar.events
         assert_equal events.class.to_s, "Array"
       end
-      
+
       should "return one event in range as array" do
         @client_mock.stubs(:body).returns( get_mock_body("query_events.json") )
         events = @calendar.events
         assert_equal events.class.to_s, "Array"
       end
-      
+
       should "return response of no events in range as array" do
         @client_mock.stubs(:body).returns( get_mock_body("empty_events.json") )
         events = @calendar.events
@@ -226,7 +228,7 @@ class TestGoogleCalendar < Minitest::Test
           @calendar.events
         end
       end
-      
+
       should "create event when id is NIL" do
         @client_mock.stubs(:body).returns( get_mock_body("find_event_by_id.json") )
 
@@ -315,8 +317,19 @@ class TestGoogleCalendar < Minitest::Test
                             {'email' => 'some.b.one@gmail.com', 'displayName' => 'Some B One', 'responseStatus' => 'tentative'}
                           ]
 
-        correct_json = "{ \"summary\": \"Go Swimming\", \"description\": \"The polar bear plunge\", \"location\": \"In the arctic ocean\", \"start\": { \"dateTime\": \"#{@event.start_time}\" }, \"end\": { \"dateTime\": \"#{@event.end_time}\" }, \"attendees\": [{ \"displayName\": \"Some A One\", \"email\": \"some.a.one@gmail.com\", \"responseStatus\": \"tentative\" },{ \"displayName\": \"Some B One\", \"email\": \"some.b.one@gmail.com\", \"responseStatus\": \"tentative\" }], \"reminders\": { \"useDefault\": false,\"overrides\": [{ \"method\": \"popup\", \"minutes\": 10 }] } }"
-        assert_equal @event.to_json.gsub("\n", "").gsub(/\s+/, ' '), correct_json
+        expected_structure = {
+          "summary" => "Go Swimming",
+          "description" => "The polar bear plunge",
+          "location" => "In the arctic ocean",
+          "start" => {"dateTime" => "#{@event.start_time}"},
+          "end" => {"dateTime" => "#{@event.end_time}"},
+          "attendees" => [
+            {"displayName" => "Some A One", "email" => "some.a.one@gmail.com", "responseStatus" => "tentative"},
+            {"displayName" => "Some B One", "email" => "some.b.one@gmail.com", "responseStatus" => "tentative"}
+          ],
+          "reminders" => {"useDefault" => false, "overrides" => [{"method" => "popup", "minutes" => 10}]}
+        }
+        assert_equal JSON.parse(@event.to_json), expected_structure
       end
     end
 
@@ -356,8 +369,20 @@ class TestGoogleCalendar < Minitest::Test
                             {'email' => 'some.b.one@gmail.com', 'displayName' => 'Some B One', 'responseStatus' => 'tentative'}
                           ]
         @event.recurrence = {freq: "monthly", count: "5", interval: "2"}
-        correct_json = "{ \"summary\": \"Go Swimming\", \"description\": \"The polar bear plunge\", \"location\": \"In the arctic ocean\", \"start\": { \"dateTime\": \"#{@event.start_time}\" ,\"timeZone\" : \"#{Time.now.getlocal.zone}\" }, \"end\": { \"dateTime\": \"#{@event.end_time}\" ,\"timeZone\" : \"#{Time.now.getlocal.zone}\" }, \"recurrence\": [\"RRULE:FREQ=MONTHLY;COUNT=5;INTERVAL=2\"], \"attendees\": [{ \"displayName\": \"Some A One\", \"email\": \"some.a.one@gmail.com\", \"responseStatus\": \"tentative\" },{ \"displayName\": \"Some B One\", \"email\": \"some.b.one@gmail.com\", \"responseStatus\": \"tentative\" }], \"reminders\": { \"useDefault\": false,\"overrides\": [{ \"method\": \"popup\", \"minutes\": 10 }] } }"
-        assert_equal @event.to_json.gsub("\n", "").gsub(/\s+/, ' '), correct_json
+        expected_structure = {
+          "summary" => "Go Swimming",
+          "description" => "The polar bear plunge",
+          "location" => "In the arctic ocean",
+          "start" => {"dateTime" => "#{@event.start_time}", "timeZone" => "#{Time.now.getlocal.zone}"},
+          "end" => {"dateTime" => "#{@event.end_time}", "timeZone" => "#{Time.now.getlocal.zone}"},
+          "recurrence" => ["RRULE:FREQ=MONTHLY;COUNT=5;INTERVAL=2"],
+          "attendees" => [
+            {"displayName" => "Some A One", "email" => "some.a.one@gmail.com", "responseStatus" => "tentative"},
+            {"displayName" => "Some B One", "email" => "some.b.one@gmail.com", "responseStatus" => "tentative"}
+          ],
+          "reminders" => {"useDefault" => false, "overrides" => [{"method" => "popup", "minutes"=>10}]}
+        }
+        assert_equal JSON.parse(@event.to_json), expected_structure
       end
 
       should "parse recurrence rule strings corectly" do
@@ -376,10 +401,74 @@ class TestGoogleCalendar < Minitest::Test
     end
   end
 
+  context "a calendar list" do
+
+    setup do
+      @client_mock = setup_mock_client
+
+      @client_id = "671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com"
+      @client_secret = "roBgdbfEmJwPgrgi2mRbbO-f"
+      @refresh_token = "1/eiqBWx8aj-BsdhwvlzDMFOUN1IN_HyThvYTujyksO4c"
+
+      @calendar_list = Google::CalendarList.new(
+        :client_id => @client_id,
+        :client_secret => @client_secret,
+        :redirect_url => "urn:ietf:wg:oauth:2.0:oob",
+        :refresh_token => @refresh_token
+      )
+
+      @client_mock.stubs(:body).returns(get_mock_body("find_calendar_list.json"))
+    end
+
+    should "find all calendars" do
+      entries = @calendar_list.fetch_entries
+      assert_equal entries.length, 3
+      assert_equal entries.map(&:class).uniq, [CalendarListEntry]
+      assert_equal entries.map(&:id), ["initech.com_ed493d0a9b46ea46c3a0d48611ce@resource.calendar.google.com", "initech.com_db18a4e59c230a5cc5d2b069a30f@resource.calendar.google.com", "bob@initech.com"]
+    end
+
+    should "set the calendar list entry parameters" do
+      entry = @calendar_list.fetch_entries.find {|list_entry| list_entry.id == "bob@initech.com" }
+
+      assert_equal entry.summary, "Bob's Calendar"
+      assert_equal entry.time_zone, "Europe/London"
+      assert_equal entry.access_role, "owner"
+      assert_equal entry.primary?, true
+    end
+
+    should "accept a connection to re-use" do
+      reusable_connection = mock('Google::Connection')
+      reusable_connection.expects(:send).returns(@client_mock)
+
+      calendar_list = CalendarList.new({}, reusable_connection)
+      calendar_list.fetch_entries
+    end
+
+    should "return entries which can create calendars" do
+      entry = @calendar_list.fetch_entries.first
+      calendar = entry.to_calendar
+
+      assert_equal calendar.class, Calendar
+      assert_equal calendar.id, entry.id
+      assert_equal calendar.connection, @calendar_list.connection
+    end
+
+  end
+
   protected
 
   def get_mock_body(name)
     File.open(@@mock_path + '/' + name).read
+  end
+
+  def setup_mock_client
+    client = mock('Faraday::Response')
+    client.stubs(:finish).returns('')
+    client.stubs(:status).returns(200)
+    client.stubs(:headers).returns({'content-type' => 'application/json; charset=utf-8'})
+    client.stubs(:body).returns(get_mock_body('successful_login.json'))
+    Faraday::Response.stubs(:new).returns(client)
+    client
   end
 
 end

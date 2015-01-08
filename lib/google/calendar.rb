@@ -6,7 +6,7 @@ module Google
   #
   class Calendar
 
-    attr_reader :connection
+    attr_reader :id, :connection
 
     #
     # Setup and connect to the specified Google Calendar.
@@ -20,22 +20,22 @@ module Google
     # See Readme.rdoc or readme_code.rb for an explication on the OAuth2 authorization process.
     #
     # ==== Example
-    # Google::Calendar.new(:client_id => YOUR_CLIENT_ID, 
+    # Google::Calendar.new(:client_id => YOUR_CLIENT_ID,
     #                      :client_secret => YOUR_SECRET,
     #                      :calendar => YOUR_CALENDAR_ID,
-    #                      :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications' 
+    #                      :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
     #                     )
     #
-    def initialize(params={})
-      options = {
+    def initialize(params={}, connection=nil)
+      @connection = connection || Connection.new(
         :client_id => params[:client_id],
         :client_secret => params[:client_secret],
         :refresh_token => params[:refresh_token],
-        :redirect_url => params[:redirect_url],
-        :calendar_id => params[:calendar]
-      }
+        :redirect_url => params[:redirect_url]
+      )
 
-      @connection = Connection.new options
+      @id = params[:calendar]
+      # raise CalendarIDMissing unless @id
     end
 
     #
@@ -92,8 +92,8 @@ module Google
     end
 
     #
-    # This is equivalent to running a search in the Google calendar web application.  
-    # Google does not provide a way to specify what attributes you would like to 
+    # This is equivalent to running a search in the Google calendar web application.
+    # Google does not provide a way to specify what attributes you would like to
     # search (i.e. title), by default it searches everything.
     # If you would like to find specific attribute value (i.e. title=Picnic), run a query
     # and parse the results.
@@ -121,7 +121,7 @@ module Google
     #   an array with one element if only one found.
     #   an array of events if many found.
     #
-    def find_events_in_range(start_min, start_max, options = {})     
+    def find_events_in_range(start_min, start_max, options = {})
       formatted_start_min = encode_time(start_min)
       formatted_start_max = encode_time(start_max)
       query = "?timeMin=#{formatted_start_min}&timeMax=#{formatted_start_max}#{parse_options(options)}"
@@ -210,7 +210,7 @@ module Google
         "/#{event.id}"
       end
 
-      @connection.send_events_request(query_string, method, body)
+      send_events_request(query_string, method, body)
     end
 
     #
@@ -218,7 +218,7 @@ module Google
     # This is a callback used by the Event class.
     #
     def delete_event(event)
-      @connection.send_events_request("/#{event.id}", :delete)
+      send_events_request("/#{event.id}", :delete)
     end
 
     protected
@@ -245,7 +245,7 @@ module Google
     #
     def event_lookup(query_string = '') #:nodoc:
       begin
-        response = @connection.send_events_request(query_string, :get)
+        response = send_events_request(query_string, :get)
         events = Event.build_from_google_feed( JSON.parse(response.body) , self) || []
         return events if events.empty?
         events.length > 1 ? events : [events[0]]
@@ -264,6 +264,13 @@ module Google
       end
       event.save
       event
+    end
+
+    #
+    # Wraps the `send` method. Send an event related request to Google.
+    #
+    def send_events_request(path_and_query_string, method, content = '')
+      @connection.send("/calendars/#{CGI::escape @id}/events#{path_and_query_string}", method, content)
     end
   end
 

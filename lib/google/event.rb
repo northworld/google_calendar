@@ -15,7 +15,7 @@ module Google
   # * +location+ - The location of the event. Read Write.
   # * +start_time+ - The start time of the event (Time object, defaults to now). Read Write.
   # * +end_time+ - The end time of the event (Time object, defaults to one hour from now).  Read Write.
-  # * +recurrence+ - A hash containing recurrence info for repeating events. Read write. 
+  # * +recurrence+ - A hash containing recurrence info for repeating events. Read write.
   # * +calendar+ - What calendar the event belongs to. Read Write.
   # * +all_day + - Does the event run all day. Read Write.
   # * +quickadd+ - A string that Google parses when setting up a new event.  If set and then saved it will take priority over any attributes you have set. Read Write.
@@ -126,14 +126,14 @@ module Google
     # Stores reminders for this event. Multiple reminders are allowed.
     #
     # Examples
-    #  
+    #
     # event = cal.create_event do |e|
     #   e.title = 'Some Event'
     #   e.start_time = Time.now + (60 * 10)
     #   e.end_time = Time.now + (60 * 60) # seconds * min
-    #   e.reminders = { 'useDefault'  => false, 'overrides' => [{method: 'email', minutes: 4}, {method: 'popup', minutes: 60}, {method: 'sms', minutes: 30}]} 
+    #   e.reminders = { 'useDefault'  => false, 'overrides' => [{method: 'email', minutes: 4}, {method: 'popup', minutes: 60}, {method: 'sms', minutes: 30}]}
     # end
-    # 
+    #
     # event = Event.new :start_time => "2012-03-31", :end_time => "2012-04-03", :reminders => { 'useDefault'  => false, 'overrides' => [{'minutes' => 10, 'method' => "popup"}]}
     #
     def reminders
@@ -149,8 +149,8 @@ module Google
     # :until => Time class, until when the event should occur                   OPTIONAL
     # :interval => how often should the event occur (every "2" weeks, ...)      OPTIONAL
     # :byday => if frequence is "weekly", contains ordered (starting with       OPTIONAL
-    #             Sunday)comma separated abbreviations of days the event 
-    #             should occur on ("su,mo,th")                                  
+    #             Sunday)comma separated abbreviations of days the event
+    #             should occur on ("su,mo,th")
     #           if frequence is "monthly", can specify which day of month
     #             the event should occur on ("2mo" - second Monday, "-1th" - last Thursday,
     #             allowed indices are 1,2,3,4,-1)
@@ -162,14 +162,14 @@ module Google
     #   e.title = 'Work-day Event'
     #   e.start_time = Time.now
     #   e.end_time = Time.now + (60 * 60) # seconds * min
-    #   e.recurrence = {freq: "weekly", byday: "mo,tu,we,th,fr"} 
+    #   e.recurrence = {freq: "weekly", byday: "mo,tu,we,th,fr"}
     # end
     #
     def recurrence
       @recurrence ||= {}
     end
 
-    # 
+    #
     # Utility method that simplifies setting the transparency of an event.
     # You can pass true or false.  Defaults to transparent.
     #
@@ -192,7 +192,7 @@ module Google
     #
     # Returns true if the event is opaque otherwise returns false.
     # Opaque events block time on a calendar.
-    # 
+    #
     def opaque?
       @transparency == "opaque"
     end
@@ -211,8 +211,8 @@ module Google
     def to_json
       "{
         \"summary\": \"#{title}\",
-        \"description\": \"#{description}\", 
-        \"location\": \"#{location}\", 
+        \"description\": \"#{description}\",
+        \"location\": \"#{location}\",
         \"start\": {
           \"dateTime\": \"#{start_time}\"
           #{timezone_needed? ? local_timezone_json : ''}
@@ -228,7 +228,7 @@ module Google
         }
       }"
     end
-    
+
     #
     # JSON representation of attendees
     #
@@ -237,7 +237,7 @@ module Google
 
       attendees = @attendees.map do |attendee|
         "{
-          \"displayName\": \"#{attendee['displayName']}\", 
+          \"displayName\": \"#{attendee['displayName']}\",
           \"email\": \"#{attendee['email']}\",
           \"responseStatus\": \"#{attendee['responseStatus']}\"
         }"
@@ -250,10 +250,10 @@ module Google
     # JSON representation of a reminder
     #
     def reminders_json
-      if reminders && reminders.is_a?(Hash) && reminders['overrides'] 
+      if reminders && reminders.is_a?(Hash) && reminders['overrides']
         overrides = reminders['overrides'].map do |reminder|
           "{
-            \"method\": \"#{reminder['method']}\", 
+            \"method\": \"#{reminder['method']}\",
             \"minutes\": #{reminder['minutes']}
           }"
         end.join(",\n")
@@ -359,7 +359,7 @@ module Google
     #
     def self.parse_recurrence_rule(recurrence_entry)
       return {} unless recurrence_entry && recurrence_entry != []
-      
+
       rrule = recurrence_entry[0].sub('RRULE:', '')
       rhash = Hash[*rrule.downcase.split(/[=;]/)]
 
@@ -384,7 +384,7 @@ module Google
         Time.parse(time_hash['dateTime']).utc
       else
         Time.now.utc
-      end      
+      end
     end
 
     #

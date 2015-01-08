@@ -1,0 +1,69 @@
+{
+  "kind": "calendar#calendarList",
+  "etag": "\"1420633154361000\"",
+  "nextSyncToken": "00001420633154361000",
+  "items": [
+    {
+      "kind": "calendar#calendarListEntry",
+      "etag": "\"1420564622795000\"",
+      "id": "initech.com_ed493d0a9b46ea46c3a0d48611ce@resource.calendar.google.com",
+      "summary": "Small cubicle",
+      "timeZone": "America/Los_Angeles",
+      "colorId": "2",
+      "backgroundColor": "#d06b64",
+      "foregroundColor": "#000000",
+      "accessRole": "owner",
+      "defaultReminders": []
+    },
+    {
+      "kind": "calendar#calendarListEntry",
+      "etag": "\"1420564132697000\"",
+      "id": "initech.com_db18a4e59c230a5cc5d2b069a30f@resource.calendar.google.com",
+      "summary": "Large cubicle",
+      "timeZone": "America/Los_Angeles",
+      "colorId": "3",
+      "backgroundColor": "#f83a22",
+      "foregroundColor": "#000000",
+      "accessRole": "reader",
+      "defaultReminders": []
+    },
+    {
+      "kind": "calendar#calendarListEntry",
+      "etag": "\"1420564622222000\"",
+      "id": "bob@initech.com",
+      "summary": "Bob's Calendar",
+      "timeZone": "Europe/London",
+      "colorId": "17",
+      "backgroundColor": "#9a9cff",
+      "foregroundColor": "#000000",
+      "accessRole": "owner",
+      "defaultReminders": [
+        {
+          "method": "popup",
+          "minutes": 10
+        }
+      ],
+      "notificationSettings": {
+        "notifications": [
+          {
+            "type": "eventCreation",
+            "method": "email"
+          },
+          {
+            "type": "eventChange",
+            "method": "email"
+          },
+          {
+            "type": "eventCancellation",
+            "method": "email"
+          },
+          {
+            "type": "eventResponse",
+            "method": "email"
+          }
+        ]
+      },
+      "primary": true
+    }
+  ]
+}

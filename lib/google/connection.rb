@@ -33,11 +33,6 @@ module Google
         :scope => "https://www.googleapis.com/auth/calendar"
       )
 
-      calendar_id = params[:calendar_id]
-
-      # raise CalenarIDMissing unless calendar_id
-      @events_url = "#{BASE_URI}/calendars/#{CGI::escape calendar_id}/events"
-
       # try to get an access token if possible.
       if params[:refresh_token]
         @client.refresh_token = params[:refresh_token]
@@ -97,7 +92,9 @@ module Google
     #
     # Send a request to google.
     #
-    def send(uri, method, content = '')
+    def send(path, method, content = '')
+
+      uri = BASE_URI + path
 
       response = @client.fetch_protected_resource(
         :uri => uri,
@@ -111,20 +108,13 @@ module Google
       return response
     end
 
-    #
-    # Wraps the `send` method. Send an event related request to Google.
-    #
-    def send_events_request(path_and_query_string, method, content = '')
-      send(@events_url + path_and_query_string, method, content)
-    end
-
     protected
 
     #
     # Utility method to centralize the process of getting an access token.
     #
     def self.get_new_access_token(client) #:nodoc:
-      begin 
+      begin
         client.fetch_access_token!
       rescue Signet::AuthorizationError
         raise HTTPAuthorizationFailed
