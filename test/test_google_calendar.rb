@@ -421,19 +421,19 @@ class TestGoogleCalendar < Minitest::Test
     end
 
     should "find all calendars" do
-      calendars = @calendar_list.fetch_entries
-      assert_equal calendars.length, 3
-      assert_equal calendars.map(&:class).uniq, [CalendarListEntry]
-      assert_equal calendars.map(&:id), ["initech.com_ed493d0a9b46ea46c3a0d48611ce@resource.calendar.google.com", "initech.com_db18a4e59c230a5cc5d2b069a30f@resource.calendar.google.com", "bob@initech.com"]
+      entries = @calendar_list.fetch_entries
+      assert_equal entries.length, 3
+      assert_equal entries.map(&:class).uniq, [CalendarListEntry]
+      assert_equal entries.map(&:id), ["initech.com_ed493d0a9b46ea46c3a0d48611ce@resource.calendar.google.com", "initech.com_db18a4e59c230a5cc5d2b069a30f@resource.calendar.google.com", "bob@initech.com"]
     end
 
     should "set the calendar list entry parameters" do
-      calendar = @calendar_list.fetch_entries.find {|list_entry| list_entry.id == "bob@initech.com" }
+      entry = @calendar_list.fetch_entries.find {|list_entry| list_entry.id == "bob@initech.com" }
 
-      assert_equal calendar.summary, "Bob's Calendar"
-      assert_equal calendar.time_zone, "Europe/London"
-      assert_equal calendar.access_role, "owner"
-      assert_equal calendar.primary?, true
+      assert_equal entry.summary, "Bob's Calendar"
+      assert_equal entry.time_zone, "Europe/London"
+      assert_equal entry.access_role, "owner"
+      assert_equal entry.primary?, true
     end
 
     should "accept a connection to re-use" do
@@ -442,6 +442,15 @@ class TestGoogleCalendar < Minitest::Test
 
       calendar_list = CalendarList.new({}, reusable_connection)
       calendar_list.fetch_entries
+    end
+
+    should "return entries which can create calendars" do
+      entry = @calendar_list.fetch_entries.first
+      calendar = entry.to_calendar
+
+      assert_equal calendar.class, Calendar
+      assert_equal calendar.id, entry.id
+      assert_equal calendar.connection, @calendar_list.connection
     end
 
   end

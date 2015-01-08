@@ -35,7 +35,7 @@ module Google
 
       return nil if response.status != 200 || response.body.empty?
 
-      CalendarListEntry.build_from_google_feed(JSON.parse(response.body))
+      CalendarListEntry.build_from_google_feed(JSON.parse(response.body), @connection)
     end
 
   end

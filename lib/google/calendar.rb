@@ -6,7 +6,7 @@ module Google
   #
   class Calendar
 
-    attr_reader :connection
+    attr_reader :id, :connection
 
     #
     # Setup and connect to the specified Google Calendar.
@@ -34,9 +34,8 @@ module Google
         :redirect_url => params[:redirect_url]
       )
 
-      calendar_id = params[:calendar]
-      # raise CalendarIDMissing unless calendar_id
-      @events_base_path = "/calendars/#{CGI::escape calendar_id}/events"
+      @id = params[:calendar]
+      # raise CalendarIDMissing unless @id
     end
 
     #
@@ -271,7 +270,7 @@ module Google
     # Wraps the `send` method. Send an event related request to Google.
     #
     def send_events_request(path_and_query_string, method, content = '')
-      @connection.send(@events_base_path + path_and_query_string, method, content)
+      @connection.send("/calendars/#{CGI::escape @id}/events#{path_and_query_string}", method, content)
     end
   end
 

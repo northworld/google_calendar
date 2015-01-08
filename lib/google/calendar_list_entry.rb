@@ -14,20 +14,25 @@ module Google
   # * +primary?+ - Whether the calendar is the primary calendar of the authenticated user. Read-only.
   #
   class CalendarListEntry
-    attr_reader :id, :summary, :time_zone, :access_role, :primary
+    attr_reader :id, :summary, :time_zone, :access_role, :primary, :connection
     alias_method :primary?, :primary
 
-    def initialize(params)
+    def initialize(params, connection)
       @id = params['id']
       @summary = params['summary']
       @time_zone = params['timeZone']
       @access_role = params['accessRole']
       @primary = params.fetch('primary', false)
+      @connection = connection
     end
 
-    def self.build_from_google_feed(response)
+    def to_calendar
+      Calendar.new({:calendar => @id}, @connection)
+    end
+
+    def self.build_from_google_feed(response, connection)
       items = response['items']
-      items.collect { |item| CalendarListEntry.new(item) }
+      items.collect { |item| CalendarListEntry.new(item, connection) }
     end
 
   end
