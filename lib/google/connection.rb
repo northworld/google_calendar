@@ -7,9 +7,21 @@ module Google
   #
   class Connection
     BASE_URI = "https://www.googleapis.com/calendar/v3"
-
+    TOKEN_URI ="https://accounts.google.com/o/oauth2/token"
+    AUTH_URI = "https://accounts.google.com/o/oauth2/auth"
+    SCOPE = "https://www.googleapis.com/auth/calendar"
     attr_accessor :client
 
+    def self.new_with_service_account(params)
+      client = Signet::OAuth2::Client.new(
+        :scope => SCOPE,
+        :issuer => params[:client_id],
+        :audience => TOKEN_URI,
+        :token_credential_uri => TOKEN_URI,
+        :signing_key => params[:signing_key]
+      )
+      Connection.new(params, client)
+    end
     #
     # Prepare a connection to google for fetching a calendar events
     #
@@ -19,24 +31,27 @@ module Google
     # * :redirect_uri => the url where your users will be redirected to after they have successfully permitted access to their calendars. Use 'urn:ietf:wg:oauth:2.0:oob' if you are using an 'application'"
     # * :refresh_token => if a user has already given you access to their calendars, you can specify their refresh token here and you will be 'logged on' automatically (i.e. they don't need to authorize access again)
     #
-    def initialize(params)
+    def initialize(params, client=nil)
 
-      raise ArgumentError unless Connection.credentials_provided?(params)
+      raise ArgumentError unless client || Connection.credentials_provided?(params)
 
-      @client = Signet::OAuth2::Client.new(
+      @client = client || Signet::OAuth2::Client.new(
         :client_id => params[:client_id],
         :client_secret => params[:client_secret],
         :redirect_uri => params[:redirect_url],
         :refresh_token => params[:refresh_token],
-        :authorization_uri => 'https://accounts.google.com/o/oauth2/auth',
-        :token_credential_uri => 'https://accounts.google.com/o/oauth2/token',
-        :scope => "https://www.googleapis.com/auth/calendar"
+        :authorization_uri => AUTH_URI,
+        :token_credential_uri => TOKEN_URI,
+        :scope => SCOPE
       )
 
       # try to get an access token if possible.
       if params[:refresh_token]
         @client.refresh_token = params[:refresh_token]
         @client.grant_type = 'refresh_token'
+      end
+
+      if params[:refresh_token] || params[:signing_key]
         Connection.get_new_access_token(@client)
       end
 
@@ -140,6 +155,5 @@ module Google
       blank = /[^[:space:]]/
       !(params[:client_id] !~ blank) && !(params[:client_secret] !~ blank)
     end
-
   end
 end
