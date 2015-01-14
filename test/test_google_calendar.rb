@@ -205,6 +205,16 @@ class TestGoogleCalendar < Minitest::Test
         end
       end
 
+      should "create event when id is NIL" do
+        @client_mock.stubs(:body).returns( get_mock_body("find_event_by_id.json") )
+
+        event = @calendar.find_or_create_event_by_id(NIL) do |e|
+          e.title = 'New Event Update when id is NIL'
+        end
+
+        assert_equal event.title, 'New Event Update when id is NIL'
+      end
+      
     end # Logged on context
 
   end # Connected context
