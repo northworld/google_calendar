@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency(%q<terminal-notifier-guard>, ["~> 1.6"])
   s.add_development_dependency(%q<rb-fsevent>, ["~> 0.9"])
-  s.add_development_dependency(%q<guard-minitest>, ["~> 2.3"])
+  # s.add_development_dependency(%q<guard-minitest>, ["~> 2.3"])
   s.add_development_dependency(%q<minitest>, ["~> 5.1"])
   s.add_development_dependency(%q<minitest-reporters>, ["~> 1.0"])
   s.add_development_dependency(%q<shoulda-context>, ["~> 1.2"])
