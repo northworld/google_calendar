@@ -215,6 +215,17 @@ class TestGoogleCalendar < Minitest::Test
         assert_equal event.title, 'New Event Update when id is NIL'
       end
       
+      should "find or create will create event when id is not found" do
+        @client_mock.stubs(:status).returns(404)
+        @client_mock.stubs(:body).returns( get_mock_body("404.json") )
+        event = @calendar.find_or_create_event_by_id('does_not_exist') do |e|
+          @client_mock.stubs(:body).returns( get_mock_body("create_event.json") )
+          @client_mock.stubs(:status).returns(200)
+          e.title = 'New Event Update when id is NIL'
+        end
+
+        assert_equal event.title, 'New Event Update when id is NIL'
+      end
     end # Logged on context
 
   end # Connected context
