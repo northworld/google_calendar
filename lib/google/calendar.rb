@@ -190,7 +190,8 @@ module Google
       if id.nil?
         setup_event(Event.new, &blk)
       else
-        setup_event(find_event_by_id(id)[0] || Event.new, &blk)
+        event = find_event_by_id(id)
+        setup_event(event ? event[0] : Event.new, &blk)
       end
     end
 
