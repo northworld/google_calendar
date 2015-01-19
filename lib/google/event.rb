@@ -8,7 +8,7 @@ module Google
   #
   # === Attributes
   #
-  # * +id+ - The google assigned id of the event (nil until saved). Read only.
+  # * +id+ - The google assigned id of the event (nil until saved). Read Write.
   # * +status+ - The status of the event (confirmed, tentative or cancelled). Read only.
   # * +title+ - The title of the event. Read Write.
   # * +description+ - The content of the event. Read Write.
@@ -27,8 +27,8 @@ module Google
   # * +raw+ - The full google json representation of the event. Read only.
   #
   class Event
-    attr_reader :id, :raw, :html_link, :status
-    attr_accessor :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders, :recurrence
+    attr_reader :raw, :html_link, :status
+    attr_accessor :id, :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders, :recurrence
 
     #
     # Create a new event, and optionally set it's attributes.
@@ -37,6 +37,7 @@ module Google
     #
     # event = Google::Event.new
     # event.calendar = AnInstanceOfGoogleCalendaer
+    # event.id = "0123456789abcdefghijklmopqrstuv"
     # event.start_time = Time.now
     # event.end_time = Time.now + (60 * 60)
     # event.recurrence = {'freq' => 'monthly'}
@@ -57,6 +58,13 @@ module Google
 
       self.transparency = params[:transparency]
       self.all_day      = params[:all_day] if params[:all_day]
+    end
+
+    #
+    # Sets the id of the Event.
+    #
+    def id=(id)
+      @id = Event.parse_id(id)
     end
 
     #
@@ -210,6 +218,7 @@ module Google
     #
     def to_json
       "{
+        \"id\": \"#{id}\",
         \"summary\": \"#{title}\",
         \"description\": \"#{description}\",
         \"location\": \"#{location}\",
@@ -393,6 +402,13 @@ module Google
     def self.parse_time(time) #:nodoc
       raise ArgumentError, "Start Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
       (time.is_a? String) ? Time.parse(time) : time.dup.utc
+    end
+
+    #
+    # Validates id format
+    #
+    def self.parse_id(id)
+      raise ArgumentError, "Event ID is invalid. Please check Google documentation: https://developers.google.com/google-apps/calendar/v3/reference/events/insert" if id.gsub(/(^[a-v0-9]{5,1024}$)/o)      
     end
 
   end

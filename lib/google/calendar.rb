@@ -155,7 +155,7 @@ module Google
     #   an array of events if many found.
     #
     def find_event_by_id(id)
-      return nil unless id && id.strip != ''
+      return nil unless id 
       event_lookup("/#{id}")
     end
 
@@ -187,11 +187,7 @@ module Google
     # Works like the create_event method.
     #
     def find_or_create_event_by_id(id, &blk)
-      if id.nil?
-        setup_event(Event.new, &blk)
-      else
-        setup_event(find_event_by_id(id)[0] || Event.new, &blk)
-      end
+      setup_event(find_event_by_id(id)[0] || Event.new, &blk)
     end
 
     #
