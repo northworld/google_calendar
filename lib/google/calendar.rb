@@ -192,7 +192,6 @@ module Google
       else
         setup_event(find_event_by_id(id)[0] || Event.new, &blk)
       end
-      # setup_event(find_event_by_id(id)[0] || Event.new, &blk)
     end
 
     #
