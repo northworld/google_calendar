@@ -319,6 +319,7 @@ class TestGoogleCalendar < Minitest::Test
 
         expected_structure = {
           "summary" => "Go Swimming",
+          "visibility"=>"default",
           "description" => "The polar bear plunge",
           "location" => "In the arctic ocean",
           "start" => {"dateTime" => "#{@event.start_time}"},
@@ -370,7 +371,8 @@ class TestGoogleCalendar < Minitest::Test
                           ]
         @event.recurrence = {freq: "monthly", count: "5", interval: "2"}
         expected_structure = {
-          "summary" => "Go Swimming",
+          "summary" => "Go Swimming", 
+          "visibility"=>"default",
           "description" => "The polar bear plunge",
           "location" => "In the arctic ocean",
           "start" => {"dateTime" => "#{@event.start_time}", "timeZone" => "#{Time.now.getlocal.zone}"},
