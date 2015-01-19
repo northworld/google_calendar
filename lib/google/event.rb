@@ -64,7 +64,7 @@ module Google
     # Sets the id of the Event.
     #
     def id=(id)
-      @id = Event.parse_id(id)
+      @id = Event.parse_id(id) unless id.nil?
     end
 
     #
@@ -218,7 +218,6 @@ module Google
     #
     def to_json
       "{
-        \"id\": \"#{id}\",
         \"summary\": \"#{title}\",
         \"description\": \"#{description}\",
         \"location\": \"#{location}\",
@@ -408,7 +407,7 @@ module Google
     # Validates id format
     #
     def self.parse_id(id)
-      raise ArgumentError, "Event ID is invalid. Please check Google documentation: https://developers.google.com/google-apps/calendar/v3/reference/events/insert" if id.gsub(/(^[a-v0-9]{5,1024}$)/o)      
+      raise ArgumentError, "Event ID is invalid. Please check Google documentation: https://developers.google.com/google-apps/calendar/v3/reference/events/insert" unless id.gsub(/(^[a-v0-9]{5,1024}$)/o)      
     end
 
   end
