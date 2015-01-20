@@ -25,10 +25,11 @@ module Google
   # * +duration+ - The duration of the event in seconds. Read only.
   # * +html_link+ - An absolute link to this event in the Google Calendar Web UI. Read only.
   # * +raw+ - The full google json representation of the event. Read only.
+  # * +visibility+ - The visibility of the event (*'default'*, 'public', 'private', 'confidential'). Read Write.
   #
   class Event
     attr_reader :id, :raw, :html_link, :status
-    attr_accessor :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders, :recurrence
+    attr_accessor :id, :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders, :recurrence, :visibility
 
     #
     # Create a new event, and optionally set it's attributes.
@@ -44,6 +45,7 @@ module Google
     # event.description = "The polar bear plunge"
     # event.location = "In the arctic ocean"
     # event.transparency = "opaque"
+    # event.visibility = "public"
     # event.reminders = {'useDefault'  => false, 'overrides' => ['minutes' => 10, 'method' => "popup"]}
     # event.attendees = [
     #                     {'email' => 'some.a.one@gmail.com', 'displayName' => 'Some A One', 'responseStatus' => 'tentative'},
@@ -55,6 +57,7 @@ module Google
         instance_variable_set("@#{attribute}", params[attribute])
       end
 
+      self.visibility   = params[:visibility]
       self.transparency = params[:transparency]
       self.all_day      = params[:all_day] if params[:all_day]
     end
@@ -198,6 +201,17 @@ module Google
     end
 
     #
+    # Sets the visibility of the Event.
+    #
+    def visibility=(val)
+      if val
+        @visibility = Event.parse_visibility(val)
+      else
+        @visibility = "default"      
+      end
+    end
+
+    #
     # Convenience method used to build an array of events from a Google feed.
     #
     def self.build_from_google_feed(response, calendar)
@@ -211,6 +225,7 @@ module Google
     def to_json
       "{
         \"summary\": \"#{title}\",
+        \"visibility\": \"#{visibility}\",
         \"description\": \"#{description}\",
         \"location\": \"#{location}\",
         \"start\": {
@@ -349,6 +364,7 @@ module Google
                 :updated      => e['updated'],
                 :reminders    => e['reminders'],
                 :attendees    => e['attendees'],
+                :visibility   => e['visibility'],
                 :recurrence   => Event.parse_recurrence_rule(e['recurrence']) )
 
     end
@@ -393,6 +409,14 @@ module Google
     def self.parse_time(time) #:nodoc
       raise ArgumentError, "Start Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
       (time.is_a? String) ? Time.parse(time) : time.dup.utc
+    end
+
+    #
+    # Validates visibility value
+    #
+    def self.parse_visibility(visibility)
+      raise ArgumentError, "Event visibility must be 'default', 'public', 'private' or 'confidential'." unless ['default', 'public', 'private', 'confidential'].include?(visibility)    
+      return visibility
     end
 
   end
