@@ -239,6 +239,12 @@ class TestGoogleCalendar < Minitest::Test
         assert_equal event.title, 'New Event Update when id is NIL'
       end
 
+      should "provide the calendar summary" do
+        @client_mock.stubs(:body).returns( get_mock_body("events.json") )
+        @calendar.events
+        assert_equal 'My Events Calendar', @calendar.summary
+      end
+
     end # Logged on context
 
   end # Connected context
