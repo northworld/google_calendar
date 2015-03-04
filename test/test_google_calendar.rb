@@ -295,6 +295,13 @@ class TestGoogleCalendar < Minitest::Test
       end
     end
 
+    context "#creator_name" do
+      should "include name" do
+        event = Event.new :creator => {'displayName' => 'Someone', 'email' => 'someone@example.com'}
+        assert_equal 'Someone', event.creator_name
+      end
+    end
+
     context "transparency" do
       should "be transparent" do
         @event = Event.new(:transparency => true)

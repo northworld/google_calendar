@@ -29,7 +29,7 @@ module Google
   #
   class Event
     attr_reader :raw, :html_link, :status
-    attr_accessor :id, :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders, :recurrence, :visibility
+    attr_accessor :id, :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders, :recurrence, :visibility, :creator_name
 
     #
     # Create a new event, and optionally set it's attributes.
@@ -61,6 +61,7 @@ module Google
       self.visibility   = params[:visibility]
       self.transparency = params[:transparency]
       self.all_day      = params[:all_day] if params[:all_day]
+      self.creator_name = params[:creator]['displayName'] if params[:creator]
     end
 
     #
@@ -365,6 +366,7 @@ module Google
                 :title        => e['summary'],
                 :description  => e['description'],
                 :location     => e['location'],
+                :creator      => e['creator'],
                 :start_time   => Event.parse_json_time(e['start']),
                 :end_time     => Event.parse_json_time(e['end']),
                 :transparency => e['transparency'],
