@@ -470,6 +470,42 @@ class TestGoogleCalendar < Minitest::Test
 
   end
 
+  context "a freebusy query" do
+
+    setup do
+      @client_mock = setup_mock_client
+
+      @client_id = "671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com"
+      @client_secret = "roBgdbfEmJwPgrgi2mRbbO-f"
+      @refresh_token = "1/eiqBWx8aj-BsdhwvlzDMFOUN1IN_HyThvYTujyksO4c"
+
+      @freebusy = Google::Freebusy.new(
+        :client_id => @client_id,
+        :client_secret => @client_secret,
+        :redirect_url => "urn:ietf:wg:oauth:2.0:oob",
+        :refresh_token => @refresh_token
+      )
+
+      @client_mock.stubs(:body).returns(get_mock_body("freebusy_query.json"))
+
+      @calendar_ids = ['busy-calendar-id', 'not-busy-calendar-id']
+      @start_time = Time.new(2015, 3, 6, 0, 0, 0)
+      @end_time = Time.new(2015, 3, 6, 23, 59, 59)
+    end
+
+    should "return a hash with keys of the supplied calendar ids" do
+      assert_equal ['busy-calendar-id', 'not-busy-calendar-id'], @freebusy.query(@calendar_ids, @start_time, @end_time).keys
+    end
+
+    should "returns the busy times for each calendar supplied" do
+      freebusy_result = @freebusy.query(@calendar_ids, @start_time, @end_time)
+
+      assert_equal ({'start' => '2015-03-06T10:00:00Z', 'end' => '2015-03-06T11:00:00Z' }), freebusy_result['busy-calendar-id'].first
+      assert_equal ({'start' => '2015-03-06T11:30:00Z', 'end' => '2015-03-06T11:30:00Z' }), freebusy_result['busy-calendar-id'].last
+      assert_equal [], freebusy_result['not-busy-calendar-id']
+    end
+  end
+
   protected
 
   def get_mock_body(name)
