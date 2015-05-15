@@ -29,7 +29,7 @@ module Google
   #
   class Event
     attr_reader :raw, :html_link, :status
-    attr_accessor :id, :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders, :recurrence, :visibility, :creator_name
+    attr_accessor :id, :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders, :recurrence, :visibility, :creator_name, :color_id
 
     #
     # Create a new event, and optionally set it's attributes.
@@ -54,7 +54,7 @@ module Google
     #                   ]
     #
     def initialize(params = {})
-      [:id, :status, :raw, :html_link, :title, :location, :calendar, :quickadd, :attendees, :description, :reminders, :recurrence, :start_time, :end_time].each do |attribute|
+      [:id, :status, :raw, :html_link, :title, :location, :calendar, :quickadd, :attendees, :description, :reminders, :recurrence, :start_time, :end_time, :color_id].each do |attribute|
         instance_variable_set("@#{attribute}", params[attribute])
       end
 
@@ -246,6 +246,7 @@ module Google
           #{timezone_needed? ? local_timezone_json : ''}
         },
         #{recurrence_json}
+        #{color_json}
         #{attendees_json}
         \"reminders\": {
           #{reminders_json}
@@ -253,6 +254,10 @@ module Google
       }"
     end
 
+    def color_json
+      return unless color_id
+      "\"colorId\": \"#{color_id}\","
+    end
     #
     # JSON representation of attendees
     #
@@ -318,7 +323,7 @@ module Google
     # String representation of an event object.
     #
     def to_s
-      "Event Id '#{self.id}'\n\tStatus: #{status}\n\tTitle: #{title}\n\tStarts: #{start_time}\n\tEnds: #{end_time}\n\tLocation: #{location}\n\tDescription: #{description}\n\n"
+      "Event Id '#{self.id}'\n\tStatus: #{status}\n\tTitle: #{title}\n\tStarts: #{start_time}\n\tEnds: #{end_time}\n\tLocation: #{location}\n\tDescription: #{description}\n\tColor: #{color_id}\n\n"
     end
 
     #
@@ -375,7 +380,8 @@ module Google
                 :reminders    => e['reminders'],
                 :attendees    => e['attendees'],
                 :recurrence   => Event.parse_recurrence_rule(e['recurrence']),
-                :visibility   => e['visibility'] )
+                :visibility   => e['visibility'],
+                :color_id     => e['colorId'])
 
     end
 

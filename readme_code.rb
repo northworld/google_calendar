@@ -54,6 +54,7 @@ puts event
 event = cal.find_or_create_event_by_id(event.id) do |e|
   e.title = 'An Updated Cool Event'
   e.end_time = Time.now + (60 * 60 * 2) # seconds * min * hours
+  e.color_id = 3  # google allows colors 0-11
 end
 
 puts event

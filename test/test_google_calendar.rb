@@ -195,7 +195,7 @@ class TestGoogleCalendar < Minitest::Test
         @client_mock.stubs(:body).returns( get_mock_body("query_events.json") )
         event = @calendar.find_events('Test')
         e = event[0]
-        assert_equal e.to_s, "Event Id '#{e.id}'\n\tStatus: #{e.status}\n\tTitle: #{e.title}\n\tStarts: #{e.start_time}\n\tEnds: #{e.end_time}\n\tLocation: #{e.location}\n\tDescription: #{e.description}\n\n"
+        assert_equal e.to_s, "Event Id '#{e.id}'\n\tStatus: #{e.status}\n\tTitle: #{e.title}\n\tStarts: #{e.start_time}\n\tEnds: #{e.end_time}\n\tLocation: #{e.location}\n\tDescription: #{e.description}\n\tColor: #{e.color_id}\n\n"
       end
 
       should "update an event by id" do
