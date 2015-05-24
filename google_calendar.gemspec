@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = "google_calendar"
-  s.version = "0.4.4"
+  s.version = "0.5"
   s.date = "2014-11-30"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
@@ -13,8 +13,8 @@ Gem::Specification.new do |s|
   s.summary = "A lightweight Google Calendar API wrapper"
   s.description = "A minimal wrapper around the google calendar API"
   s.homepage = "http://northworld.github.io/google_calendar/"
-  s.licenses = ["MIT"]  
-  
+  s.licenses = ["MIT"]
+
   s.extra_rdoc_files = [
     "LICENSE.txt",
     "README.rdoc"
@@ -39,5 +39,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency(%q<mocha>, ["~> 1.1"])
   s.add_development_dependency(%q<rake>, ["~> 10"])
   s.add_development_dependency(%q<rdoc>, ["~> 4.1"])
-  
+
 end

@@ -1,40 +1,40 @@
 PATH
   remote: .
   specs:
-    google_calendar (0.4.4)
+    google_calendar (0.5)
       json (~> 1.8)
       signet (~> 0.6)
 
 GEM
   remote: http://rubygems.org/
   specs:
-    addressable (2.3.6)
-    ansi (1.4.3)
+    addressable (2.3.8)
+    ansi (1.5.0)
     builder (3.2.2)
-    codeclimate-test-reporter (0.4.5)
+    codeclimate-test-reporter (0.4.7)
       simplecov (>= 0.7.1, < 1.0.0)
     docile (1.1.5)
     extlib (0.9.16)
     faraday (0.9.1)
       multipart-post (>= 1.2, < 3)
     json (1.8.2)
-    jwt (1.2.0)
+    jwt (1.5.0)
     metaclass (0.0.4)
-    minitest (5.5.1)
-    minitest-reporters (1.0.8)
+    minitest (5.6.1)
+    minitest-reporters (1.0.16)
       ansi
       builder
       minitest (>= 5.0)
       ruby-progressbar
     mocha (1.1.0)
       metaclass (~> 0.0.1)
-    multi_json (1.10.1)
+    multi_json (1.11.0)
     multipart-post (2.0.0)
     rake (10.4.2)
-    rb-fsevent (0.9.4)
+    rb-fsevent (0.9.5)
     rdoc (4.2.0)
       json (~> 1.4)
-    ruby-progressbar (1.7.1)
+    ruby-progressbar (1.7.5)
     shoulda-context (1.2.1)
     signet (0.6.0)
       addressable (~> 2.3)
@@ -42,11 +42,11 @@ GEM
       faraday (~> 0.9)
       jwt (~> 1.0)
       multi_json (~> 1.10)
-    simplecov (0.9.1)
+    simplecov (0.10.0)
       docile (~> 1.1.0)
-      multi_json (~> 1.0)
-      simplecov-html (~> 0.8.0)
-    simplecov-html (0.8.0)
+      json (~> 1.8)
+      simplecov-html (~> 0.10.0)
+    simplecov-html (0.10.0)
     terminal-notifier-guard (1.6.4)
 
 PLATFORMS
