@@ -5,4 +5,5 @@ module Google
   require 'google/calendar_list_entry'
   require 'google/connection'
   require 'google/event'
+  require 'google/freebusy'
 end

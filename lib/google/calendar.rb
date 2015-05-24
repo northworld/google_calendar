@@ -6,7 +6,7 @@ module Google
   #
   class Calendar
 
-    attr_reader :id, :connection
+    attr_reader :id, :connection, :summary
 
     #
     # Setup and connect to the specified Google Calendar.
@@ -246,7 +246,9 @@ module Google
     def event_lookup(query_string = '') #:nodoc:
       begin
         response = send_events_request(query_string, :get)
-        events = Event.build_from_google_feed( JSON.parse(response.body) , self) || []
+        parsed_json = JSON.parse(response.body)
+        @summary = parsed_json['summary']
+        events = Event.build_from_google_feed(parsed_json, self) || []
         return events if events.empty?
         events.length > 1 ? events : [events[0]]
       rescue Google::HTTPNotFound
