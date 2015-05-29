@@ -1,5 +1,5 @@
 #
-# Uncomment the LOAD_PATH lines if you want to run against the 
+# Uncomment the LOAD_PATH lines if you want to run against the
 # local version of the gem.
 #
 # $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), 'lib'))
@@ -9,7 +9,7 @@ require 'rubygems'
 require 'google_calendar'
 
 # Create an instance of the calendar.
-cal = Google::Calendar.new(:client_id     => YOUR_CLIENT_ID, 
+cal = Google::Calendar.new(:client_id     => YOUR_CLIENT_ID,
                            :client_secret => YOUR_SECRET,
                            :calendar      => YOUR_CALENDAR_ID,
                            :redirect_url  => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'

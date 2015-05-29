@@ -38,6 +38,13 @@ module Google
       # raise CalendarIDMissing unless @id
     end
 
+    def self.create(params={}, connection=nil)
+      cal = new(params, connection)
+      cal.instance_variable_set(:@summary, params[:summary])
+
+      cal.save
+    end
+
     #
     # The URL you need to send a user in order to let them grant you access to their calendars.
     #
@@ -78,6 +85,16 @@ module Google
     #
     def login_with_refresh_token(refresh_token)
       @connection.login_with_refresh_token(refresh_token)
+    end
+
+    #
+    # Save a new calender.
+    #  Returns:
+    #   the calendar that was saved.
+    #
+    def save
+      response = send_calendar_request("/", :post, {:summary => @summary}.to_json)
+      update_after_save(response)
     end
 
     #
@@ -155,7 +172,7 @@ module Google
     #   an array of events if many found.
     #
     def find_event_by_id(id)
-      return nil unless id 
+      return nil unless id
       event_lookup("/#{id}")
     end
 
@@ -224,6 +241,18 @@ module Google
     protected
 
     #
+    # Set the ID after google assigns it (only necessary when we are creating a new event)
+    #
+    def update_after_save(response) #:nodoc:
+      return if @id && @id != ''
+      @raw = JSON.parse(response.body)
+      @id = @raw['id']
+      @html_link = @raw['htmlLink']
+
+      self
+    end
+
+    #
     # Utility method used to centralize the parsing of common query parameters.
     #
     def parse_options(options) # :nodoc
@@ -266,6 +295,13 @@ module Google
       end
       event.save
       event
+    end
+
+    #
+    # Wraps the `send` method. Send a calendar related request to Google.
+    #
+    def send_calendar_request(path_and_query_string, method, content = '')
+      @connection.send("/calendars#{path_and_query_string}", method, content)
     end
 
     #
