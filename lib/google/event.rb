@@ -216,7 +216,7 @@ module Google
       if val
         @visibility = Event.parse_visibility(val)
       else
-        @visibility = "default"      
+        @visibility = "default"
       end
     end
 
@@ -402,9 +402,9 @@ module Google
     #
     # Set the ID after google assigns it (only necessary when we are creating a new event)
     #
-    def update_after_save(respose) #:nodoc:
+    def update_after_save(response) #:nodoc:
       return if @id && @id != ''
-      @raw = JSON.parse(respose.body)
+      @raw = JSON.parse(response.body)
       @id = @raw['id']
       @html_link = @raw['htmlLink']
     end
@@ -431,14 +431,14 @@ module Google
     # Validates id format
     #
     def self.parse_id(id)
-      raise ArgumentError, "Event ID is invalid. Please check Google documentation: https://developers.google.com/google-apps/calendar/v3/reference/events/insert" unless id.gsub(/(^[a-v0-9]{5,1024}$)/o)      
+      raise ArgumentError, "Event ID is invalid. Please check Google documentation: https://developers.google.com/google-apps/calendar/v3/reference/events/insert" unless id.gsub(/(^[a-v0-9]{5,1024}$)/o)
     end
 
     #
     # Validates visibility value
     #
     def self.parse_visibility(visibility)
-      raise ArgumentError, "Event visibility must be 'default', 'public', 'private' or 'confidential'." unless ['default', 'public', 'private', 'confidential'].include?(visibility)    
+      raise ArgumentError, "Event visibility must be 'default', 'public', 'private' or 'confidential'." unless ['default', 'public', 'private', 'confidential'].include?(visibility)
       return visibility
     end
 
