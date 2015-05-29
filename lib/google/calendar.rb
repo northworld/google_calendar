@@ -38,6 +38,24 @@ module Google
       # raise CalendarIDMissing unless @id
     end
 
+    #
+    # Setup, connect and create a Google Calendar.
+    #  the +params+ paramater accepts
+    # * :client_id => the client ID that you received from Google after registering your application with them (https://console.developers.google.com/). REQUIRED
+    # * :client_secret => the client secret you received from Google after registering your application with them. REQUIRED
+    # * :redirect_url => the url where your users will be redirected to after they have successfully permitted access to their calendars. Use 'urn:ietf:wg:oauth:2.0:oob' if you are using an 'application'" REQUIRED
+    # * :summary => title of the calendar being created.
+    # * :refresh_token => if a user has already given you access to their calendars, you can specify their refresh token here and you will be 'logged on' automatically (i.e. they don't need to authorize access again). OPTIONAL
+    #
+    # See Readme.rdoc or readme_code.rb for an explication on the OAuth2 authorization process.
+    #
+    # ==== Example
+    # Google::Calendar.new(:client_id => YOUR_CLIENT_ID,
+    #                      :client_secret => YOUR_SECRET,
+    #                      :summary => 'Test Calendar',
+    #                      :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
+    #                     )
+    #
     def self.create(params={}, connection=nil)
       cal = new(params, connection)
       cal.instance_variable_set(:@summary, params[:summary])
