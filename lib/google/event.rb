@@ -410,6 +410,8 @@ module Google
     end
 
     def self.parse_json_time(time_hash)
+      return nil unless time_hash
+
       if time_hash['date']
         Time.parse(time_hash['date']).utc
       elsif time_hash['dateTime']
