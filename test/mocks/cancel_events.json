@@ -1,0 +1,9 @@
+{
+  "kind": "calendar#event",
+  "etag": "\"2864417954210000\"",
+  "id": "5hskl88u70fdekmted80rkjut4_20150701T010000Z",
+  "status": "cancelled",
+  "recurringEventId": "5hskl88u70fdekmted80rkjut4_R20150527T010000",
+  "originalStartTime": {"dateTime": "2015-07-01T10:00:00+09:00"}
+}
+
