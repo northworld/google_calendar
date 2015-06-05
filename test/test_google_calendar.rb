@@ -113,7 +113,7 @@ class TestGoogleCalendar < Minitest::Test
       end
 
       should "return one event in range as array from cancelled data" do
-        @client_mock.stubs(:body).returns( get_mock_body("cancel_events.json") )
+        @client_mock.stubs(:body).returns( get_mock_body("cancelled_events.json") )
         events = @calendar.events
         assert_equal events.class.to_s, "Array"
       end
