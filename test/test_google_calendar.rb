@@ -265,7 +265,7 @@ class TestGoogleCalendar < Minitest::Test
       end
       context "when the event is marked as All Day in google calendar and have more than one day" do
         should "be true" do
-          @event = Event.new(:start_time => "2012-03-31", :end_time => "2012-04-03")
+          @event = Event.new(:start_time => "2012-03-31", :end_time => "2012-04-03", :all_day => "2012-03-31")
           assert @event.all_day?
         end
       end

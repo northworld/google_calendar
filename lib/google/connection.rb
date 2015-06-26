@@ -40,6 +40,7 @@ module Google
         :client_secret => params[:client_secret],
         :redirect_uri => params[:redirect_url],
         :refresh_token => params[:refresh_token],
+        :state => params[:state],
         :authorization_uri => AUTH_URI,
         :token_credential_uri => TOKEN_URI,
         :scope => SCOPE

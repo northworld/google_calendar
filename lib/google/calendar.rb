@@ -31,7 +31,8 @@ module Google
         :client_id => params[:client_id],
         :client_secret => params[:client_secret],
         :refresh_token => params[:refresh_token],
-        :redirect_url => params[:redirect_url]
+        :redirect_url => params[:redirect_url],
+        :state => params[:state]
       )
 
       @id = params[:calendar]
