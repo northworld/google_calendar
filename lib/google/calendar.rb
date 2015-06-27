@@ -51,11 +51,12 @@ module Google
     # See Readme.rdoc or readme_code.rb for an explication on the OAuth2 authorization process.
     #
     # ==== Example
-    # Google::Calendar.new(:client_id => YOUR_CLIENT_ID,
-    #                      :client_secret => YOUR_SECRET,
-    #                      :summary => 'Test Calendar',
-    #                      :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
-    #                     )
+    # Google::Calendar.create(
+    #                         :client_id => YOUR_CLIENT_ID,
+    #                         :client_secret => YOUR_SECRET,
+    #                         :summary => 'Test Calendar',
+    #                         :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
+    #                        )
     #
     def self.create(params={}, connection=nil)
       cal = new(params, connection)
