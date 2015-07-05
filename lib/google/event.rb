@@ -1,5 +1,6 @@
 require 'time'
 require 'json'
+require 'timezone_parser'
 
 module Google
 
@@ -303,7 +304,9 @@ module Google
     # JSON representation of local timezone
     #
     def local_timezone_json
-      ",\"timeZone\" : \"#{Time.now.getlocal.zone}\""
+      tz = Time.now.getlocal.zone
+      tz_name = TimezoneParser::getTimezones(tz).last
+      ",\"timeZone\" : \"#{tz_name}\""
     end
 
     #
