@@ -389,13 +389,14 @@ class TestGoogleCalendar < Minitest::Test
                             {'email' => 'some.b.one@gmail.com', 'displayName' => 'Some B One', 'responseStatus' => 'tentative'}
                           ]
         @event.recurrence = {freq: "monthly", count: "5", interval: "2"}
+        require 'timezone_parser'
         expected_structure = {
           "summary" => "Go Swimming",
           "visibility"=>"default",
           "description" => "The polar bear plunge",
           "location" => "In the arctic ocean",
-          "start" => {"dateTime" => "#{@event.start_time}", "timeZone" => "#{Time.now.getlocal.zone}"},
-          "end" => {"dateTime" => "#{@event.end_time}", "timeZone" => "#{Time.now.getlocal.zone}"},
+          "start" => {"dateTime" => "#{@event.start_time}", "timeZone" => "#{TimezoneParser::getTimezones(Time.now.getlocal.zone).last}"},
+          "end" => {"dateTime" => "#{@event.end_time}", "timeZone" => "#{TimezoneParser::getTimezones(Time.now.getlocal.zone).last}"},
           "recurrence" => ["RRULE:FREQ=MONTHLY;COUNT=5;INTERVAL=2"],
           "attendees" => [
             {"displayName" => "Some A One", "email" => "some.a.one@gmail.com", "responseStatus" => "tentative"},
