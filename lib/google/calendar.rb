@@ -301,7 +301,7 @@ module Google
         return events if events.empty?
         events.length > 1 ? events : [events[0]]
       rescue Google::HTTPNotFound
-        return nil
+        return []
       end
     end
 

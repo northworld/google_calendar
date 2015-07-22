@@ -134,7 +134,7 @@ class TestGoogleCalendar < Minitest::Test
       should "throw NotFound with invalid event id" do
         @client_mock.stubs(:status).returns(404)
         @client_mock.stubs(:body).returns( get_mock_body("404.json") )
-        assert_equal @calendar.find_event_by_id('1234'), nil
+        assert_equal @calendar.find_event_by_id('1234'), []
       end
 
       should "create an event with block" do
