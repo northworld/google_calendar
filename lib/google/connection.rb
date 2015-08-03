@@ -111,7 +111,6 @@ module Google
     def send(path, method, content = '')
 
       uri = BASE_URI + path
-
       response = @client.fetch_protected_resource(
         :uri => uri,
         :method => method,

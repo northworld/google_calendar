@@ -1,31 +1,36 @@
 {
-  "status": "confirmed", 
-  "kind": "calendar#event", 
+  "status": "confirmed",
+  "kind": "calendar#event",
   "end": {
     "dateTimes": "2008-09-24T11:00:00-07:00"
-  }, 
-  "description": "Test Event", 
-  "created": "2008-09-18T21:17:11.000Z", 
-  "iCalUID": "fhru34kt6ikmr20knd2456l08n@google.com", 
+  },
+  "description": "Test Event",
+  "created": "2008-09-18T21:17:11.000Z",
+  "iCalUID": "fhru34kt6ikmr20knd2456l08n@google.com",
   "reminders": {
     "useDefault": true
-  }, 
-  "htmlLink": "https://www.google.com/calendar/event?eid=hJo0SgXn9qMwOHJjYWJpNnBhNTQ5dHRqbGsgZ3FlYjBpNnY3MzdrZnU1bWQwZjNldWtqbGdAZw", 
-  "sequence": 1, 
-  "updated": "2008-10-24T23:08:09.010Z", 
-  "summary": "This is a test event", 
+  },
+  "htmlLink": "https://www.google.com/calendar/event?eid=hJo0SgXn9qMwOHJjYWJpNnBhNTQ5dHRqbGsgZ3FlYjBpNnY3MzdrZnU1bWQwZjNldWtqbGdAZw",
+  "sequence": 1,
+  "updated": "2008-10-24T23:08:09.010Z",
+  "summary": "This is a test event",
   "start": {
     "dateTimes": "2008-09-24T10:30:00-07:00"
-  }, 
-  "etag": "\"2449779378020000\"", 
+  },
+  "etag": "\"2449779378020000\"",
   "organizer": {
-    "self": true, 
-    "displayName": "Some Person", 
+    "self": true,
+    "displayName": "Some Person",
     "email": "some.person@gmail.com"
-  }, 
+  },
   "creator": {
-    "displayName": "Some Person", 
+    "displayName": "Some Person",
     "email": "some.person@gmail.com"
-  }, 
-  "id": "fhru34kt6ikmr20knd2456l12n"
+  },
+  "id": "fhru34kt6ikmr20knd2456l12n",
+  "extendedProperties": {
+    "shared": {
+      "key": "value"
+    }
+  }
 }

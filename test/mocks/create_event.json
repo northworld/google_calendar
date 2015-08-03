@@ -1,31 +1,36 @@
 {
-  "status": "confirmed", 
-  "kind": "calendar#event", 
+  "status": "confirmed",
+  "kind": "calendar#event",
   "end": {
     "dateTime": "2014-11-16T21:17:31-08:00"
-  }, 
-  "description": "A New Event", 
-  "created": "2014-11-17T03:19:37.000Z", 
-  "iCalUID": "fhru34kt6ikmr20knd2456l08n@google.com", 
+  },
+  "description": "A New Event",
+  "created": "2014-11-17T03:19:37.000Z",
+  "iCalUID": "fhru34kt6ikmr20knd2456l08n@google.com",
   "reminders": {
     "useDefault": true
-  }, 
-  "htmlLink": "https://www.google.com/calendar/event?eid=aslkjhdfasod89f7aspdfghsdlkfghsdlkjghsdfgposdr7gpsdorigh", 
-  "sequence": 0, 
-  "updated": "2014-11-17T03:19:37.944Z", 
-  "summary": "New Event", 
+  },
+  "htmlLink": "https://www.google.com/calendar/event?eid=aslkjhdfasod89f7aspdfghsdlkfghsdlkjghsdfgposdr7gpsdorigh",
+  "sequence": 0,
+  "updated": "2014-11-17T03:19:37.944Z",
+  "summary": "New Event",
   "start": {
     "dateTime": "2014-11-16T20:17:31-08:00"
-  }, 
-  "etag": "\"123456728900000\"", 
+  },
+  "etag": "\"123456728900000\"",
   "organizer": {
-    "self": true, 
-    "displayName": "Some Person", 
+    "self": true,
+    "displayName": "Some Person",
     "email": "klei8jnelo09nflqehnvfzipgs@group.calendar.google.com"
-  }, 
+  },
   "creator": {
-    "displayName": "Some Person", 
+    "displayName": "Some Person",
     "email": "some.person@gmail.com"
-  }, 
-  "id": "fhru34kt6ikmr20knd2456l08n"
+  },
+  "id": "fhru34kt6ikmr20knd2456l08n",
+  "extendedProperties": {
+    "shared": {
+      "key": "value"
+    }
+  }
 }

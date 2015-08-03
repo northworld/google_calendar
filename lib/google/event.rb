@@ -27,10 +27,11 @@ module Google
   # * +html_link+ - An absolute link to this event in the Google Calendar Web UI. Read only.
   # * +raw+ - The full google json representation of the event. Read only.
   # * +visibility+ - The visibility of the event (*'default'*, 'public', 'private', 'confidential'). Read Write.
+  # * +extended_properties - Custom properties which may be shared or private. Read Write
   #
   class Event
     attr_reader :raw, :html_link, :status
-    attr_accessor :id, :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders, :recurrence, :visibility, :creator_name, :color_id
+    attr_accessor :id, :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders, :recurrence, :visibility, :creator_name, :color_id, :extended_properties
 
     #
     # Create a new event, and optionally set it's attributes.
@@ -53,9 +54,10 @@ module Google
     #                     {'email' => 'some.a.one@gmail.com', 'displayName' => 'Some A One', 'responseStatus' => 'tentative'},
     #                     {'email' => 'some.b.one@gmail.com', 'displayName' => 'Some B One', 'responseStatus' => 'tentative'}
     #                   ]
+    # event.extendedProperties = {'shared' => {'custom_str' => 'some custom string'}}
     #
     def initialize(params = {})
-      [:id, :status, :raw, :html_link, :title, :location, :calendar, :quickadd, :attendees, :description, :reminders, :recurrence, :start_time, :end_time, :color_id].each do |attribute|
+      [:id, :status, :raw, :html_link, :title, :location, :calendar, :quickadd, :attendees, :description, :reminders, :recurrence, :start_time, :end_time, :color_id, :extended_properties].each do |attribute|
         instance_variable_set("@#{attribute}", params[attribute])
       end
 
@@ -183,6 +185,27 @@ module Google
     end
 
     #
+    # Stores custom data within extended properties which can be shared or private.
+    #
+    # Allowed contents:
+    # :private => a hash containing custom key/values (strings) private to the event   OPTIONAL
+    # :shared => a hash containing custom key/values (strings) shared with others       OPTIONAL
+    #
+    # Note: Both private and shared can be specified at once
+    #
+    # ===== Example
+    # event = cal.create_event do |e|
+    #   e.title = 'Work-day Event'
+    #   e.start_time = Time.now
+    #   e.end_time = Time.now + (60 * 60) # seconds * min
+    #   e.extended_properties = {'shared' => {'prop1' => 'value 1'}}
+    # end
+    #
+    def extended_properties
+      @extended_properties ||= {}
+    end
+
+    #
     # Utility method that simplifies setting the transparency of an event.
     # You can pass true or false.  Defaults to transparent.
     #
@@ -249,6 +272,7 @@ module Google
         #{recurrence_json}
         #{color_json}
         #{attendees_json}
+        #{extended_properties_json}
         \"reminders\": {
           #{reminders_json}
         }
@@ -323,6 +347,28 @@ module Google
     end
 
     #
+    # JSON representation of extended properties
+    # shared : whether this should handle shared or public properties
+    #
+    def extended_properties_json
+      return unless @extended_properties && (@extended_properties['shared'] || @extended_properties['private'])
+      json_extended_properties = []
+      ['shared', 'private'].each do |prop_type|
+        if @extended_properties[prop_type]
+          props_json = @extended_properties[prop_type].map do |key, value|
+            "\"#{key}\": \"#{value}\""
+          end.join(",\n")
+          json_extended_properties << "\"#{prop_type}\": {\n
+                                          #{props_json}
+                                      }\n"
+        end
+      end
+      "\n\"extendedProperties\": {\n
+        #{json_extended_properties.join(',')}\n
+      },\n"
+    end
+
+    #
     # String representation of an event object.
     #
     def to_s
@@ -384,7 +430,8 @@ module Google
                 :attendees    => e['attendees'],
                 :recurrence   => Event.parse_recurrence_rule(e['recurrence']),
                 :visibility   => e['visibility'],
-                :color_id     => e['colorId'])
+                :color_id     => e['colorId'],
+                :extended_properties => e['extendedProperties'])
 
     end
 

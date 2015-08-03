@@ -92,6 +92,20 @@ class TestGoogleCalendar < Minitest::Test
         @calendar.find_events_in_range(start_min, start_max)
       end
 
+      should "find events with shared extended property" do
+        @calendar.expects(:event_lookup).with("?sharedExtendedProperty=p%3Dv&sharedExtendedProperty=q%3Dw&orderBy=startTime&maxResults=25&singleEvents=true")
+        @calendar.find_events_by_extended_properties({'shared' => {'p' => 'v', 'q' => 'w'}})
+      end
+
+      should "find events with shared extended property in range" do
+        now = Time.now.utc
+        Time.stubs(:now).returns(now)
+        start_min = now
+        start_max = (now + 60*60*24)
+        @calendar.expects(:event_lookup).with("?sharedExtendedProperty=p%3Dv&timeMin=#{start_min.strftime("%FT%TZ")}&timeMax=#{start_max.strftime("%FT%TZ")}&orderBy=startTime&maxResults=25&singleEvents=true")
+        @calendar.find_events_by_extended_properties_in_range({'shared' => {'p' => 'v'}}, start_min, start_max)
+      end
+
       should "find future events" do
         now = Time.now.utc
         Time.stubs(:now).returns(now)
@@ -146,6 +160,7 @@ class TestGoogleCalendar < Minitest::Test
           e.end_time = Time.now + (60 * 60 * 2)
           e.description = "A new event"
           e.location = "Joe's House"
+          e.extended_properties = {'shared' => {'key' => 'value' }}
         end
 
         assert_equal event.title, 'New Event'
@@ -335,6 +350,7 @@ class TestGoogleCalendar < Minitest::Test
                             {'email' => 'some.a.one@gmail.com', 'displayName' => 'Some A One', 'responseStatus' => 'tentative'},
                             {'email' => 'some.b.one@gmail.com', 'displayName' => 'Some B One', 'responseStatus' => 'tentative'}
                           ]
+        @event.extended_properties = { 'shared' => { 'key' => 'value' }}
 
         expected_structure = {
           "summary" => "Go Swimming",
@@ -347,7 +363,8 @@ class TestGoogleCalendar < Minitest::Test
             {"displayName" => "Some A One", "email" => "some.a.one@gmail.com", "responseStatus" => "tentative"},
             {"displayName" => "Some B One", "email" => "some.b.one@gmail.com", "responseStatus" => "tentative"}
           ],
-          "reminders" => {"useDefault" => false, "overrides" => [{"method" => "popup", "minutes" => 10}]}
+          "reminders" => {"useDefault" => false, "overrides" => [{"method" => "popup", "minutes" => 10}]},
+          "extendedProperties" => {"shared" => {'key' => 'value'}}
         }
         assert_equal JSON.parse(@event.to_json), expected_structure
       end
@@ -389,6 +406,7 @@ class TestGoogleCalendar < Minitest::Test
                             {'email' => 'some.b.one@gmail.com', 'displayName' => 'Some B One', 'responseStatus' => 'tentative'}
                           ]
         @event.recurrence = {freq: "monthly", count: "5", interval: "2"}
+        @event.extended_properties = {'shared' => {'key' => 'value'}}
         require 'timezone_parser'
         expected_structure = {
           "summary" => "Go Swimming",
@@ -402,7 +420,8 @@ class TestGoogleCalendar < Minitest::Test
             {"displayName" => "Some A One", "email" => "some.a.one@gmail.com", "responseStatus" => "tentative"},
             {"displayName" => "Some B One", "email" => "some.b.one@gmail.com", "responseStatus" => "tentative"}
           ],
-          "reminders" => {"useDefault" => false, "overrides" => [{"method" => "popup", "minutes"=>10}]}
+          "reminders" => {"useDefault" => false, "overrides" => [{"method" => "popup", "minutes"=>10}]},
+          "extendedProperties" => {"shared" => {'key' => 'value'}}
         }
         assert_equal JSON.parse(@event.to_json), expected_structure
       end

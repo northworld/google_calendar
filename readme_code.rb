@@ -47,6 +47,14 @@ event = cal.create_event do |e|
   e.title = 'A Cool Event'
   e.start_time = Time.now
   e.end_time = Time.now + (60 * 60) # seconds * min
+  e.extended_properties = {
+    'private' => {
+      'private_prop' => 'private_val'
+    },
+    'shared' => {
+      'shared_prop' => 'shared_val'
+    }
+  }
 end
 
 puts event
@@ -59,8 +67,13 @@ end
 
 puts event
 
+# Find through the custom property
+event = cal.find_events_by_extended_properties({'private' => { 'private_prop' => 'private_val'}})
+
+puts event
+
 # All events
 puts cal.events
 
 # Query events
-puts cal.find_events('your search string')
+puts cal.find_events('some query here')
