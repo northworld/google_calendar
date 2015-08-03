@@ -134,6 +134,11 @@ module Google
     # search (i.e. title), by default it searches everything.
     # If you would like to find specific attribute value (i.e. title=Picnic), run a query
     # and parse the results.
+    #
+    # Note that it is not possible to query the extended properties using queries.
+    # If you need to do so, use the alternate methods find_events_by_extended_property
+    # and find_events_by_extended_property_in_range
+    #
     #  Returns:
     #   an empty array if nothing found.
     #   an array with one element if only one found.
@@ -181,6 +186,70 @@ module Google
     def find_future_events(options={})
       formatted_start_min = encode_time(Time.now)
       query = "?timeMin=#{formatted_start_min}#{parse_options(options)}"
+      event_lookup(query)
+    end
+
+    #
+    # Find all events that match at least one of the specified extended properties.
+    #
+    # the +extended_properties+ parameter is set up the same way that it is configured when creating an event
+    # for example, providing the following hash { 'shared' => {'p1' => 'v1', 'p2' => v2} } will return the list of events
+    # that contain either v1 for shared extended property p1 or v2 for p2.
+    #
+    # the +options+ parameter accepts
+    # :max_results => the maximum number of results to return defaults to 25 the largest number Google accepts is 2500
+    # :order_by => how you would like the results ordered, can be either 'startTime' or 'updated'. Defaults to 'startTime'. Note: it must be 'updated' if expand_recurring_events is set to false.
+    # :expand_recurring_events => When set to true each instance of a recurring event is returned. Defaults to true.
+    #
+    #  Returns:
+    #   an empty array if nothing found.
+    #   an array with one element if only one found.
+    #   an array of events if many found.
+    #
+    def find_events_by_extended_properties(extended_properties, options = {})
+      query_parts = []
+      ['shared', 'private'].each do |prop_type|
+        if extended_properties[prop_type]
+          query_parts << extended_properties[prop_type].map do |key, value|
+            (prop_type == "shared" ? "sharedExtendedProperty=" : "privateExtendedProperty=") + "#{key}%3D#{value}"
+          end.join("&")
+        end
+      end
+      query = "?" + query_parts.join('&') + parse_options(options)
+      event_lookup(query)
+    end
+
+    #
+    # Find all events that match at least one of the specified extended properties within a given time frame.
+    # The lower bound is inclusive, whereas the upper bound is exclusive.
+    # Events that overlap the range are included.
+    #
+    # the +extended_properties+ parameter is set up the same way that it is configured when creating an event
+    # for example, providing the following hash { 'shared' => {'p1' => 'v1', 'p2' => v2} } will return the list of events
+    # that contain either v1 for shared extended property p1 or v2 for p2.
+    #
+    # the +options+ parameter accepts
+    # :max_results => the maximum number of results to return defaults to 25 the largest number Google accepts is 2500
+    # :order_by => how you would like the results ordered, can be either 'startTime' or 'updated'. Defaults to 'startTime'. Note: it must be 'updated' if expand_recurring_events is set to false.
+    # :expand_recurring_events => When set to true each instance of a recurring event is returned. Defaults to true.
+    #
+    #  Returns:
+    #   an empty array if nothing found.
+    #   an array with one element if only one found.
+    #   an array of events if many found.
+    #
+    def find_events_by_extended_properties_in_range(extended_properties, start_min, start_max, options = {})
+      query_parts = []
+      ['shared', 'private'].each do |prop_type|
+        if extended_properties[prop_type]
+          query_parts << extended_properties[prop_type].map do |key, value|
+            (prop_type == "shared" ? "sharedExtendedProperty=" : "privateExtendedProperty=") + "#{key}%3D#{value}"
+          end.join("&")
+        end
+      end
+      formatted_start_min = encode_time(start_min)
+      formatted_start_max = encode_time(start_max)
+      query = "?" + query_parts.join('&') + (query_parts.length > 0 ? '&':'') + "timeMin=#{formatted_start_min}&timeMax=#{formatted_start_max}#{parse_options(options)}"
       event_lookup(query)
     end
 
@@ -238,7 +307,6 @@ module Google
     def save_event(event)
       method = event.new_event? ? :post : :put
       body = event.use_quickadd? ? nil : event.to_json
-
       query_string =  if event.use_quickadd?
         "/quickAdd?text=#{event.title}"
       elsif event.new_event?

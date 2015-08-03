@@ -1,48 +1,53 @@
 {
-  "kind": "calendar#events", 
-  "defaultReminders": [], 
-  "description": "My Personal Events Calendar", 
+  "kind": "calendar#events",
+  "defaultReminders": [],
+  "description": "My Personal Events Calendar",
   "items": [
     {
-      "status": "confirmed", 
-      "kind": "calendar#event", 
+      "status": "confirmed",
+      "kind": "calendar#event",
       "end": {
-        "timeZone": "America/Los_Angeles", 
+        "timeZone": "America/Los_Angeles",
         "dateTime": "2014-11-15T18:00:00-08:00"
-      }, 
-      "created": "2014-11-17T00:45:30.000Z", 
-      "iCalUID": "fhru34kt6ikmr20knd2456l08n@google.com", 
+      },
+      "created": "2014-11-17T00:45:30.000Z",
+      "iCalUID": "fhru34kt6ikmr20knd2456l08n@google.com",
       "reminders": {
         "useDefault": true
-      }, 
-      "htmlLink": "https://www.google.com/calendar/event?eid=MjRmNHZhY2pzY3A1YjB0NHE2OThoMGs2YXNfMjAxNDExMTZUMDEwMDAwWiBncWViMGk2djczN2tmdTVtZDBmM2V1a2psZ0Bn", 
-      "sequence": 0, 
-      "updated": "2014-11-17T00:45:30.431Z", 
-      "summary": "Test Repeating Events", 
+      },
+      "htmlLink": "https://www.google.com/calendar/event?eid=MjRmNHZhY2pzY3A1YjB0NHE2OThoMGs2YXNfMjAxNDExMTZUMDEwMDAwWiBncWViMGk2djczN2tmdTVtZDBmM2V1a2psZ0Bn",
+      "sequence": 0,
+      "updated": "2014-11-17T00:45:30.431Z",
+      "summary": "Test Repeating Events",
       "recurrence": [
         "RRULE:FREQ=DAILY;COUNT=3"
-      ], 
+      ],
       "start": {
-        "timeZone": "America/Los_Angeles", 
+        "timeZone": "America/Los_Angeles",
         "dateTime": "2014-11-15T17:00:00-08:00"
-      }, 
-      "etag": "\"2832370260862000\"", 
+      },
+      "etag": "\"2832370260862000\"",
       "organizer": {
-        "self": true, 
-        "displayName": "Some Person", 
+        "self": true,
+        "displayName": "Some Person",
         "email": "some.person@gmail.com"
-      }, 
+      },
       "creator": {
-        "displayName": "Some Person", 
+        "displayName": "Some Person",
         "email": "some.person@gmail.com"
-      }, 
-      "id": "fhru34kt6ikmr20knd2456l08n"
+      },
+      "id": "fhru34kt6ikmr20knd2456l08n",
+      "extendedProperties": {
+        "shared": {
+          "key": "value"
+        }
+      }
     }
-  ], 
-  "updated": "2014-11-17T00:45:30.522Z", 
-  "summary": "My Events Calendar", 
-  "etag": "\"1416185130522000\"", 
-  "nextSyncToken": "AKi8uge987ECEIjyiZnV_cECGAU=", 
-  "timeZone": "America/Los_Angeles", 
+  ],
+  "updated": "2014-11-17T00:45:30.522Z",
+  "summary": "My Events Calendar",
+  "etag": "\"1416185130522000\"",
+  "nextSyncToken": "AKi8uge987ECEIjyiZnV_cECGAU=",
+  "timeZone": "America/Los_Angeles",
   "accessRole": "owner"
 }

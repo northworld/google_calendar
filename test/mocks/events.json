@@ -1,117 +1,132 @@
 {
-  "nextPageToken": "CkkKO183NTM0Mmdobzc0cDNhYmE0ODUyajZiOWs2bDBqMmJhMTZsMjNjYmExOHAyajhoOXA3NG80YWRoaDZrGAEggICA7NHLrqgTGg0IABIAGIjyiZnV_cEC", 
-  "kind": "calendar#events", 
-  "defaultReminders": [], 
-  "description": "My Personal Events Calenda", 
+  "nextPageToken": "CkkKO183NTM0Mmdobzc0cDNhYmE0ODUyajZiOWs2bDBqMmJhMTZsMjNjYmExOHAyajhoOXA3NG80YWRoaDZrGAEggICA7NHLrqgTGg0IABIAGIjyiZnV_cEC",
+  "kind": "calendar#events",
+  "defaultReminders": [],
+  "description": "My Personal Events Calenda",
   "items": [
     {
-      "status": "confirmed", 
-      "kind": "calendar#event", 
+      "status": "confirmed",
+      "kind": "calendar#event",
       "end": {
-        "timeZone": "America/Los_Angeles", 
+        "timeZone": "America/Los_Angeles",
         "dateTime": "2011-10-03T10:30:00-07:00"
-      }, 
-      "created": "2011-04-04T23:52:57.000Z", 
-      "iCalUID": "fhru34kt6ikmr20knd2456l08n@google.com", 
+      },
+      "created": "2011-04-04T23:52:57.000Z",
+      "iCalUID": "fhru34kt6ikmr20knd2456l08n@google.com",
       "reminders": {
         "useDefault": true
-      }, 
-      "htmlLink": "https://www.google.com/calendar/event?eid=HikHg9bQzIk2dWtpdTRwM3Zpazd0cHMwcjRfMjAxMTEwMDNUMTYzMDAwWiBncWViMGk2djczN2tmdTVtZDBmM2V1a2psZ0Bn", 
-      "sequence": 2, 
-      "updated": "2012-01-09T19:39:49.000Z", 
-      "summary": "Staff Meeting", 
+      },
+      "htmlLink": "https://www.google.com/calendar/event?eid=HikHg9bQzIk2dWtpdTRwM3Zpazd0cHMwcjRfMjAxMTEwMDNUMTYzMDAwWiBncWViMGk2djczN2tmdTVtZDBmM2V1a2psZ0Bn",
+      "sequence": 2,
+      "updated": "2012-01-09T19:39:49.000Z",
+      "summary": "Staff Meeting",
       "recurrence": [
         "RRULE:FREQ=WEEKLY;WKST=SU;UNTIL=20120109T075959Z;BYDAY=MO"
-      ], 
+      ],
       "start": {
-        "timeZone": "America/Los_Angeles", 
+        "timeZone": "America/Los_Angeles",
         "dateTime": "2011-10-03T09:30:00-07:00"
-      }, 
-      "etag": "\"2652275978000000\"", 
+      },
+      "etag": "\"2652275978000000\"",
       "organizer": {
-        "self": true, 
-        "displayName": "Some Person", 
+        "self": true,
+        "displayName": "Some Person",
         "email": "klei8jnelo09nflqehnvfzipgs@group.calendar.google.com"
-      }, 
+      },
       "creator": {
-        "displayName": "Some Person", 
+        "displayName": "Some Person",
         "email": "some.person@gmail.com"
-      }, 
-      "id": "fhru34kt6ikmr20knd2456l08n"
-    }, 
+      },
+      "id": "fhru34kt6ikmr20knd2456l08n",
+      "extendedProperties": {
+        "shared": {
+          "key": "value"
+        }
+      }
+    },
     {
-      "status": "confirmed", 
-      "kind": "calendar#event", 
+      "status": "confirmed",
+      "kind": "calendar#event",
       "end": {
-        "timeZone": "America/Los_Angeles", 
+        "timeZone": "America/Los_Angeles",
         "dateTime": "2011-10-03T11:00:00-07:00"
-      }, 
-      "created": "2010-06-01T03:53:00.000Z", 
-      "iCalUID": "fhru34kt6ikmr20knd2456l08n@google.com", 
+      },
+      "created": "2010-06-01T03:53:00.000Z",
+      "iCalUID": "fhru34kt6ikmr20knd2456l08n@google.com",
       "reminders": {
         "useDefault": true
-      }, 
-      "htmlLink": "https://www.google.com/calendar/event?eidi1wegp0jHmAFucjlhMXY0c2RqMjBpYXNlNmNfMjAxMTEwMDNUMTczMDAwWiBncWViMGk2djczN2tmdTVtZDBmM2V1a2psZ0Bn", 
-      "sequence": 2, 
-      "updated": "2012-01-13T18:24:01.000Z", 
-      "summary": "Skype Meeting", 
+      },
+      "htmlLink": "https://www.google.com/calendar/event?eidi1wegp0jHmAFucjlhMXY0c2RqMjBpYXNlNmNfMjAxMTEwMDNUMTczMDAwWiBncWViMGk2djczN2tmdTVtZDBmM2V1a2psZ0Bn",
+      "sequence": 2,
+      "updated": "2012-01-13T18:24:01.000Z",
+      "summary": "Skype Meeting",
       "recurrence": [
         "RRULE:FREQ=WEEKLY;UNTIL=20120109T183000Z"
-      ], 
+      ],
       "start": {
-        "timeZone": "America/Los_Angeles", 
+        "timeZone": "America/Los_Angeles",
         "dateTime": "2011-10-03T10:30:00-07:00"
-      }, 
-      "etag": "\"2652958082000000\"", 
+      },
+      "etag": "\"2652958082000000\"",
       "organizer": {
-        "self": true, 
-        "displayName": "Some Person", 
+        "self": true,
+        "displayName": "Some Person",
         "email": "some.person@gmail.com"
-      }, 
+      },
       "creator": {
-        "displayName": "Some Person", 
+        "displayName": "Some Person",
         "email": "some.person@gmail.com"
-      }, 
-      "id": "fhru34kt6ikmr20knd2456l08n"
-    }, 
+      },
+      "id": "fhru34kt6ikmr20knd2456l08n",
+      "extendedProperties": {
+        "shared": {
+          "key": "value"
+        }
+      }
+    },
     {
-      "status": "confirmed", 
-      "kind": "calendar#event", 
+      "status": "confirmed",
+      "kind": "calendar#event",
       "end": {
-        "timeZone": "America/Los_Angeles", 
+        "timeZone": "America/Los_Angeles",
         "dateTime": "2012-01-09T10:15:00-08:00"
-      }, 
-      "created": "2012-01-09T19:39:50.000Z", 
+      },
+      "created": "2012-01-09T19:39:50.000Z",
       "reminders": {
         "useDefault": true
-      }, 
-      "htmlLink": "https://www.google.com/calendar/event?eid=uIf5JKmaPdhvNzRwM2FiYTQ4NTJqNmI5azZsMGoyYmExNmwyM2NiYTE4cDJqOGg5cDc0bzRhZGhoNmtfMjAxMjAxMDlUMTcxNTAwWiBncWViMGk2djczN2tmdTVtZDBmM2V1a2psZ0Bn", 
-      "sequence": 3, 
-      "updated": "2012-01-23T17:38:31.000Z", 
-      "summary": "Sales Staff Meeting", 
+      },
+      "htmlLink": "https://www.google.com/calendar/event?eid=uIf5JKmaPdhvNzRwM2FiYTQ4NTJqNmI5azZsMGoyYmExNmwyM2NiYTE4cDJqOGg5cDc0bzRhZGhoNmtfMjAxMjAxMDlUMTcxNTAwWiBncWViMGk2djczN2tmdTVtZDBmM2V1a2psZ0Bn",
+      "sequence": 3,
+      "updated": "2012-01-23T17:38:31.000Z",
+      "summary": "Sales Staff Meeting",
       "recurrence": [
         "RRULE:FREQ=WEEKLY;WKST=SU;UNTIL=20120123T171459Z;BYDAY=MO"
-      ], 
+      ],
       "start": {
-        "timeZone": "America/Los_Angeles", 
+        "timeZone": "America/Los_Angeles",
         "dateTime": "2012-01-09T09:15:00-08:00"
-      }, 
-      "etag": "\"2654680622000000\"", 
+      },
+      "etag": "\"2654680622000000\"",
       "organizer": {
-        "self": true, 
-        "displayName": "Some Person", 
+        "self": true,
+        "displayName": "Some Person",
         "email": "some.person@gmail.com"
-      }, 
+      },
       "creator": {
-        "displayName": "Some Person", 
+        "displayName": "Some Person",
         "email": "some.person@gmail.com"
-      }, 
-      "id": "_75342gho74p3aba4852j6b9k6l0j2ba16l23cba18p2j8h9p74o4adhh6k"
+      },
+      "id": "_75342gho74p3aba4852j6b9k6l0j2ba16l23cba18p2j8h9p74o4adhh6k",
+      "extendedProperties": {
+        "shared": {
+          "key": "value"
+        }
+      }
     }
-  ], 
-  "updated": "2014-11-15T22:32:46.965Z", 
-  "summary": "My Events Calendar", 
-  "etag": "\"1234567890123000\"", 
-  "timeZone": "America/Los_Angeles", 
+  ],
+  "updated": "2014-11-15T22:32:46.965Z",
+  "summary": "My Events Calendar",
+  "etag": "\"1234567890123000\"",
+  "timeZone": "America/Los_Angeles",
   "accessRole": "owner"
 }
