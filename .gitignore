@@ -35,3 +35,4 @@ tmtags
 #*.swp
 notes.md
 test_harness.rb
+*.gem
