@@ -114,6 +114,14 @@ class TestGoogleCalendar < Minitest::Test
         @calendar.find_future_events()
       end
 
+      should "find future events with query" do
+        now = Time.now.utc
+        Time.stubs(:now).returns(now)
+        formatted_time = now.strftime("%FT%TZ")
+        @calendar.expects(:event_lookup).with("?timeMin=#{formatted_time}&orderBy=startTime&maxResults=25&singleEvents=true&q=w")
+        @calendar.find_future_events(max_results: 10, order_by: :startTime, q: 'w')
+      end
+
       should "return multiple events in range as array" do
         @client_mock.stubs(:body).returns( get_mock_body("events.json") )
         events = @calendar.events

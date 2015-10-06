@@ -347,7 +347,8 @@ module Google
       options[:max_results] ||=  25
       options[:order_by] ||= 'startTime' # other option is 'updated'
       options[:expand_recurring_events] ||= true
-      "&orderBy=#{options[:order_by]}&maxResults=#{options[:max_results]}&singleEvents=#{options[:expand_recurring_events]}"
+      options[:q] ||= ''
+      "&orderBy=#{options[:order_by]}&maxResults=#{options[:max_results]}&singleEvents=#{options[:expand_recurring_events]}&q=#{options[:q]}"
     end
 
     #
