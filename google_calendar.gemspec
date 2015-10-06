@@ -2,8 +2,8 @@
 
 Gem::Specification.new do |s|
   s.name = "google_calendar"
-  s.version = "0.5"
-  s.date = "2015-05-24"
+  s.version = "0.5.1"
+  s.date = "2015-10-05"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
 
