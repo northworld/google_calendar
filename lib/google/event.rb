@@ -18,7 +18,7 @@ module Google
   # * +end_time+ - The end time of the event (Time object, defaults to one hour from now).  Read Write.
   # * +recurrence+ - A hash containing recurrence info for repeating events. Read write.
   # * +calendar+ - What calendar the event belongs to. Read Write.
-  # * +all_day + - Does the event run all day. Read Write.
+  # * +all_day+ - Does the event run all day. Read Write.
   # * +quickadd+ - A string that Google parses when setting up a new event.  If set and then saved it will take priority over any attributes you have set. Read Write.
   # * +reminders+ - A hash containing reminders. Read Write.
   # * +attendees+ - An array of hashes containing information about attendees. Read Write
@@ -27,11 +27,13 @@ module Google
   # * +html_link+ - An absolute link to this event in the Google Calendar Web UI. Read only.
   # * +raw+ - The full google json representation of the event. Read only.
   # * +visibility+ - The visibility of the event (*'default'*, 'public', 'private', 'confidential'). Read Write.
-  # * +extended_properties - Custom properties which may be shared or private. Read Write
+  # * +extended_properties+ - Custom properties which may be shared or private. Read Write
+  # * +guests_can_invite_others+ - Whether attendees other than the organizer can invite others to the event (*true*, false). Read Write.
+  # * +guests_can_see_other_guests+ - Whether attendees other than the organizer can see who the event's attendees are (*true*, false). Read Write.
   #
   class Event
     attr_reader :raw, :html_link, :status
-    attr_accessor :id, :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders, :recurrence, :visibility, :creator_name, :color_id, :extended_properties
+    attr_accessor :id, :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders, :recurrence, :visibility, :creator_name, :color_id, :extended_properties, :guests_can_invite_others, :guests_can_see_other_guests
 
     #
     # Create a new event, and optionally set it's attributes.
@@ -55,9 +57,11 @@ module Google
     #                     {'email' => 'some.b.one@gmail.com', 'displayName' => 'Some B One', 'responseStatus' => 'tentative'}
     #                   ]
     # event.extendedProperties = {'shared' => {'custom_str' => 'some custom string'}}
+    # event.guests_can_invite_others = false
+    # event.guests_can_see_other_guests = false
     #
     def initialize(params = {})
-      [:id, :status, :raw, :html_link, :title, :location, :calendar, :quickadd, :attendees, :description, :reminders, :recurrence, :start_time, :end_time, :color_id, :extended_properties].each do |attribute|
+      [:id, :status, :raw, :html_link, :title, :location, :calendar, :quickadd, :attendees, :description, :reminders, :recurrence, :start_time, :end_time, :color_id, :extended_properties, :guests_can_invite_others, :guests_can_see_other_guests].each do |attribute|
         instance_variable_set("@#{attribute}", params[attribute])
       end
 
@@ -275,7 +279,9 @@ module Google
         #{extended_properties_json}
         \"reminders\": {
           #{reminders_json}
-        }
+        },
+        \"guestsCanInviteOthers\": #{guests_can_invite_others.to_json},
+        \"guestsCanSeeOtherGuests\": #{guests_can_see_other_guests.to_json}
       }"
     end
 
@@ -431,7 +437,9 @@ module Google
                 :recurrence   => Event.parse_recurrence_rule(e['recurrence']),
                 :visibility   => e['visibility'],
                 :color_id     => e['colorId'],
-                :extended_properties => e['extendedProperties'])
+                :extended_properties => e['extendedProperties'],
+                :guests_can_invite_others => e['guestsCanInviteOthers'],
+                :guests_can_see_other_guests => e['guestsCanSeeOtherGuests'])
 
     end
 
