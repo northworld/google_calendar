@@ -359,6 +359,8 @@ class TestGoogleCalendar < Minitest::Test
                             {'email' => 'some.b.one@gmail.com', 'displayName' => 'Some B One', 'responseStatus' => 'tentative'}
                           ]
         @event.extended_properties = { 'shared' => { 'key' => 'value' }}
+        @event.guests_can_invite_others = false
+        @event.guests_can_see_other_guests = false
 
         expected_structure = {
           "summary" => "Go Swimming",
@@ -372,7 +374,9 @@ class TestGoogleCalendar < Minitest::Test
             {"displayName" => "Some B One", "email" => "some.b.one@gmail.com", "responseStatus" => "tentative"}
           ],
           "reminders" => {"useDefault" => false, "overrides" => [{"method" => "popup", "minutes" => 10}]},
-          "extendedProperties" => {"shared" => {'key' => 'value'}}
+          "extendedProperties" => {"shared" => {'key' => 'value'}},
+          "guestsCanInviteOthers" => false,
+          "guestsCanSeeOtherGuests" => false
         }
         assert_equal JSON.parse(@event.to_json), expected_structure
       end
@@ -415,6 +419,8 @@ class TestGoogleCalendar < Minitest::Test
                           ]
         @event.recurrence = {freq: "monthly", count: "5", interval: "2"}
         @event.extended_properties = {'shared' => {'key' => 'value'}}
+        @event.guests_can_invite_others = false
+        @event.guests_can_see_other_guests = false
         require 'timezone_parser'
         expected_structure = {
           "summary" => "Go Swimming",
@@ -429,7 +435,9 @@ class TestGoogleCalendar < Minitest::Test
             {"displayName" => "Some B One", "email" => "some.b.one@gmail.com", "responseStatus" => "tentative"}
           ],
           "reminders" => {"useDefault" => false, "overrides" => [{"method" => "popup", "minutes"=>10}]},
-          "extendedProperties" => {"shared" => {'key' => 'value'}}
+          "extendedProperties" => {"shared" => {'key' => 'value'}},
+          "guestsCanInviteOthers" => false,
+          "guestsCanSeeOtherGuests" => false
         }
         assert_equal JSON.parse(@event.to_json), expected_structure
       end
