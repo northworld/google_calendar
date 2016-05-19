@@ -450,7 +450,7 @@ module Google
     def self.parse_recurrence_rule(recurrence_entry)
       return {} unless recurrence_entry && recurrence_entry != []
 
-      rrule = recurrence_entry[0].sub('RRULE:', '')
+      rrule = /(?<=RRULE:)(.*)(?="\])/.match(recurrence_entry.to_s).to_s
       rhash = Hash[*rrule.downcase.split(/[=;]/)]
 
       rhash[:until] = Time.parse(rhash[:until]) if rhash[:until]

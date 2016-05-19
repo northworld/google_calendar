@@ -558,7 +558,7 @@ class TestGoogleCalendar < Minitest::Test
     client = mock('Faraday::Response')
     client.stubs(:finish).returns('')
     client.stubs(:status).returns(200)
-    client.stubs(:headers).returns({'content-type' => 'application/json; charset=utf-8'})
+    client.stubs(:headers).returns({'Content-type' => 'application/json; charset=utf-8'})
     client.stubs(:body).returns(get_mock_body('successful_login.json'))
     Faraday::Response.stubs(:new).returns(client)
     client
