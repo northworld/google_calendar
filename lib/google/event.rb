@@ -110,8 +110,6 @@ module Google
     #
     def end_time=(time)
       @end_time = Event.parse_time(time)
-      raise ArgumentError, "End Time must be either Time or String" unless (time.is_a?(String) || time.is_a?(Time))
-      @end_time = (time.is_a? String) ? Time.parse(time) : time.dup.utc
     end
 
     #
