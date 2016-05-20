@@ -419,13 +419,24 @@ module Google
     # Create a new event from a google 'entry'
     #
     def self.new_from_feed(e, calendar) #:nodoc:
-      Event.new(:id => e['id'], :calendar => calendar, :status => e['status'], :raw => e, :title => e['summary'],      
-                :description => e['description'], :location => e['location'], :creator  => e['creator'],
-                :transparency => e['transparency'], :html_link => e['htmlLink'], :updated => e['updated'], :reminders => e['reminders'],
-                :attendees => e['attendees'], :visibility => e['visibility'], :color_id => e['colorId'], :extended_properties => e['extendedProperties'],
-                :guests_can_invite_others => e['guestsCanInviteOthers'], :guests_can_see_other_guests  => e['guestsCanSeeOtherGuests'],
-                :start_time => Event.parse_json_time(e['start']), :end_time => Event.parse_json_time(e['end']),
-                :recurrence => Event.parse_recurrence_rule(e['recurrence']))
+      params = {}
+      %w(id status description location creator transparency updated reminders attendees visibility).each do |p| 
+        params[p.to_sym] = e[p]
+      end
+
+      params[:raw] = e
+      params[:calendar] = calendar
+      params[:title] = e['summary']
+      params[:color_id] = e['colorId']
+      params[:extended_properties] = e['extendedProperties']
+      params[:guests_can_invite_others] = e['guestsCanInviteOthers']
+      params[:guests_can_see_other_guests] = e['guestsCanSeeOtherGuests']
+      params[:html_link] = e['htmlLink']
+      params[:start_time] = Event.parse_json_time(e['start']) 
+      params[:end_time] = Event.parse_json_time(e['end'])
+      params[:recurrence] = Event.parse_recurrence_rule(e['recurrence'])
+
+      Event.new(params)
     end
 
     #
