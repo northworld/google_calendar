@@ -22,12 +22,7 @@ module Google
     # See Readme.rdoc or readme_code.rb for an explication on the OAuth2 authorization process.
     #
     def initialize(params={}, connection=nil)
-      @connection = connection || Connection.new(
-        :client_id => params[:client_id],
-        :client_secret => params[:client_secret],
-        :refresh_token => params[:refresh_token],
-        :redirect_url => params[:redirect_url]
-      )
+      @connection = connection || Connection.factory(params)
     end
 
     #

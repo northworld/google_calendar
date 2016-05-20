@@ -102,7 +102,7 @@ class TestGoogleCalendar < Minitest::Test
         Time.stubs(:now).returns(now)
         start_min = now
         start_max = (now + 60*60*24)
-        @calendar.expects(:event_lookup).with("?sharedExtendedProperty=p%3Dv&timeMin=#{start_min.strftime("%FT%TZ")}&timeMax=#{start_max.strftime("%FT%TZ")}&orderBy=startTime&maxResults=25&singleEvents=true")
+        @calendar.expects(:event_lookup).with("?sharedExtendedProperty=p%3Dv&orderBy=startTime&maxResults=25&singleEvents=true&timeMin=#{start_min.strftime("%FT%TZ")}&timeMax=#{start_max.strftime("%FT%TZ")}")
         @calendar.find_events_by_extended_properties_in_range({'shared' => {'p' => 'v'}}, start_min, start_max)
       end
 

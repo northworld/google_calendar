@@ -27,16 +27,8 @@ module Google
     #                     )
     #
     def initialize(params={}, connection=nil)
-      @connection = connection || Connection.new(
-        :client_id => params[:client_id],
-        :client_secret => params[:client_secret],
-        :refresh_token => params[:refresh_token],
-        :redirect_url => params[:redirect_url],
-        :state => params[:state]
-      )
-
+      @connection = connection || Connection.factory(params)
       @id = params[:calendar]
-      # raise CalendarIDMissing unless @id
     end
 
     #
@@ -207,15 +199,7 @@ module Google
     #   an array of events if many found.
     #
     def find_events_by_extended_properties(extended_properties, options = {})
-      query_parts = []
-      ['shared', 'private'].each do |prop_type|
-        if extended_properties[prop_type]
-          query_parts << extended_properties[prop_type].map do |key, value|
-            (prop_type == "shared" ? "sharedExtendedProperty=" : "privateExtendedProperty=") + "#{key}%3D#{value}"
-          end.join("&")
-        end
-      end
-      query = "?" + query_parts.join('&') + parse_options(options)
+      query = "?" + parse_extended_properties(extended_properties) + parse_options(options)
       event_lookup(query)
     end
 
@@ -239,17 +223,10 @@ module Google
     #   an array of events if many found.
     #
     def find_events_by_extended_properties_in_range(extended_properties, start_min, start_max, options = {})
-      query_parts = []
-      ['shared', 'private'].each do |prop_type|
-        if extended_properties[prop_type]
-          query_parts << extended_properties[prop_type].map do |key, value|
-            (prop_type == "shared" ? "sharedExtendedProperty=" : "privateExtendedProperty=") + "#{key}%3D#{value}"
-          end.join("&")
-        end
-      end
       formatted_start_min = encode_time(start_min)
       formatted_start_max = encode_time(start_max)
-      query = "?" + query_parts.join('&') + (query_parts.length > 0 ? '&':'') + "timeMin=#{formatted_start_min}&timeMax=#{formatted_start_max}#{parse_options(options)}"
+      base_query = parse_extended_properties(extended_properties) + parse_options(options)
+      query = "?" + base_query + (base_query.empty? ? '' : '&') + "timeMin=#{formatted_start_min}&timeMax=#{formatted_start_max}"
       event_lookup(query)
     end
 
@@ -352,6 +329,18 @@ module Google
       query_string << "&singleEvents=#{options[:expand_recurring_events]}"
       query_string << "&q=#{options[:query]}" unless options[:query].nil?
       query_string
+    end
+
+    #
+    # Utility method used to centralize the parsing of extended query parameters.
+    #
+    def parse_extended_properties(extended_properties) # :nodoc
+      query_parts = []
+      ['shared', 'private'].each do |prop_type|
+        next unless extended_properties[prop_type]
+        query_parts << extended_properties[prop_type].map {|key, value| (prop_type == "shared" ? "sharedExtendedProperty=" : "privateExtendedProperty=") + "#{key}%3D#{value}" }.join("&")
+      end
+      query_parts.join('&')
     end
 
     #

@@ -38,7 +38,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency(%q<shoulda-context>, ["~> 1.2"])
   s.add_development_dependency(%q<bundler>, [">= 1.2"])
   s.add_development_dependency(%q<mocha>, ["~> 1.1"])
-  s.add_development_dependency(%q<rake>, ["~> 10"])
+  s.add_development_dependency(%q<rake>, ["~> 11"])
   s.add_development_dependency(%q<rdoc>, ["~> 4.1"])
 
 end

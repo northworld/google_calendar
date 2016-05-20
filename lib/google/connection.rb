@@ -22,6 +22,20 @@ module Google
       )
       Connection.new(params, client)
     end
+
+    #
+    # A utility method used to centralize the creation of connections
+    #
+    def self.factory(params) # :nodoc
+      Connection.new(
+        :client_id => params[:client_id],
+        :client_secret => params[:client_secret],
+        :refresh_token => params[:refresh_token],
+        :redirect_url => params[:redirect_url],
+        :state => params[:state]
+      )
+    end
+
     #
     # Prepare a connection to google for fetching a calendar events
     #
