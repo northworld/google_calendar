@@ -277,14 +277,14 @@ module Google
       }
 
       if timezone_needed?
-        attributes.deep_merge!({ "start" => local_timezone_json, "end" => local_timezone_json })
+        attributes.merge!({ "start" => local_timezone_json, "end" => local_timezone_json })
       end
 
 
-      attributes.deep_merge!(recurrence_json)
-      attributes.deep_merge!(color_json)
-      attributes.deep_merge!(attendees_json)
-      attributes.deep_merge!(extended_properties_json)
+      attributes.merge!(recurrence_json)
+      attributes.merge!(color_json)
+      attributes.merge!(attendees_json)
+      attributes.merge!(extended_properties_json)
 
       JSON.generate attributes
     end
@@ -300,7 +300,7 @@ module Google
       return {} unless @attendees
 
       attendees = @attendees.map do |attendee|
-        attendee.slice 'displayName', 'email', 'responseStatus'
+        attendee.select { |k,v| ['displayName', 'email', 'responseStatus'].include?(k) }
       end
 
       { "attendees" => attendees }
@@ -312,7 +312,7 @@ module Google
     def reminders_json
       if reminders && reminders.is_a?(Hash) && reminders['overrides']
         overrides = reminders['overrides'].map do |reminder|
-          reminder.slice('method', 'minutes')
+          reminder.select {|k,v| ['method', 'minutes'].include?(v) }
         end
 
         { "useDefault" => false, "overrides" => overrides }
@@ -357,7 +357,7 @@ module Google
     def extended_properties_json
       return {} unless @extended_properties && (@extended_properties['shared'] || @extended_properties['private'])
 
-      { "extendedProperties" => @extendedProperties.slice('shared', 'private') }
+      { "extendedProperties" => @extendedProperties.select {|k,v| ['shared', 'private'].include?(k) } }
     end
 
     #
