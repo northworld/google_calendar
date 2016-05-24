@@ -277,7 +277,8 @@ module Google
       }
 
       if timezone_needed?
-        attributes.merge!({ "start" => local_timezone_json, "end" => local_timezone_json })
+        attributes['start'].merge!(local_timezone_json)
+        attributes['end'].merge!(local_timezone_json)
       end
 
 
@@ -311,11 +312,8 @@ module Google
     #
     def reminders_json
       if reminders && reminders.is_a?(Hash) && reminders['overrides']
-        overrides = reminders['overrides'].map do |reminder|
-          reminder.select {|k,v| ['method', 'minutes'].include?(v) }
-        end
 
-        { "useDefault" => false, "overrides" => overrides }
+        { "useDefault" => false, "overrides" => reminders['overrides'] }
       else
         { "useDefault" => true}
       end
@@ -341,13 +339,13 @@ module Google
     # JSON representation of recurrence rules for repeating events
     #
     def recurrence_json
-      return unless is_recurring_event?
+      return {} unless is_recurring_event?
 
       @recurrence[:until] = @recurrence[:until].strftime('%Y%m%dT%H%M%SZ') if @recurrence[:until]
       rrule = "RRULE:" + @recurrence.collect { |k,v| "#{k}=#{v}" }.join(';').upcase
       @recurrence[:until] = Time.parse(@recurrence[:until]) if @recurrence[:until]
 
-      { "recurrence" => rrule }
+      { "recurrence" => [rrule] }
     end
 
     #
@@ -357,7 +355,7 @@ module Google
     def extended_properties_json
       return {} unless @extended_properties && (@extended_properties['shared'] || @extended_properties['private'])
 
-      { "extendedProperties" => @extendedProperties.select {|k,v| ['shared', 'private'].include?(k) } }
+      { "extendedProperties" => @extended_properties.select {|k,v| ['shared', 'private'].include?(k) } }
     end
 
     #
