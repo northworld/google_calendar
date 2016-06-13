@@ -32,8 +32,9 @@ module Google
   # * +guests_can_see_other_guests+ - Whether attendees other than the organizer can see who the event's attendees are (*true*, false). Read Write.
   #
   class Event
-    attr_reader :raw, :html_link, :status
-    attr_accessor :id, :title, :location, :calendar, :quickadd, :transparency, :attendees, :description, :reminders, :recurrence, :visibility, :creator_name, :color_id, :extended_properties, :guests_can_invite_others, :guests_can_see_other_guests
+    attr_reader :id, :raw, :html_link, :status, :transparency, :visibility
+    attr_writer :reminders, :recurrence, :extended_properties
+    attr_accessor :title, :location, :calendar, :quickadd, :attendees, :description, :creator_name, :color_id, :guests_can_invite_others, :guests_can_see_other_guests
 
     #
     # Create a new event, and optionally set it's attributes.
@@ -325,7 +326,7 @@ module Google
     # Timezone info is needed only at recurring events
     #
     def timezone_needed?
-      @recurrence && @recurrence[:freq]
+      is_recurring_event?
     end
 
     #
@@ -341,7 +342,7 @@ module Google
     # JSON representation of recurrence rules for repeating events
     #
     def recurrence_json
-      return unless @recurrence && @recurrence[:freq]
+      return unless is_recurring_event?
 
       @recurrence[:until] = @recurrence[:until].strftime('%Y%m%dT%H%M%SZ') if @recurrence[:until]
       rrule = "RRULE:" + @recurrence.collect { |k,v| "#{k}=#{v}" }.join(';').upcase
@@ -461,7 +462,10 @@ module Google
       @html_link = @raw['htmlLink']
     end
 
-    def self.parse_json_time(time_hash)
+    #
+    # A utility method used to centralize parsing of time in json format
+    #
+    def self.parse_json_time(time_hash) #:nodoc
       return nil unless time_hash
 
       if time_hash['date']
@@ -471,6 +475,13 @@ module Google
       else
         Time.now.utc
       end
+    end
+
+    #
+    # A utility method used to centralize checking for recurring events
+    #
+    def is_recurring_event? #:nodoc
+      @recurrence && (@recurrence[:freq] || @recurrence['FREQ'] || @recurrence['freq'])
     end
 
     #
