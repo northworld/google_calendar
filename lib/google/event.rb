@@ -292,7 +292,7 @@ module Google
 
     def color_json
       return {} unless color_id
-      { "colorId" => "color_id" }
+      { "colorId" => "#{color_id}" }
     end
     #
     # JSON representation of attendees
