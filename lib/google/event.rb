@@ -259,67 +259,89 @@ module Google
     # Google JSON representation of an event object.
     #
     def to_json
-      "{
-        \"summary\": \"#{title}\",
-        \"visibility\": \"#{visibility}\",
-        \"description\": \"#{description}\",
-        \"location\": \"#{location}\",
-        \"start\": {
-          \"dateTime\": \"#{start_time}\"
-          #{timezone_needed? ? local_timezone_json : ''}
+
+      attributes = {
+        "summary" => title,
+        "visibility" => visibility,
+        "description" => description,
+        "location" => location,
+        "start" => {
+          "dateTime" => start_time
         },
-        \"end\": {
-          \"dateTime\": \"#{end_time}\"
-          #{timezone_needed? ? local_timezone_json : ''}
+        "end" => {
+          "dateTime" => end_time
         },
-        #{recurrence_json}
-        #{color_json}
-        #{attendees_json}
-        #{extended_properties_json}
-        \"reminders\": {
-          #{reminders_json}
-        },
-        \"guestsCanInviteOthers\": #{guests_can_invite_others.to_json},
-        \"guestsCanSeeOtherGuests\": #{guests_can_see_other_guests.to_json}
-      }"
+        "reminders" => reminders_attributes,
+        "guestsCanInviteOthers" => guests_can_invite_others,
+        "guestsCanSeeOtherGuests" => guests_can_see_other_guests
+      }
+
+      if timezone_needed?
+        attributes['start'].merge!(local_timezone_attributes)
+        attributes['end'].merge!(local_timezone_attributes)
+      end
+
+
+      attributes.merge!(recurrence_attributes)
+      attributes.merge!(color_attributes)
+      attributes.merge!(attendees_attributes)
+      attributes.merge!(extended_properties_attributes)
+
+      JSON.generate attributes
     end
 
-    def color_json
-      return unless color_id
-      "\"colorId\": \"#{color_id}\","
+    #
+    # Hash representation of colors
+    #
+    def color_attributes
+      return {} unless color_id
+      { "colorId" => "#{color_id}" }
     end
+
+    #
+    # JSON representation of colors
+    #
+    def color_json
+      color_attributes.to_json
+    end
+
+    #
+    # Hash representation of attendees
+    #
+    def attendees_attributes
+      return {} unless @attendees
+
+      attendees = @attendees.map do |attendee|
+        attendee.select { |k,v| ['displayName', 'email', 'responseStatus'].include?(k) }
+      end
+
+      { "attendees" => attendees }
+    end
+
     #
     # JSON representation of attendees
     #
     def attendees_json
-      return unless @attendees
+      attendees_attributes.to_json
+    end
 
-      attendees = @attendees.map do |attendee|
-        "{
-          \"displayName\": \"#{attendee['displayName']}\",
-          \"email\": \"#{attendee['email']}\",
-          \"responseStatus\": \"#{attendee['responseStatus']}\"
-        }"
-      end.join(",\n")
+    #
+    # Hash representation of a reminder
+    #
+    def reminders_attributes
+      if reminders && reminders.is_a?(Hash) && reminders['overrides']
 
-      "\"attendees\": [\n#{attendees}],"
+        { "useDefault" => false, "overrides" => reminders['overrides'] }
+      else
+        { "useDefault" => true}
+      end
     end
 
     #
     # JSON representation of a reminder
     #
     def reminders_json
-      if reminders && reminders.is_a?(Hash) && reminders['overrides']
-        overrides = reminders['overrides'].map do |reminder|
-          "{
-            \"method\": \"#{reminder['method']}\",
-            \"minutes\": #{reminder['minutes']}
-          }"
-        end.join(",\n")
-        "\n\"useDefault\": false,\n\"overrides\": [\n#{overrides}]"
-      else
-        "\"useDefault\": true"
-      end
+      reminders_attributes.to_json
     end
 
     #
@@ -330,25 +352,49 @@ module Google
     end
 
     #
+    # Hash representation of local timezone
+    #
+    def local_timezone_attributes
+      tz = Time.now.getlocal.zone
+      tz_name = TimezoneParser::getTimezones(tz).last
+      { "timeZone" => tz_name }
+    end
+
+    #
     # JSON representation of local timezone
     #
     def local_timezone_json
-      tz = Time.now.getlocal.zone
-      tz_name = TimezoneParser::getTimezones(tz).last
-      ",\"timeZone\" : \"#{tz_name}\""
+      local_timezone_attributes.to_json
+    end
+
+    #
+    # Hash representation of recurrence rules for repeating events
+    #
+    def recurrence_attributes
+      return {} unless is_recurring_event?
+
+      @recurrence[:until] = @recurrence[:until].strftime('%Y%m%dT%H%M%SZ') if @recurrence[:until]
+      rrule = "RRULE:" + @recurrence.collect { |k,v| "#{k}=#{v}" }.join(';').upcase
+      @recurrence[:until] = Time.parse(@recurrence[:until]) if @recurrence[:until]
+
+      { "recurrence" => [rrule] }
     end
 
     #
     # JSON representation of recurrence rules for repeating events
     #
     def recurrence_json
-      return unless is_recurring_event?
+      recurrence_attributes.to_json
+    end
 
-      @recurrence[:until] = @recurrence[:until].strftime('%Y%m%dT%H%M%SZ') if @recurrence[:until]
-      rrule = "RRULE:" + @recurrence.collect { |k,v| "#{k}=#{v}" }.join(';').upcase
-      @recurrence[:until] = Time.parse(@recurrence[:until]) if @recurrence[:until]
+    #
+    # Hash representation of extended properties
+    # shared : whether this should handle shared or public properties
+    #
+    def extended_properties_attributes
+      return {} unless @extended_properties && (@extended_properties['shared'] || @extended_properties['private'])
 
-      "\"recurrence\": [\n\"#{rrule}\"],"
+      { "extendedProperties" => @extended_properties.select {|k,v| ['shared', 'private'].include?(k) } }
     end
 
     #
@@ -356,21 +402,7 @@ module Google
     # shared : whether this should handle shared or public properties
     #
     def extended_properties_json
-      return unless @extended_properties && (@extended_properties['shared'] || @extended_properties['private'])
-      json_extended_properties = []
-      ['shared', 'private'].each do |prop_type|
-        if @extended_properties[prop_type]
-          props_json = @extended_properties[prop_type].map do |key, value|
-            "\"#{key}\": \"#{value}\""
-          end.join(",\n")
-          json_extended_properties << "\"#{prop_type}\": {\n
-                                          #{props_json}
-                                      }\n"
-        end
-      end
-      "\n\"extendedProperties\": {\n
-        #{json_extended_properties.join(',')}\n
-      },\n"
+      extended_properties_attributes.to_json
     end
 
     #
@@ -419,7 +451,7 @@ module Google
     #
     def self.new_from_feed(e, calendar) #:nodoc:
       params = {}
-      %w(id status description location creator transparency updated reminders attendees visibility).each do |p| 
+      %w(id status description location creator transparency updated reminders attendees visibility).each do |p|
         params[p.to_sym] = e[p]
       end
 
@@ -431,7 +463,7 @@ module Google
       params[:guests_can_invite_others] = e['guestsCanInviteOthers']
       params[:guests_can_see_other_guests] = e['guestsCanSeeOtherGuests']
       params[:html_link] = e['htmlLink']
-      params[:start_time] = Event.parse_json_time(e['start']) 
+      params[:start_time] = Event.parse_json_time(e['start'])
       params[:end_time] = Event.parse_json_time(e['end'])
       params[:recurrence] = Event.parse_recurrence_rule(e['recurrence'])
 
