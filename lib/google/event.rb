@@ -271,33 +271,44 @@ module Google
         "end" => {
           "dateTime" => end_time
         },
-        "reminders" => reminders_json,
+        "reminders" => reminders_attributes,
         "guestsCanInviteOthers" => guests_can_invite_others,
         "guestsCanSeeOtherGuests" => guests_can_see_other_guests
       }
 
       if timezone_needed?
-        attributes['start'].merge!(local_timezone_json)
-        attributes['end'].merge!(local_timezone_json)
+        attributes['start'].merge!(local_timezone_attributes)
+        attributes['end'].merge!(local_timezone_attributes)
       end
 
 
-      attributes.merge!(recurrence_json)
-      attributes.merge!(color_json)
-      attributes.merge!(attendees_json)
-      attributes.merge!(extended_properties_json)
+      attributes.merge!(recurrence_attributes)
+      attributes.merge!(color_attributes)
+      attributes.merge!(attendees_attributes)
+      attributes.merge!(extended_properties_attributes)
 
       JSON.generate attributes
     end
 
-    def color_json
+    #
+    # Hash representation of colors
+    #
+    def color_attributes
       return {} unless color_id
       { "colorId" => "#{color_id}" }
     end
+
     #
-    # JSON representation of attendees
+    # JSON representation of colors
     #
-    def attendees_json
+    def color_json
+      color_attributes.to_json
+    end
+
+    #
+    # Hash representation of attendees
+    #
+    def attendees_attributes
       return {} unless @attendees
 
       attendees = @attendees.map do |attendee|
@@ -308,15 +319,29 @@ module Google
     end
 
     #
-    # JSON representation of a reminder
+    # JSON representation of attendees
     #
-    def reminders_json
+    def attendees_json
+      attendees_attributes.to_json
+    end
+
+    #
+    # Hash representation of a reminder
+    #
+    def reminders_attributes
       if reminders && reminders.is_a?(Hash) && reminders['overrides']
 
         { "useDefault" => false, "overrides" => reminders['overrides'] }
       else
         { "useDefault" => true}
       end
+    end
+
+    #
+    # JSON representation of a reminder
+    #
+    def reminders_json
+      reminders_attributes.to_json
     end
 
     #
@@ -327,18 +352,25 @@ module Google
     end
 
     #
-    # JSON representation of local timezone
+    # Hash representation of local timezone
     #
-    def local_timezone_json
+    def local_timezone_attributes
       tz = Time.now.getlocal.zone
       tz_name = TimezoneParser::getTimezones(tz).last
       { "timeZone" => tz_name }
     end
 
     #
-    # JSON representation of recurrence rules for repeating events
+    # JSON representation of local timezone
     #
-    def recurrence_json
+    def local_timezone_json
+      local_timezone_attributes.to_json
+    end
+
+    #
+    # Hash representation of recurrence rules for repeating events
+    #
+    def recurrence_attributes
       return {} unless is_recurring_event?
 
       @recurrence[:until] = @recurrence[:until].strftime('%Y%m%dT%H%M%SZ') if @recurrence[:until]
@@ -349,13 +381,28 @@ module Google
     end
 
     #
+    # JSON representation of recurrence rules for repeating events
+    #
+    def recurrence_json
+      recurrence_attributes.to_json
+    end
+
+    #
+    # Hash representation of extended properties
+    # shared : whether this should handle shared or public properties
+    #
+    def extended_properties_attributes
+      return {} unless @extended_properties && (@extended_properties['shared'] || @extended_properties['private'])
+
+      { "extendedProperties" => @extended_properties.select {|k,v| ['shared', 'private'].include?(k) } }
+    end
+
+    #
     # JSON representation of extended properties
     # shared : whether this should handle shared or public properties
     #
     def extended_properties_json
-      return {} unless @extended_properties && (@extended_properties['shared'] || @extended_properties['private'])
-
-      { "extendedProperties" => @extended_properties.select {|k,v| ['shared', 'private'].include?(k) } }
+      extended_properties_attributes.to_json
     end
 
     #
