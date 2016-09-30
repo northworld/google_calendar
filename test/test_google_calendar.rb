@@ -425,7 +425,8 @@ class TestGoogleCalendar < Minitest::Test
         require 'timezone_parser'
         expected_structure = {
           "summary" => "Go Swimming",
-          "visibility"=>"default",
+          "visibility"=>"default",          
+          "transparency"=>"opaque",
           "description" => "The polar bear plunge",
           "location" => "In the arctic ocean",
           "start" => {"dateTime" => "#{@event.start_time}", "timeZone" => "#{TimezoneParser::getTimezones(Time.now.getlocal.zone).last}"},
