@@ -365,6 +365,7 @@ class TestGoogleCalendar < Minitest::Test
         expected_structure = {
           "summary" => "Go Swimming",
           "visibility"=>"default",
+          "transparency"=>"opaque",
           "description" => "The polar bear plunge",
           "location" => "In the arctic ocean",
           "start" => {"dateTime" => "#{@event.start_time}"},
