@@ -263,6 +263,7 @@ module Google
       attributes = {
         "summary" => title,
         "visibility" => visibility,
+        "transparency" => transparency,
         "description" => description,
         "location" => location,
         "start" => {
