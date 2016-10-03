@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    google_calendar (0.6.0)
+    google_calendar (0.6.1)
       TimezoneParser (~> 0.2.0)
       json (>= 1.8.3, < 2.1)
       signet (~> 0.7)
@@ -22,7 +22,7 @@ GEM
       multipart-post (>= 1.2, < 3)
     insensitive_hash (0.3.3)
     json (2.0.2)
-    jwt (1.5.4)
+    jwt (1.5.6)
     metaclass (0.0.4)
     minitest (5.9.0)
     minitest-reporters (1.1.10)
