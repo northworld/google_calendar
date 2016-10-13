@@ -381,6 +381,13 @@ class TestGoogleCalendar < Minitest::Test
         }
         assert_equal JSON.parse(@event.to_json), expected_structure
       end
+
+      should "return date instead of dateTime for all-day event" do
+        @event = Event.new(all_day: "2016-10-15")
+        json = JSON.parse(@event.to_json)
+        assert_equal json['start']['date'], "2016-10-15"
+        assert_equal json['end']['date'], "2016-10-16"
+      end
     end
 
     context "reminders" do
@@ -425,7 +432,7 @@ class TestGoogleCalendar < Minitest::Test
         require 'timezone_parser'
         expected_structure = {
           "summary" => "Go Swimming",
-          "visibility"=>"default",          
+          "visibility"=>"default",
           "transparency"=>"opaque",
           "description" => "The polar bear plunge",
           "location" => "In the arctic ocean",

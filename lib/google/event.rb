@@ -266,12 +266,8 @@ module Google
         "transparency" => transparency,
         "description" => description,
         "location" => location,
-        "start" => {
-          "dateTime" => start_time
-        },
-        "end" => {
-          "dateTime" => end_time
-        },
+        "start" => time_or_all_day(start_time),
+        "end" => time_or_all_day(end_time),
         "reminders" => reminders_attributes,
         "guestsCanInviteOthers" => guests_can_invite_others,
         "guestsCanSeeOtherGuests" => guests_can_see_other_guests
@@ -443,6 +439,18 @@ module Google
     #
     def new_event?
       id == nil || id == ''
+    end
+
+    private
+
+    def time_or_all_day(time)
+      time = Time.parse(time) if time.is_a? String
+
+      if all_day?
+        { "date" => time.strftime("%Y-%m-%d") }
+      else
+        { "dateTime" => time.xmlschema }
+      end
     end
 
     protected
