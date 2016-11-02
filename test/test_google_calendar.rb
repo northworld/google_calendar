@@ -362,7 +362,12 @@ class TestGoogleCalendar < Minitest::Test
     end
 
     context "event json" do
-      should "be correct format" do
+      should "include ID key when ID specified" do
+        @event = Event.new(id: "nfej9pqigzneknf8llso0iehlv")
+        assert_equal JSON.parse(@event.to_json)["id"], "nfej9pqigzneknf8llso0iehlv"
+      end
+
+      should "be correct format without ID specified" do
         now = Time.now
         @event = Event.new
         @event.start_time = now

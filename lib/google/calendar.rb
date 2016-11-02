@@ -270,10 +270,14 @@ module Google
     # Works like the create_event method.
     #
     def find_or_create_event_by_id(id, &blk)
-      if id.nil?
-        setup_event(Event.new, &blk)
+      if id && event = find_event_by_id(id)[0]
+        setup_event(event, &blk)
+      elsif id
+        event = Event.new(id: id, new_event_with_id_specified: true)
+        setup_event(event, &blk)
       else
-        setup_event(find_event_by_id(id)[0] || Event.new, &blk)
+        event = Event.new
+        setup_event(event, &blk)
       end
     end
 
