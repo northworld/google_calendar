@@ -279,6 +279,24 @@ class TestGoogleCalendar < Minitest::Test
   end # Connected context
 
   context "Event instance methods" do
+    context "#id=" do
+      should "retain a passed-in id" do
+        event = Event.new
+        event.id = '8os94knodtv84h0jh4pqq4ut35'
+        assert_equal event.id, '8os94knodtv84h0jh4pqq4ut35'
+      end
+      should "work with a passed-in NIL id" do
+        event = Event.new
+        event.id = nil
+        assert_equal event.id, nil
+      end
+      should "raise an error with an invalid ID" do
+        event = Event.new
+        assert_raises(ArgumentError) do
+          event.id = 'ZZZZ' # too short, invalid characters
+        end
+      end
+    end
     context "#all_day?" do
       context "when the event is marked as All Day in google calendar" do
         should "be true" do

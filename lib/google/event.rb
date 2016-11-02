@@ -537,7 +537,11 @@ module Google
     # Validates id format
     #
     def self.parse_id(id)
-      raise ArgumentError, "Event ID is invalid. Please check Google documentation: https://developers.google.com/google-apps/calendar/v3/reference/events/insert" unless id.gsub(/(^[a-v0-9]{5,1024}$)/o)
+      if id.to_s =~ /\A[a-v0-9]{5,1024}\Z/
+        id
+      else
+        raise ArgumentError, "Event ID is invalid. Please check Google documentation: https://developers.google.com/google-apps/calendar/v3/reference/events/insert"
+      end
     end
 
     #
