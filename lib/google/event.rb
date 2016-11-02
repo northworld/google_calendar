@@ -34,7 +34,7 @@ module Google
   class Event
     attr_reader :id, :raw, :html_link, :status, :transparency, :visibility
     attr_writer :reminders, :recurrence, :extended_properties
-    attr_accessor :title, :location, :calendar, :quickadd, :attendees, :description, :creator_name, :color_id, :guests_can_invite_others, :guests_can_see_other_guests
+    attr_accessor :title, :location, :calendar, :quickadd, :attendees, :description, :creator_name, :color_id, :guests_can_invite_others, :guests_can_see_other_guests, :new_event_with_id_specified
 
     #
     # Create a new event, and optionally set it's attributes.
@@ -70,6 +70,7 @@ module Google
       self.transparency = params[:transparency]
       self.all_day      = params[:all_day] if params[:all_day]
       self.creator_name = params[:creator]['displayName'] if params[:creator]
+      self.new_event_with_id_specified = !!params[:new_event_with_id_specified]
     end
 
     #
@@ -259,7 +260,6 @@ module Google
     # Google JSON representation of an event object.
     #
     def to_json
-
       attributes = {
         "summary" => title,
         "visibility" => visibility,
@@ -273,11 +273,14 @@ module Google
         "guestsCanSeeOtherGuests" => guests_can_see_other_guests
       }
 
+      if id
+        attributes["id"] = id
+      end
+
       if timezone_needed?
         attributes['start'].merge!(local_timezone_attributes)
         attributes['end'].merge!(local_timezone_attributes)
       end
-
 
       attributes.merge!(recurrence_attributes)
       attributes.merge!(color_attributes)
@@ -438,10 +441,14 @@ module Google
     # Returns true if this a new event.
     #
     def new_event?
-      id == nil || id == ''
+      new_event_with_id_specified? || id == nil || id == ''
     end
 
     private
+
+    def new_event_with_id_specified?
+      !!new_event_with_id_specified
+    end
 
     def time_or_all_day(time)
       time = Time.parse(time) if time.is_a? String
@@ -537,7 +544,11 @@ module Google
     # Validates id format
     #
     def self.parse_id(id)
-      raise ArgumentError, "Event ID is invalid. Please check Google documentation: https://developers.google.com/google-apps/calendar/v3/reference/events/insert" unless id.gsub(/(^[a-v0-9]{5,1024}$)/o)
+      if id.to_s =~ /\A[a-v0-9]{5,1024}\Z/
+        id
+      else
+        raise ArgumentError, "Event ID is invalid. Please check Google documentation: https://developers.google.com/google-apps/calendar/v3/reference/events/insert"
+      end
     end
 
     #
