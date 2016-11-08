@@ -39,5 +39,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency(%q<mocha>, ["~> 1.1"])
   s.add_development_dependency(%q<rake>, ["~> 11"])
   s.add_development_dependency(%q<rdoc>, ["~> 4.1"])
+  s.add_development_dependency(%q<dotenv>, ["~> 2.1"])
 
 end

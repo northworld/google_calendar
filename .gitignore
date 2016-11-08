@@ -36,3 +36,5 @@ tmtags
 notes.md
 test_harness.rb
 *.gem
+# dotenv
+.env

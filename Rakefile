@@ -27,3 +27,13 @@ Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
+
+desc "Load environment settings from .env"
+task :dotenv do
+  require "dotenv"
+  FileUtils.copy('.env.test', '.env') unless File.exist?('.env')
+  Dotenv.load
+end
+
+task :environment => :dotenv
+task :test => :dotenv
