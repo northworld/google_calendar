@@ -8,13 +8,13 @@ class TestGoogleCalendar < Minitest::Test
     setup do
       @client_mock = setup_mock_client
 
-      @client_id = "671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com"
-      @client_secret = "roBgdbfEmJwPgrgi2mRbbO-f"
-      @refresh_token = "1/eiqBWx8aj-BsdhwvlzDMFOUN1IN_HyThvYTujyksO4c"
-      @calendar_id = "klei8jnelo09nflqehnvfzipgs@group.calendar.google.com"
-      @access_token = 'ya29.hYjPO0uHt63uWr5qmQtMEReZEvILcdGlPCOHDy6quKPyEQaQQvqaVAlLAVASaRm_O0a7vkZ91T8xyQ'
+      @client_id = ENV['CLIENT_ID']
+      @client_secret = ENV['CLIENT_SECRET']
+      @refresh_token = ENV['REFRESH_TOKEN']
+      @calendar_id = ENV['CALENDAR_ID']
+      @access_token = ENV['ACCESS_TOKEN']
 
-      @calendar = Calendar.new(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => "urn:ietf:wg:oauth:2.0:oob", :refresh_token => @refresh_token, :calendar => @calendar_id)
+      @calendar = Calendar.new(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => ENV['REDIRECT_URL'], :refresh_token => @refresh_token, :calendar => @calendar_id)
 
     end
 
