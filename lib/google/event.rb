@@ -30,11 +30,12 @@ module Google
   # * +extended_properties+ - Custom properties which may be shared or private. Read Write
   # * +guests_can_invite_others+ - Whether attendees other than the organizer can invite others to the event (*true*, false). Read Write.
   # * +guests_can_see_other_guests+ - Whether attendees other than the organizer can see who the event's attendees are (*true*, false). Read Write.
+  # * +send_notifications+ - Whether to send notifications about the event update (true, *false*). Write only.
   #
   class Event
     attr_reader :id, :raw, :html_link, :status, :transparency, :visibility
     attr_writer :reminders, :recurrence, :extended_properties
-    attr_accessor :title, :location, :calendar, :quickadd, :attendees, :description, :creator_name, :color_id, :guests_can_invite_others, :guests_can_see_other_guests, :new_event_with_id_specified
+    attr_accessor :title, :location, :calendar, :quickadd, :attendees, :description, :creator_name, :color_id, :guests_can_invite_others, :guests_can_see_other_guests, :send_notifications, :new_event_with_id_specified
 
     #
     # Create a new event, and optionally set it's attributes.
@@ -60,9 +61,10 @@ module Google
     # event.extendedProperties = {'shared' => {'custom_str' => 'some custom string'}}
     # event.guests_can_invite_others = false
     # event.guests_can_see_other_guests = false
+    # event.send_notifications = true
     #
     def initialize(params = {})
-      [:id, :status, :raw, :html_link, :title, :location, :calendar, :quickadd, :attendees, :description, :reminders, :recurrence, :start_time, :end_time, :color_id, :extended_properties, :guests_can_invite_others, :guests_can_see_other_guests].each do |attribute|
+      [:id, :status, :raw, :html_link, :title, :location, :calendar, :quickadd, :attendees, :description, :reminders, :recurrence, :start_time, :end_time, :color_id, :extended_properties, :guests_can_invite_others, :guests_can_see_other_guests, :send_notifications].each do |attribute|
         instance_variable_set("@#{attribute}", params[attribute])
       end
 
@@ -443,6 +445,14 @@ module Google
     def new_event?
       new_event_with_id_specified? || id == nil || id == ''
     end
+
+    #
+    # Returns true if notifications were requested to be sent
+    #
+    def send_notifications?
+      !!send_notifications
+    end
+
 
     private
 

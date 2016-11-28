@@ -288,12 +288,13 @@ module Google
     def save_event(event)
       method = event.new_event? ? :post : :put
       body = event.use_quickadd? ? nil : event.to_json
+      notifications = "sendNotifications=#{event.send_notifications?}"
       query_string =  if event.use_quickadd?
-        "/quickAdd?text=#{event.title}"
+        "/quickAdd?#{notifications}&text=#{event.title}"
       elsif event.new_event?
-        ''
+        "?#{notifications}"
       else # update existing event.
-        "/#{event.id}"
+        "/#{event.id}?#{notifications}"
       end
 
       send_events_request(query_string, method, body)
@@ -304,7 +305,8 @@ module Google
     # This is a callback used by the Event class.
     #
     def delete_event(event)
-      send_events_request("/#{event.id}", :delete)
+      notifications = "sendNotifications=#{event.send_notifications?}"
+      send_events_request("/#{event.id}?#{notifications}", :delete)
     end
 
     protected
