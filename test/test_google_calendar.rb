@@ -297,6 +297,27 @@ class TestGoogleCalendar < Minitest::Test
         end
       end
     end
+
+    context "send_notifications" do
+      should "work when initialized with true" do
+        event = Event.new(:send_notifications => true)
+        assert event.send_notifications?
+      end
+
+      should "work when initialized with false" do
+        event = Event.new(:send_notifications => false)
+        refute event.send_notifications?
+      end
+
+      should "be dynamic" do
+        event = Event.new
+        event.send_notifications = false
+        refute event.send_notifications?
+        event.send_notifications = true
+        assert event.send_notifications?
+      end
+    end
+
     context "#all_day?" do
       context "when the event is marked as All Day in google calendar" do
         should "be true" do
