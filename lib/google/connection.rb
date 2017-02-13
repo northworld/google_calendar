@@ -18,7 +18,8 @@ module Google
         :issuer => params[:client_id],
         :audience => TOKEN_URI,
         :token_credential_uri => TOKEN_URI,
-        :signing_key => params[:signing_key]
+        :signing_key => params[:signing_key],
+        :person => params[:person]
       )
       Connection.new(params, client)
     end
