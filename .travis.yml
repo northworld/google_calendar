@@ -6,5 +6,10 @@ rvm:
   - "2.4"
 before_install:
   - gem install bundler
+addons:
+  code_climate:
+    repo_token: 35bb9d218078742d37436a9c9a8b78199e8c7312d034081881de670e95b8dcad
+after_success:
+  - bundle exec codeclimate-test-reporter      
 # uncomment this line if your project needs to run something other than `rake`:
 # script: bundle exec rspec spec
