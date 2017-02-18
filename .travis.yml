@@ -2,7 +2,8 @@ language: ruby
 rvm:
   - "2.1"
   - "2.2"
-  - "2.3.0"
+  - "2.3"
+  - "2.4"
 before_install:
   - gem install bundler
 # uncomment this line if your project needs to run something other than `rake`:
