@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    google_calendar (0.6.1)
+    google_calendar (0.6.2)
       TimezoneParser (~> 0.2.0)
       json (>= 1.8.3, < 2.1)
       signet (~> 0.7)
