@@ -350,7 +350,8 @@ module Google
     # Timezone info is needed only at recurring events
     #
     def timezone_needed?
-      is_recurring_event?
+      # is_recurring_event?
+      true
     end
 
     #
