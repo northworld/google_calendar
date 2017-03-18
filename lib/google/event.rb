@@ -275,14 +275,9 @@ module Google
         "guestsCanSeeOtherGuests" => guests_can_see_other_guests
       }
 
-      if id
-        attributes["id"] = id
-      end
-
-      if timezone_needed?
-        attributes['start'].merge!(local_timezone_attributes)
-        attributes['end'].merge!(local_timezone_attributes)
-      end
+      attributes["id"] = id if id
+      attributes['start'].merge!(local_timezone_attributes)
+      attributes['end'].merge!(local_timezone_attributes)
 
       attributes.merge!(recurrence_attributes)
       attributes.merge!(color_attributes)
@@ -350,8 +345,7 @@ module Google
     # Timezone info is needed only at recurring events
     #
     def timezone_needed?
-      # is_recurring_event?
-      true
+      is_recurring_event?
     end
 
     #
