@@ -522,11 +522,11 @@ module Google
       return nil unless time_hash
 
       if time_hash['date']
-        Time.parse(time_hash['date']).utc
+        Time.parse(time_hash['date'])
       elsif time_hash['dateTime']
-        Time.parse(time_hash['dateTime']).utc
+        Time.parse(time_hash['dateTime'])
       else
-        Time.now.utc
+        Time.now
       end
     end
 
