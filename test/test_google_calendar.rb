@@ -179,7 +179,7 @@ class TestGoogleCalendar < Minitest::Test
         @client_mock.stubs(:body).returns( get_mock_body("find__all_day_event_by_id.json") )
         event = @calendar.find_event_by_id('fhru34kt6ikmr20knd2456l10n')
         assert_equal event[0].id, 'fhru34kt6ikmr20knd2456l10n'
-        assert_equal event[0].start_time, "2008-09-24T17:30:00Z"
+        assert_equal event[0].start_time, "2008-09-24T10:30:00-07:00"
       end
 
       should "find properly parse missing date event" do
@@ -412,8 +412,8 @@ class TestGoogleCalendar < Minitest::Test
           "transparency"=>"opaque",
           "description" => "The polar bear plunge",
           "location" => "In the arctic ocean",
-          "start" => {"dateTime" => "#{@event.start_time}"},
-          "end" => {"dateTime" => "#{@event.end_time}"},
+          "start" => {"dateTime" => "#{@event.start_time}", "timeZone"=>"EST5EDT"},
+          "end" => {"dateTime" => "#{@event.end_time}", "timeZone"=>"EST5EDT"},
           "attendees" => [
             {"displayName" => "Some A One", "email" => "some.a.one@gmail.com", "responseStatus" => "tentative"},
             {"displayName" => "Some B One", "email" => "some.b.one@gmail.com", "responseStatus" => "tentative"}
