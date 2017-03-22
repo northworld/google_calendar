@@ -179,7 +179,7 @@ class TestGoogleCalendar < Minitest::Test
         @client_mock.stubs(:body).returns( get_mock_body("find__all_day_event_by_id.json") )
         event = @calendar.find_event_by_id('fhru34kt6ikmr20knd2456l10n')
         assert_equal event[0].id, 'fhru34kt6ikmr20knd2456l10n'
-        assert_equal event[0].start_time, "2008-09-24T10:30:00-07:00"
+        assert_equal event[0].start_time, "2008-09-24T13:30:00-04:00"
       end
 
       should "find properly parse missing date event" do
