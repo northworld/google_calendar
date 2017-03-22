@@ -159,27 +159,29 @@ class TestGoogleCalendar < Minitest::Test
         assert_equal @calendar.find_event_by_id('1234'), []
       end
 
-      should "create an event with block" do
-        @client_mock.stubs(:body).returns( get_mock_body("create_event.json") )
+      should 'create an event with block' do
+        @client_mock.stubs(:body).returns(get_mock_body('create_event.json'))
 
         event = @calendar.create_event do |e|
           e.title = 'New Event'
           e.start_time = Time.now + (60 * 60)
           e.end_time = Time.now + (60 * 60 * 2)
-          e.description = "A new event"
+          e.description = 'A new event'
           e.location = "Joe's House"
-          e.extended_properties = {'shared' => {'key' => 'value' }}
+          e.extended_properties = { 'shared' => { 'key' => 'value' } }
         end
 
         assert_equal event.title, 'New Event'
-        assert_equal event.id, "fhru34kt6ikmr20knd2456l08n"
+        assert_equal event.id, 'fhru34kt6ikmr20knd2456l08n'
       end
 
-      should "find properly parse all day event" do
-        @client_mock.stubs(:body).returns( get_mock_body("find__all_day_event_by_id.json") )
+      should 'find properly parse all day event' do
+        @client_mock.stubs(:body).returns(
+          get_mock_body('find__all_day_event_by_id.json')
+        )
         event = @calendar.find_event_by_id('fhru34kt6ikmr20knd2456l10n')
         assert_equal event[0].id, 'fhru34kt6ikmr20knd2456l10n'
-        assert_equal event[0].start_time, "2008-09-24T13:30:00-04:00"
+        assert_equal event[0].start_time, '2008-09-24T10:30:00-07:00'
       end
 
       should "find properly parse missing date event" do
