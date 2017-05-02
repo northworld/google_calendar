@@ -12,18 +12,18 @@ GEM
     TimezoneParser (0.2.0)
       insensitive_hash
       tzinfo
-    addressable (2.5.0)
+    addressable (2.5.1)
       public_suffix (~> 2.0, >= 2.0.2)
     ansi (1.5.0)
     builder (3.2.3)
-    codeclimate-test-reporter (1.0.5)
-      simplecov
+    codeclimate-test-reporter (1.0.8)
+      simplecov (<= 0.13)
     docile (1.1.5)
-    dotenv (2.2.0)
-    faraday (0.11.0)
+    dotenv (2.2.1)
+    faraday (0.12.1)
       multipart-post (>= 1.2, < 3)
     insensitive_hash (0.3.3)
-    json (2.0.3)
+    json (2.0.4)
     jwt (1.5.6)
     metaclass (0.0.4)
     minitest (5.10.1)
@@ -53,8 +53,8 @@ GEM
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.0)
     terminal-notifier-guard (1.7.0)
-    thread_safe (0.3.5)
-    tzinfo (1.2.2)
+    thread_safe (0.3.6)
+    tzinfo (1.2.3)
       thread_safe (~> 0.1)
 
 PLATFORMS
