@@ -120,7 +120,7 @@ module Google
     # Returns whether the Event is an all-day event, based on whether the event starts at the beginning and ends at the end of the day.
     #
     def all_day?
-      time = (@start_time.is_a?  String) ? Time.parse(@start_time) : @start_time.dup.utc
+      time = (@start_time.is_a? String) ? Time.parse(@start_time) : @start_time.dup.utc
       duration % (24 * 60 * 60) == 0 && time == Time.local(time.year,time.month,time.day)
     end
 
@@ -314,7 +314,7 @@ module Google
       return {} unless @attendees
 
       attendees = @attendees.map do |attendee|
-        attendee.select { |k,v| ['displayName', 'email', 'responseStatus'].include?(k) }
+        attendee.select { |k,_v| ['displayName', 'email', 'responseStatus'].include?(k) }
       end
 
       { "attendees" => attendees }
@@ -396,7 +396,7 @@ module Google
     def extended_properties_attributes
       return {} unless @extended_properties && (@extended_properties['shared'] || @extended_properties['private'])
 
-      { "extendedProperties" => @extended_properties.select {|k,v| ['shared', 'private'].include?(k) } }
+      { "extendedProperties" => @extended_properties.select {|k,_v| ['shared', 'private'].include?(k) } }
     end
 
     #

@@ -269,8 +269,10 @@ module Google
     # If the event is no longer on the server it creates a new one with the specified values.
     # Works like the create_event method.
     #
-    def find_or_create_event_by_id(id, &blk)
-      if id && event = find_event_by_id(id)[0]
+    def find_or_create_event_by_id(id, &blk)      
+      event = id ? find_event_by_id(id)[0] : nil
+
+      if event
         setup_event(event, &blk)
       elsif id
         event = Event.new(id: id, new_event_with_id_specified: true)
@@ -290,12 +292,12 @@ module Google
       body = event.use_quickadd? ? nil : event.to_json
       notifications = "sendNotifications=#{event.send_notifications?}"
       query_string =  if event.use_quickadd?
-        "/quickAdd?#{notifications}&text=#{event.title}"
-      elsif event.new_event?
-        "?#{notifications}"
-      else # update existing event.
-        "/#{event.id}?#{notifications}"
-      end
+                        "/quickAdd?#{notifications}&text=#{event.title}"
+                      elsif event.new_event?
+                        "?#{notifications}"
+                      else # update existing event.
+                        "/#{event.id}?#{notifications}"
+                      end
 
       send_events_request(query_string, method, body)
     end

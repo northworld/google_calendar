@@ -7,7 +7,7 @@ PATH
       signet (~> 0.7)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     TimezoneParser (0.2.0)
       insensitive_hash
