@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
   s.rubygems_version = "2.6.10"
 
   s.add_runtime_dependency(%q<signet>, ["~> 0.7"])
-  s.add_runtime_dependency(%q<json>, [">= 1.8.3", "< 2.1"])
+  s.add_runtime_dependency(%q<json>, [">= 1.8.3"])
   s.add_runtime_dependency(%q<TimezoneParser>, ["~> 0.2.0"])
 
   s.add_development_dependency(%q<terminal-notifier-guard>, ["~> 1.6"])
@@ -37,8 +37,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency(%q<shoulda-context>, ["~> 1.2"])
   s.add_development_dependency(%q<bundler>, [">= 1.2"])
   s.add_development_dependency(%q<mocha>, ["~> 1.1"])
-  s.add_development_dependency(%q<rake>, ["~> 11"])
-  s.add_development_dependency(%q<rdoc>, ["~> 4.1"])
+  s.add_development_dependency(%q<rake>, [">= 11"])
+  s.add_development_dependency(%q<rdoc>, [">= 4.1"])
   s.add_development_dependency(%q<dotenv>, ["~> 2.1"])
 
 end
