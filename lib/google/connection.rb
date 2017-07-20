@@ -160,16 +160,16 @@ module Google
         when 401 then raise InvalidCredentialsError, response.body
         when 403 
           case JSON.parse(response.body)["error"]["message"]
+          when "Forbidden"
+            raise ForbiddenError, response.body
           when "Daily Limit Exceeded"
-            raise InvalidCredentialsError, response.body
+            raise DailyLimitExceededError, response.body
           when "User Rate Limit Exceeded"
             raise UserRateLimitExceededError, response.body
           when "Rate Limit Exceeded"
             raise RateLimitExceededError, response.body
           when "Calendar usage limits exceeded."
             raise CalendarUsageLimitExceededError, response.body
-          when "Forbidden"
-            raise ForbiddenError, response.body
           else
             raise ForbiddenError, response.body
           end
