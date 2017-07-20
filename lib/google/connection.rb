@@ -157,7 +157,27 @@ module Google
     def check_for_errors(response) #:nodoc
       case response.status
         when 400 then raise HTTPRequestFailed, response.body
+        when 401 then raise InvalidCredentialsError, response.body
+        when 403 
+          case JSON.parse(response.body)["error"]["message"]
+          when "Daily Limit Exceeded"
+            raise InvalidCredentialsError, response.body
+          when "User Rate Limit Exceeded"
+            raise UserRateLimitExceededError, response.body
+          when "Rate Limit Exceeded"
+            raise RateLimitExceededError, response.body
+          when "Calendar usage limits exceeded."
+            raise CalendarUsageLimitExceededError, response.body
+          when "Forbidden"
+            raise ForbiddenError, response.body
+          else
+            raise ForbiddenError, response.body
+          end
         when 404 then raise HTTPNotFound, response.body
+        when 409 then raise RequestedIdentifierAlreadyExistsError, response.body
+        when 410 then raise GoneError, response.body
+        when 412 then raise PreconditionFailedError, response.body
+        when 500 then raise BackendError, response.body
       end
     end
 
