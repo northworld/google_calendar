@@ -275,14 +275,9 @@ module Google
         "guestsCanSeeOtherGuests" => guests_can_see_other_guests
       }
 
-      if id
-        attributes["id"] = id
-      end
-
-      if timezone_needed?
-        attributes['start'].merge!(local_timezone_attributes)
-        attributes['end'].merge!(local_timezone_attributes)
-      end
+      attributes["id"] = id if id
+      attributes['start'].merge!(local_timezone_attributes)
+      attributes['end'].merge!(local_timezone_attributes)
 
       attributes.merge!(recurrence_attributes)
       attributes.merge!(color_attributes)
@@ -527,11 +522,11 @@ module Google
       return nil unless time_hash
 
       if time_hash['date']
-        Time.parse(time_hash['date']).utc
+        Time.parse(time_hash['date'])
       elsif time_hash['dateTime']
-        Time.parse(time_hash['dateTime']).utc
+        Time.parse(time_hash['dateTime'])
       else
-        Time.now.utc
+        Time.now
       end
     end
 
