@@ -6,7 +6,7 @@ module Google
   #
   class Calendar
 
-    attr_reader :id, :connection, :summary
+    attr_reader :id, :connection, :summary, :location, :description, :time_zone
 
     #
     # Setup and connect to the specified Google Calendar.
@@ -14,7 +14,7 @@ module Google
     # * :client_id => the client ID that you received from Google after registering your application with them (https://console.developers.google.com/). REQUIRED
     # * :client_secret => the client secret you received from Google after registering your application with them. REQUIRED
     # * :redirect_url => the url where your users will be redirected to after they have successfully permitted access to their calendars. Use 'urn:ietf:wg:oauth:2.0:oob' if you are using an 'application'" REQUIRED
-    # * :calendar_id => the id of the calendar you would like to work with (see Readme.rdoc for instructions on how to find yours)
+    # * :calendar => the id of the calendar you would like to work with (see Readme.rdoc for instructions on how to find yours). REQUIRED
     # * :refresh_token => if a user has already given you access to their calendars, you can specify their refresh token here and you will be 'logged on' automatically (i.e. they don't need to authorize access again). OPTIONAL
     #
     # See Readme.rdoc or readme_code.rb for an explication on the OAuth2 authorization process.
@@ -37,7 +37,10 @@ module Google
     # * :client_id => the client ID that you received from Google after registering your application with them (https://console.developers.google.com/). REQUIRED
     # * :client_secret => the client secret you received from Google after registering your application with them. REQUIRED
     # * :redirect_url => the url where your users will be redirected to after they have successfully permitted access to their calendars. Use 'urn:ietf:wg:oauth:2.0:oob' if you are using an 'application'" REQUIRED
-    # * :summary => title of the calendar being created.
+    # * :summary => title of the calendar being created. OPTIONAL
+    # * :location => geographic location of the calendar as free-form text. OPTIONAL
+    # * :time_zone => the time zone of the calendar. (Formatted as an IANA Time Zone Database name, e.g. "Europe/Zurich".) OPTIONAL
+    # * :description => description of the calendar. OPTIONAL
     # * :refresh_token => if a user has already given you access to their calendars, you can specify their refresh token here and you will be 'logged on' automatically (i.e. they don't need to authorize access again). OPTIONAL
     #
     # See Readme.rdoc or readme_code.rb for an explication on the OAuth2 authorization process.
@@ -47,14 +50,96 @@ module Google
     #                         :client_id => YOUR_CLIENT_ID,
     #                         :client_secret => YOUR_SECRET,
     #                         :summary => 'Test Calendar',
+    #                         :location => 'Somewhere',
+    #                         :description => 'Test Calendar Description',
+    #                         :time_zone => 'Europe/Zurich',
     #                         :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
     #                        )
     #
     def self.create(params={}, connection=nil)
       cal = new(params, connection)
       cal.instance_variable_set(:@summary, params[:summary])
+      cal.instance_variable_set(:@location, params[:location])
+      cal.instance_variable_set(:@description, params[:description])
+      cal.instance_variable_set(:@time_zone, params[:time_zone])
 
       cal.save
+    end
+
+    #
+    # Connect and retrieve a Google Calendar.
+    #  the +params+ paramater accepts
+    # * :client_id => the client ID that you received from Google after registering your application with them (https://console.developers.google.com/). REQUIRED
+    # * :client_secret => the client secret you received from Google after registering your application with them. REQUIRED
+    # * :redirect_url => the url where your users will be redirected to after they have successfully permitted access to their calendars. Use 'urn:ietf:wg:oauth:2.0:oob' if you are using an 'application'" REQUIRED
+    # * :calendar => the id of the calendar you would like to work with (see Readme.rdoc for instructions on how to find yours). REQUIRED
+    # * :refresh_token => if a user has already given you access to their calendars, you can specify their refresh token here and you will be 'logged on' automatically (i.e. they don't need to authorize access again). OPTIONAL
+    #
+    # See Readme.rdoc or readme_code.rb for an explication on the OAuth2 authorization process.
+    #
+    # ==== Example
+    # Google::Calendar.get(
+    #                      :client_id => YOUR_CLIENT_ID,
+    #                      :client_secret => YOUR_SECRET,
+    #                      :calendar => YOUR_CALENDAR_ID,
+    #                      :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
+    #                     )
+    #
+    def self.get(params={}, connection=nil)
+      cal = new(params, connection)
+      cal.retrieve_calendar
+    end
+
+    #
+    # Connect and update a Google Calendar.
+    #  the +params+ paramater accepts
+    # * :summary => title of the calendar being created. OPTIONAL
+    # * :location => geographic location of the calendar as free-form text. OPTIONAL
+    # * :time_zone => the time zone of the calendar. (Formatted as an IANA Time Zone Database name, e.g. "Europe/Zurich".) OPTIONAL
+    # * :description => description of the calendar. OPTIONAL
+    # * :refresh_token => if a user has already given you access to their calendars, you can specify their refresh token here and you will be 'logged on' automatically (i.e. they don't need to authorize access again). OPTIONAL
+    #
+    # See Readme.rdoc or readme_code.rb for an explication on the OAuth2 authorization process.
+    #
+    # ==== Example
+    # google_calendar_object.update(
+    #                               :summary => 'Test Calendar',
+    #                               :location => 'Somewhere',
+    #                               :description => 'Test Calendar Description',
+    #                               :time_zone => 'Europe/Zurich',
+    #                              )
+    #
+    def update(params={})
+      instance_variable_set(:@summary, params[:summary])
+      instance_variable_set(:@location, params[:location])
+      instance_variable_set(:@description, params[:description])
+      instance_variable_set(:@time_zone, params[:time_zone])
+
+      response =
+        send_calendar_request(
+                              "/#{@id}", 
+                              :put, 
+                              {
+                               summary: @summary,
+                               location: @location,
+                               description: @description,
+                               timeZone: @time_zone,
+                              }.to_json
+                             )
+      @raw = JSON.parse(response.body)
+      self
+    end
+
+    #
+    # Destroy a Google Calendar.
+    #
+    # See Readme.rdoc or readme_code.rb for an explication on the OAuth2 authorization process.
+    #
+    # ==== Example
+    # google_calendar_object.destroy
+    #
+    def destroy
+      send_calendar_request("/#{@id}", :delete)
     end
 
     #
@@ -107,6 +192,23 @@ module Google
     def save
       response = send_calendar_request("/", :post, {:summary => @summary}.to_json)
       update_after_save(response)
+    end
+
+    #
+    # Get an existing calender.
+    #  Returns:
+    #   the calendar that was requested.
+    #
+    def retrieve_calendar
+      response = send_calendar_request("/#{@id}", :get)
+      @raw = JSON.parse(response.body)
+      instance_variable_set(:@summary, @raw['summary'])
+      instance_variable_set(:@location, @raw['location'])
+      instance_variable_set(:@description, @raw['description'])
+      instance_variable_set(:@time_zone, @raw['timeZone'])
+      @html_link = @raw['htmlLink']
+
+      self
     end
 
     #

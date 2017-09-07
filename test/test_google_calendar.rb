@@ -258,14 +258,14 @@ class TestGoogleCalendar < Minitest::Test
         end
       end
 
-      should "create event when id is NIL" do
+      should "create event when id is nil" do
         @client_mock.stubs(:body).returns( get_mock_body("find_event_by_id.json") )
 
         event = @calendar.find_or_create_event_by_id(nil) do |e|
-          e.title = 'New Event Update when id is NIL'
+          e.title = 'New Event Update when id is nil'
         end
 
-        assert_equal event.title, 'New Event Update when id is NIL'
+        assert_equal event.title, 'New Event Update when id is nil'
       end
 
       should "provide the calendar summary" do
@@ -285,7 +285,7 @@ class TestGoogleCalendar < Minitest::Test
         event.id = '8os94knodtv84h0jh4pqq4ut35'
         assert_equal event.id, '8os94knodtv84h0jh4pqq4ut35'
       end
-      should "work with a passed-in NIL id" do
+      should "work with a passed-in nil id" do
         event = Event.new
         event.id = nil
         assert_nil event.id
