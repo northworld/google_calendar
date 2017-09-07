@@ -27,7 +27,7 @@ class TestGoogleCalendar < Minitest::Test
       should "login with auth code" do
         @client_mock.stubs(:body).returns( get_mock_body("login_with_auth_code_success.json") )
         @calendar.login_with_auth_code('4/QzBU-n6GXnHUkorG0fiu6AhoZtIjW53qKLOREiJWFpQ.wn0UfiyaDlEfEnp6UAPFm0EazsV1kwI')
-        assert_equal @calendar.auth_code, nil # the auth_code is discarded after it is used.
+        assert_nil @calendar.auth_code # the auth_code is discarded after it is used.
         assert_equal @calendar.access_token, @access_token
         assert_equal @calendar.refresh_token, '1/aJUy7pQzc4fUMX89BMMLeAfKcYteBKRMpQvf4fQFX0'
       end
@@ -248,7 +248,7 @@ class TestGoogleCalendar < Minitest::Test
 
         @client_mock.stubs(:body).returns('')
         event.delete
-        assert_equal event.id, nil
+        assert_nil event.id
       end
 
       should "throw exception on bad request" do
@@ -261,7 +261,7 @@ class TestGoogleCalendar < Minitest::Test
       should "create event when id is NIL" do
         @client_mock.stubs(:body).returns( get_mock_body("find_event_by_id.json") )
 
-        event = @calendar.find_or_create_event_by_id(NIL) do |e|
+        event = @calendar.find_or_create_event_by_id(nil) do |e|
           e.title = 'New Event Update when id is NIL'
         end
 
@@ -288,7 +288,7 @@ class TestGoogleCalendar < Minitest::Test
       should "work with a passed-in NIL id" do
         event = Event.new
         event.id = nil
-        assert_equal event.id, nil
+        assert_nil event.id
       end
       should "raise an error with an invalid ID" do
         event = Event.new

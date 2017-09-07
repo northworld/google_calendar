@@ -11,13 +11,15 @@ A fast lightweight and minimalist wrapper around the {Google Calendar}[https://w
 <b>Obtain a Client ID and Secret</b>
 
 1. Go to the {Google Developers Console}[https://console.developers.google.com/].
-1. Select a project, or create a new one.
-1. In the sidebar on the left, expand APIs & auth. Next, click APIs. In the list of APIs, make sure the status is ON for the Calendar API.
+1. Select a project, or create a new one (at the top of the page).
+1. In the sidebar on the left, select Library.
+1. Type in 'Google Calendar' in the search box and click on 'Google Calendar API' in the results.
+1. Click on the 'Enable' link at the top of the page.
 1. In the sidebar on the left, select Credentials.
-1. In either case, you end up on the Credentials page and can create your project's credentials from here.
-1. If you haven't done so already, create your OAuth 2.0 credentials by clicking Create new Client ID under the OAuth heading. Next, look for your application's client ID and client secret in the relevant table. You may also create and edit redirect URIs from this page.
+1. If you haven't done so already, create your 'OAuth client ID' by clicking Create Credentials'.  Note: you need to set your 'Product name show to users' on the OAuth consent screen before you can create your client ID.
+1. Select the 'Other' option and click create.
 
-<em>Take note of the Client ID as you'll need to add it to your code later.</em>
+<em>Take note of the Client ID and Client Secret as you'll need to add it to your code later.</em>
 
 <b>Find your calendar ID</b>
 
@@ -111,7 +113,7 @@ to +.env+ for use by Dotenv.  You can also use +.env.default+ as your
 own starting point, just remember to copy it over to +.env+ before
 running tests.
 
-You can modify +.env+ with your own credentials and not worry about
+You can modify +.env+ with your own credentials and don't worry about
 accidentally committing to the repo as +.env+ is in the +.gitignore+.
 
 == Copyright
