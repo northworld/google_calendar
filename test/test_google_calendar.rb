@@ -13,6 +13,7 @@ class TestGoogleCalendar < Minitest::Test
       @refresh_token = ENV['REFRESH_TOKEN']
       @calendar_id = ENV['CALENDAR_ID']
       @access_token = ENV['ACCESS_TOKEN']
+      @redirect_url = "urn:ietf:wg:oauth:2.0:oob"
 
       @calendar = Calendar.new(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => ENV['REDIRECT_URL'], :refresh_token => @refresh_token, :calendar => @calendar_id)
 
@@ -34,17 +35,39 @@ class TestGoogleCalendar < Minitest::Test
 
       should "login with refresh token" do
         # no refresh_token specified
-        cal = Calendar.new(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => "urn:ietf:wg:oauth:2.0:oob", :calendar => @calendar_id)
+        cal = Calendar.new(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => @redirect_url, :calendar => @calendar_id)
         @client_mock.stubs(:body).returns( get_mock_body("login_with_refresh_token_success.json") )
         cal.login_with_refresh_token(@refresh_token)
         assert_equal @calendar.access_token, @access_token
+      end
+
+      should "login with get method" do
+        cal = Calendar.get(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => @redirect_url, 
+                           :calendar => @calendar_id, :refresh_token  => @refresh_token)
+        @client_mock.stubs(:body).returns( get_mock_body("get_calendar.json") )
+        assert_equal cal.id, @calendar_id
+      end
+
+      should "update calendar" do
+        cal = Calendar.get(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => @redirect_url, 
+                           :calendar => @calendar_id, :refresh_token  => @refresh_token)
+        @client_mock.stubs(:body).returns( get_mock_body("update_calendar.json") )
+        cal.update(:summary => 'Our Company', :description => "Work event list")
+        assert_equal @calendar.id, @calendar_id
+      end
+
+      should "create calendar" do
+        cal = Calendar.create(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => @redirect_url, 
+                              :refresh_token  => @refresh_token, :summary => 'A New Calendar', :description => 'Our new calendar')        
+        assert_equal cal.summary, 'A New Calendar'
       end
 
       should "catch login with invalid credentials" do
         @client_mock.stubs(:status).returns(403)
         @client_mock.stubs(:body).returns( get_mock_body("403.json") )
         assert_raises(HTTPAuthorizationFailed) do
-          Calendar.new(:client_id => 'abadid', :client_secret => 'abadsecret', :redirect_url => "urn:ietf:wg:oauth:2.0:oob", :refresh_token => @refresh_token, :calendar => @calendar_id)
+          Calendar.new(:client_id => 'abadid', :client_secret => 'abadsecret', :redirect_url => @redirect_url, 
+                       :refresh_token => @refresh_token, :calendar => @calendar_id)
         end
       end
 
@@ -63,13 +86,31 @@ class TestGoogleCalendar < Minitest::Test
 
         calendar = Calendar.new({:calendar => @calendar_id}, reusable_connection)
         calendar.events
-      end
+      end 
+
+      should "throw ForbiddenError if not logged in" do
+        @client_mock.stubs(:status).returns(403)
+        @client_mock.stubs(:body).returns( get_mock_body("403_forbidden.json") )
+
+        assert_raises(ForbiddenError) do
+          @calendar.find_event_by_id('1234')
+        end
+      end       
+
+      should "throw ForbiddenError if unknown 403 response" do
+        @client_mock.stubs(:status).returns(403)
+        @client_mock.stubs(:body).returns( get_mock_body("403_unknown.json") )
+
+        assert_raises(ForbiddenError) do
+          @calendar.find_event_by_id('1234')
+        end
+      end   
 
     end # login context
 
     context "and logged in" do
       setup do
-        @calendar = Calendar.new(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => "urn:ietf:wg:oauth:2.0:oob", :refresh_token => @refresh_token, :calendar => @calendar_id)
+        @calendar = Calendar.new(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => @redirect_url, :refresh_token => @refresh_token, :calendar => @calendar_id)
       end
 
       should "find all events" do
@@ -157,6 +198,96 @@ class TestGoogleCalendar < Minitest::Test
         @client_mock.stubs(:status).returns(404)
         @client_mock.stubs(:body).returns( get_mock_body("404.json") )
         assert_equal @calendar.find_event_by_id('1234'), []
+      end
+
+      should "throw Request Failed with 400 error" do
+        @client_mock.stubs(:status).returns(400)
+        @client_mock.stubs(:body).returns( get_mock_body("400.json") )
+
+        assert_raises(HTTPRequestFailed) do
+          @calendar.create_event do |e|
+            e.title = 'New Event with no time'
+            e.description = "A new event with &"
+            e.location = "Joe's House & Backyard"
+          end
+        end        
+      end
+
+      should "throw DailyLimitExceededError when limit exceeded" do
+        @client_mock.stubs(:status).returns(403)
+        @client_mock.stubs(:body).returns( get_mock_body("403_daily_limit.json") )
+
+        assert_raises(DailyLimitExceededError) do
+          @calendar.find_event_by_id('1234')
+        end
+      end   
+
+      should "throw RateLimitExceededError when rate limit exceeded" do
+        @client_mock.stubs(:status).returns(403)
+        @client_mock.stubs(:body).returns( get_mock_body("403_rate_limit.json") )
+
+        assert_raises(RateLimitExceededError) do
+          @calendar.find_event_by_id('1234')
+        end
+      end  
+
+      should "throw UserRateLimitExceededError when user rate limit exceeded" do
+        @client_mock.stubs(:status).returns(403)
+        @client_mock.stubs(:body).returns( get_mock_body("403_user_rate_limit.json") )
+
+        assert_raises(UserRateLimitExceededError) do
+          @calendar.find_event_by_id('1234')
+        end
+      end
+
+      should "throw CalendarUsageLimitExceededError when calendar rate limit exceeded" do
+        @client_mock.stubs(:status).returns(403)
+        @client_mock.stubs(:body).returns( get_mock_body("403_calendar_rate_limit.json") )
+
+        assert_raises(CalendarUsageLimitExceededError) do
+          @calendar.find_event_by_id('1234')
+        end
+      end
+
+      should "throw RequestedIdentifierAlreadyExistsError if bad eTag" do
+        @client_mock.stubs(:status).returns(409)
+        @client_mock.stubs(:body).returns( get_mock_body("409.json") )
+
+        assert_raises(RequestedIdentifierAlreadyExistsError) do
+          @calendar.create_event do |e|
+            e.id = 'duplicate'
+            e.title = 'New Event'
+            e.start_time = Time.now + (60 * 60)
+            e.end_time = Time.now + (60 * 60 * 2)
+          end
+        end
+      end
+
+      should "throw GoneError if bad eTag" do
+        @client_mock.stubs(:status).returns(410)
+        @client_mock.stubs(:body).returns( get_mock_body("410.json") )
+
+        assert_raises(GoneError) do
+          @calendar.find_event_by_id('deleted')
+        end
+      end
+
+      should "throw PreconditionFailedError if bad eTag" do
+        @client_mock.stubs(:status).returns(412)
+        @client_mock.stubs(:body).returns( get_mock_body("412.json") )
+
+        assert_raises(PreconditionFailedError) do
+          @calendar.find_event_by_id('1234')
+        end
+      end
+
+      should "throw BackendError if Google is having issues" do
+        @client_mock.stubs(:status).returns(500)
+        @client_mock.stubs(:body).returns( get_mock_body("500.json") )
+
+        assert_raises(BackendError) do
+          @calendar.find_event_by_id('1234')
+        end
       end
 
       should "create an event with block" do
@@ -519,11 +650,12 @@ class TestGoogleCalendar < Minitest::Test
       @client_id = "671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com"
       @client_secret = "roBgdbfEmJwPgrgi2mRbbO-f"
       @refresh_token = "1/eiqBWx8aj-BsdhwvlzDMFOUN1IN_HyThvYTujyksO4c"
+      @redirect_url = "urn:ietf:wg:oauth:2.0:oob"
 
       @calendar_list = Google::CalendarList.new(
         :client_id => @client_id,
         :client_secret => @client_secret,
-        :redirect_url => "urn:ietf:wg:oauth:2.0:oob",
+        :redirect_url => @redirect_url,
         :refresh_token => @refresh_token
       )
 
@@ -573,11 +705,12 @@ class TestGoogleCalendar < Minitest::Test
       @client_id = "671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com"
       @client_secret = "roBgdbfEmJwPgrgi2mRbbO-f"
       @refresh_token = "1/eiqBWx8aj-BsdhwvlzDMFOUN1IN_HyThvYTujyksO4c"
+      @redirect_url = "urn:ietf:wg:oauth:2.0:oob"
 
       @freebusy = Google::Freebusy.new(
         :client_id => @client_id,
         :client_secret => @client_secret,
-        :redirect_url => "urn:ietf:wg:oauth:2.0:oob",
+        :redirect_url => @redirect_url,
         :refresh_token => @refresh_token
       )
 

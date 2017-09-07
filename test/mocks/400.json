@@ -1,0 +1,15 @@
+{
+ "error": {
+  "errors": [
+   {
+    "domain": "calendar",
+    "reason": "timeRangeEmpty",
+    "message": "The specified time range is empty.",
+    "locationType": "parameter",
+    "location": "timeMax",
+   }
+  ],
+  "code": 400,
+  "message": "The specified time range is empty."
+ }
+}

@@ -1,0 +1,15 @@
+{
+ "error": {
+  "errors": [
+   {
+    "domain": "global",
+    "reason": "conditionNotMet",
+    "message": "Precondition Failed",
+    "locationType": "header",
+    "location": "If-Match",
+    }
+  ],
+  "code": 412,
+  "message": "Precondition Failed"
+ }
+}

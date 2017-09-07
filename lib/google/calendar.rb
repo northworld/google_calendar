@@ -190,7 +190,7 @@ module Google
     #   the calendar that was saved.
     #
     def save
-      response = send_calendar_request("/", :post, {:summary => @summary}.to_json)
+      response = send_calendar_request("/", :post, {:summary => @summary}.to_json)     
       update_after_save(response)
     end
 

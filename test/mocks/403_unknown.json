@@ -1,0 +1,13 @@
+{
+ "error": {
+  "errors": [
+   {
+    "domain": "usageLimits",
+    "reason": "SomeRandomError",
+    "message": "RandomError"
+   }
+  ],
+  "code": 403,
+  "message": "RandomError"
+ }
+}

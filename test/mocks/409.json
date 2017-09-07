@@ -1,0 +1,13 @@
+{
+ "error": {
+  "errors": [
+   {
+    "domain": "global",
+    "reason": "duplicate",
+    "message": "The requested identifier already exists."
+   }
+  ],
+  "code": 409,
+  "message": "The requested identifier already exists."
+ }
+}

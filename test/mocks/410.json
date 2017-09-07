@@ -1,0 +1,13 @@
+{
+ "error": {
+  "errors": [
+   {
+    "domain": "global",
+    "reason": "deleted",
+    "message": "Resource has been deleted"
+   }
+  ],
+  "code": 410,
+  "message": "Resource has been deleted"
+ }
+}

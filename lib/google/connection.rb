@@ -153,26 +153,12 @@ module Google
 
     #
     # Check for common HTTP Errors and raise the appropriate response.
+    # Note: error 401 (InvalidCredentialsError) is handled by Signet.
     #
     def check_for_errors(response) #:nodoc
       case response.status
         when 400 then raise HTTPRequestFailed, response.body
-        when 401 then raise InvalidCredentialsError, response.body
-        when 403 
-          case JSON.parse(response.body)["error"]["message"]
-          when "Forbidden"
-            raise ForbiddenError, response.body
-          when "Daily Limit Exceeded"
-            raise DailyLimitExceededError, response.body
-          when "User Rate Limit Exceeded"
-            raise UserRateLimitExceededError, response.body
-          when "Rate Limit Exceeded"
-            raise RateLimitExceededError, response.body
-          when "Calendar usage limits exceeded."
-            raise CalendarUsageLimitExceededError, response.body
-          else
-            raise ForbiddenError, response.body
-          end
+        when 403 then parse_403_error(response)
         when 404 then raise HTTPNotFound, response.body
         when 409 then raise RequestedIdentifierAlreadyExistsError, response.body
         when 410 then raise GoneError, response.body
@@ -181,7 +167,19 @@ module Google
       end
     end
 
-    private
+    #
+    # Utility method to centralize handling of 403 errors.
+    #
+    def parse_403_error(response)
+      case JSON.parse(response.body)["error"]["message"]
+        when "Forbidden"                        then raise ForbiddenError, response.body
+        when "Daily Limit Exceeded"             then raise DailyLimitExceededError, response.body
+        when "User Rate Limit Exceeded"         then raise UserRateLimitExceededError, response.body
+        when "Rate Limit Exceeded"              then raise RateLimitExceededError, response.body
+        when "Calendar usage limits exceeded."  then raise CalendarUsageLimitExceededError, response.body
+        else                                    raise ForbiddenError, response.body
+      end      
+    end
 
     #
     # Utility method to centralize credential validation.
