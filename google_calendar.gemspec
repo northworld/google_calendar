@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
 
   s.require_paths = ["lib"]
-  s.rubygems_version = "2.6.14"
+  s.rubygems_version = "2.7.6"
 
   s.add_runtime_dependency(%q<signet>, ["~> 0.7"])
   s.add_runtime_dependency(%q<json>, [">= 1.8.3"])
