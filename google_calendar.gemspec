@@ -2,8 +2,8 @@
 
 Gem::Specification.new do |s|
   s.name = "google_calendar"
-  s.version = "0.6.2"
-  s.date = "2017-02-17"
+  s.version = "0.6.4"
+  s.date = "2018-03-23"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
 
@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
 
   s.require_paths = ["lib"]
-  s.rubygems_version = "2.6.10"
+  s.rubygems_version = "2.6.14"
 
   s.add_runtime_dependency(%q<signet>, ["~> 0.7"])
   s.add_runtime_dependency(%q<json>, [">= 1.8.3"])
