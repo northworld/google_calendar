@@ -216,10 +216,10 @@ module Google
     # You can pass true or false.  Defaults to transparent.
     #
     def transparency=(val)
-      if val == false || val.to_s.downcase == 'opaque'
-        @transparency = 'opaque'
-      else
+      if val == true || val.to_s.downcase == 'transparent'
         @transparency = 'transparent'
+      else
+        @transparency = 'opaque'
       end
     end
 
