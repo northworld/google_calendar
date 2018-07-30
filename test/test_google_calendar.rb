@@ -502,14 +502,29 @@ class TestGoogleCalendar < Minitest::Test
     end
 
     context "transparency" do
-      should "be transparent" do
-        @event = Event.new(:transparency => true)
-        assert @event.transparent?
+      should "be opaque when nil" do
+        @event = Event.new
+        assert @event.opaque?
+      end
+
+      should "be opaque when transparency = opaque" do
+        @event = Event.new(:transparency => 'opaque')
+        assert @event.opaque?
       end
 
       should "be opaque?" do
         @event = Event.new(:transparency => false)
         assert @event.opaque?
+      end
+
+      should "be transparent" do
+        @event = Event.new(:transparency => true)
+        assert @event.transparent?
+      end
+
+      should "be transparent when transparency = transparent" do
+        @event = Event.new(:transparency => 'transparent')
+        assert @event.transparent?
       end
     end
 
