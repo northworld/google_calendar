@@ -19,7 +19,7 @@ GEM
     codeclimate-test-reporter (1.0.8)
       simplecov (<= 0.13)
     docile (1.1.5)
-    dotenv (2.2.1)
+    dotenv (2.5.0)
     faraday (0.14.0)
       multipart-post (>= 1.2, < 3)
     insensitive_hash (0.3.3)
