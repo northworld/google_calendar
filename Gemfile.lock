@@ -39,7 +39,7 @@ GEM
     multi_json (1.13.1)
     multipart-post (2.0.0)
     public_suffix (3.0.3)
-    rake (12.3.1)
+    rake (12.3.2)
     rb-fsevent (0.10.3)
     rdoc (6.1.1)
     ruby-progressbar (1.10.0)
