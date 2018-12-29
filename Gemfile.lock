@@ -17,7 +17,7 @@ GEM
       public_suffix (>= 2.0.2, < 4.0)
     ansi (1.5.0)
     builder (3.2.3)
-    codeclimate-test-reporter (1.0.8)
+    codeclimate-test-reporter (1.0.9)
       simplecov (<= 0.13)
     concurrent-ruby (1.1.4)
     docile (1.1.5)
