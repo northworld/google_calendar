@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency(%q<signet>, ["~> 0.7"])
   s.add_runtime_dependency(%q<json>, [">= 1.8.3"])
-  s.add_runtime_dependency(%q<TimezoneParser>, ["~> 0.3.0"])
+  s.add_runtime_dependency(%q<TimezoneParser>, ">= 0.3", "< 1.1")
 
   s.add_development_dependency(%q<terminal-notifier-guard>, ["~> 1.6"])
   s.add_development_dependency(%q<rb-fsevent>, ["~> 0.9"])
