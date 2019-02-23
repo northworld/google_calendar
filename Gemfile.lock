@@ -25,7 +25,7 @@ GEM
     faraday (0.15.4)
       multipart-post (>= 1.2, < 3)
     insensitive_hash (0.3.3)
-    json (2.1.0)
+    json (2.2.0)
     jwt (2.1.0)
     metaclass (0.0.4)
     minitest (5.11.3)
