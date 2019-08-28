@@ -41,7 +41,7 @@ GEM
     public_suffix (3.0.3)
     rake (12.3.2)
     rb-fsevent (0.10.3)
-    rdoc (6.1.1)
+    rdoc (6.2.0)
     ruby-progressbar (1.10.0)
     shoulda-context (1.2.2)
     signet (0.11.0)
