@@ -21,7 +21,7 @@ GEM
       simplecov (<= 0.13)
     concurrent-ruby (1.1.4)
     docile (1.1.5)
-    dotenv (2.7.1)
+    dotenv (2.7.5)
     faraday (0.15.4)
       multipart-post (>= 1.2, < 3)
     insensitive_hash (0.3.3)
