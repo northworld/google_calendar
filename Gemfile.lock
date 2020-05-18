@@ -27,7 +27,7 @@ GEM
     insensitive_hash (0.3.3)
     json (2.3.0)
     jwt (2.2.1)
-    minitest (5.14.0)
+    minitest (5.14.1)
     minitest-reporters (1.4.2)
       ansi
       builder
