@@ -41,7 +41,7 @@ GEM
     rb-fsevent (0.10.4)
     rdoc (6.2.1)
     ruby-progressbar (1.10.1)
-    shoulda-context (1.2.2)
+    shoulda-context (2.0.0)
     signet (0.14.0)
       addressable (~> 2.3)
       faraday (>= 0.17.3, < 2.0)
@@ -71,7 +71,7 @@ DEPENDENCIES
   rake (>= 11)
   rb-fsevent (~> 0.9)
   rdoc (>= 4.1)
-  shoulda-context (~> 1.2)
+  shoulda-context (~> 2.0)
   terminal-notifier-guard (~> 1.6)
 
 BUNDLED WITH
