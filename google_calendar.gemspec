@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency(%q<rb-fsevent>, ["~> 0.9"])
   s.add_development_dependency(%q<minitest>, ["~> 5.1"])
   s.add_development_dependency(%q<minitest-reporters>, ["~> 1.2"])
-  s.add_development_dependency(%q<shoulda-context>, ["~> 1.2"])
+  s.add_development_dependency(%q<shoulda-context>, "~> 2.0")
   s.add_development_dependency(%q<bundler>, [">= 1.2"])
   s.add_development_dependency(%q<mocha>, ["~> 1.4"])
   s.add_development_dependency(%q<rake>, [">= 11"])
