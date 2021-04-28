@@ -1,0 +1,15 @@
+version: 2
+updates:
+- package-ecosystem: bundler
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "13:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: signet
+    versions:
+    - 0.14.1
+  - dependency-name: minitest
+    versions:
+    - 5.14.3
