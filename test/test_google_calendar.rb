@@ -42,14 +42,14 @@ class TestGoogleCalendar < Minitest::Test
       end
 
       should "login with get method" do
-        cal = Calendar.get(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => @redirect_url, 
+        cal = Calendar.get(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => @redirect_url,
                            :calendar => @calendar_id, :refresh_token  => @refresh_token)
         @client_mock.stubs(:body).returns( get_mock_body("get_calendar.json") )
         assert_equal cal.id, @calendar_id
       end
 
       should "update calendar" do
-        cal = Calendar.get(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => @redirect_url, 
+        cal = Calendar.get(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => @redirect_url,
                            :calendar => @calendar_id, :refresh_token  => @refresh_token)
         @client_mock.stubs(:body).returns( get_mock_body("update_calendar.json") )
         cal.update(:summary => 'Our Company', :description => "Work event list")
@@ -57,8 +57,8 @@ class TestGoogleCalendar < Minitest::Test
       end
 
       should "create calendar" do
-        cal = Calendar.create(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => @redirect_url, 
-                              :refresh_token  => @refresh_token, :summary => 'A New Calendar', :description => 'Our new calendar')        
+        cal = Calendar.create(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => @redirect_url,
+                              :refresh_token  => @refresh_token, :summary => 'A New Calendar', :description => 'Our new calendar')
         assert_equal cal.summary, 'A New Calendar'
       end
 
@@ -66,7 +66,7 @@ class TestGoogleCalendar < Minitest::Test
         @client_mock.stubs(:status).returns(403)
         @client_mock.stubs(:body).returns( get_mock_body("403.json") )
         assert_raises(HTTPAuthorizationFailed) do
-          Calendar.new(:client_id => 'abadid', :client_secret => 'abadsecret', :redirect_url => @redirect_url, 
+          Calendar.new(:client_id => 'abadid', :client_secret => 'abadsecret', :redirect_url => @redirect_url,
                        :refresh_token => @refresh_token, :calendar => @calendar_id)
         end
       end
@@ -86,7 +86,7 @@ class TestGoogleCalendar < Minitest::Test
 
         calendar = Calendar.new({:calendar => @calendar_id}, reusable_connection)
         calendar.events
-      end 
+      end
 
       should "throw ForbiddenError if not logged in" do
         @client_mock.stubs(:status).returns(403)
@@ -95,7 +95,7 @@ class TestGoogleCalendar < Minitest::Test
         assert_raises(ForbiddenError) do
           @calendar.find_event_by_id('1234')
         end
-      end       
+      end
 
       should "throw ForbiddenError if unknown 403 response" do
         @client_mock.stubs(:status).returns(403)
@@ -104,7 +104,7 @@ class TestGoogleCalendar < Minitest::Test
         assert_raises(ForbiddenError) do
           @calendar.find_event_by_id('1234')
         end
-      end   
+      end
 
     end # login context
 
@@ -210,7 +210,7 @@ class TestGoogleCalendar < Minitest::Test
             e.description = "A new event with &"
             e.location = "Joe's House & Backyard"
           end
-        end        
+        end
       end
 
       should "throw DailyLimitExceededError when limit exceeded" do
@@ -220,7 +220,7 @@ class TestGoogleCalendar < Minitest::Test
         assert_raises(DailyLimitExceededError) do
           @calendar.find_event_by_id('1234')
         end
-      end   
+      end
 
       should "throw RateLimitExceededError when rate limit exceeded" do
         @client_mock.stubs(:status).returns(403)
@@ -229,7 +229,7 @@ class TestGoogleCalendar < Minitest::Test
         assert_raises(RateLimitExceededError) do
           @calendar.find_event_by_id('1234')
         end
-      end  
+      end
 
       should "throw UserRateLimitExceededError when user rate limit exceeded" do
         @client_mock.stubs(:status).returns(403)
