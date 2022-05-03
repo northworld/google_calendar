@@ -46,7 +46,7 @@ module Google
     private
 
     #
-    # Prepare the JSON 
+    # Prepare the JSON
     #
     def json_for_query(calendar_ids, start_time, end_time)
       {}.tap{ |obj|
@@ -66,7 +66,5 @@ module Google
         result[calendar_id] = value['busy'] || []
       end
     end
-
   end
-
 end
