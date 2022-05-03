@@ -62,6 +62,7 @@ module Google
       return nil unless query_result['calendars'].is_a? Hash
 
       query_result['calendars'].each_with_object({}) do |(calendar_id, value), result|
+        value['busy'].each { |date_times| date_times.transform_values! { |date_time| DateTime.parse(date_time) } }
         result[calendar_id] = value['busy'] || []
       end
     end
