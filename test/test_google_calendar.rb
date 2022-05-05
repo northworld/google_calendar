@@ -713,7 +713,6 @@ class TestGoogleCalendar < Minitest::Test
   end
 
   context "a freebusy query" do
-
     setup do
       @client_mock = setup_mock_client
 
@@ -743,8 +742,8 @@ class TestGoogleCalendar < Minitest::Test
     should "returns the busy times for each calendar supplied" do
       freebusy_result = @freebusy.query(@calendar_ids, @start_time, @end_time)
 
-      assert_equal ({'start' => '2015-03-06T10:00:00Z', 'end' => '2015-03-06T11:00:00Z' }), freebusy_result['busy-calendar-id'].first
-      assert_equal ({'start' => '2015-03-06T11:30:00Z', 'end' => '2015-03-06T11:30:00Z' }), freebusy_result['busy-calendar-id'].last
+      assert_equal ({'start' => DateTime.new(2015, 3, 6, 10, 0, 0, 0), 'end' => DateTime.new(2015, 3, 6, 11, 0, 0, 0) }), freebusy_result['busy-calendar-id'].first
+      assert_equal ({'start' => DateTime.new(2015, 3, 6, 11, 30, 0, 0), 'end' => DateTime.new(2015, 3, 6, 11, 30, 0, 0) }), freebusy_result['busy-calendar-id'].last
       assert_equal [], freebusy_result['not-busy-calendar-id']
     end
   end
