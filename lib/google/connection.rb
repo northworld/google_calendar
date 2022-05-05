@@ -9,12 +9,13 @@ module Google
     BASE_URI = "https://www.googleapis.com/calendar/v3"
     TOKEN_URI ="https://accounts.google.com/o/oauth2/token"
     AUTH_URI = "https://accounts.google.com/o/oauth2/auth"
-    SCOPE = "https://www.googleapis.com/auth/calendar"
+    DEFAULT_SCOPE = "https://www.googleapis.com/auth/calendar"
+
     attr_accessor :client
 
     def self.new_with_service_account(params)
       client = Signet::OAuth2::Client.new(
-        :scope => SCOPE,
+        :scope => params.fetch(:scope, DEFAULT_SCOPE),
         :issuer => params[:client_id],
         :audience => TOKEN_URI,
         :token_credential_uri => TOKEN_URI,
@@ -45,6 +46,7 @@ module Google
     # * :client_secret => the client secret you received from Google after registering your application with them.
     # * :redirect_uri => the url where your users will be redirected to after they have successfully permitted access to their calendars. Use 'urn:ietf:wg:oauth:2.0:oob' if you are using an 'application'"
     # * :refresh_token => if a user has already given you access to their calendars, you can specify their refresh token here and you will be 'logged on' automatically (i.e. they don't need to authorize access again)
+    # * :scope => Optional. The scope of the access request, expressed either as an Array or as a space-delimited String.
     #
     def initialize(params, client=nil)
 
@@ -58,7 +60,7 @@ module Google
         :state => params[:state],
         :authorization_uri => AUTH_URI,
         :token_credential_uri => TOKEN_URI,
-        :scope => SCOPE
+        :scope => params.fetch(:scope, DEFAULT_SCOPE)
       )
 
       # try to get an access token if possible.
@@ -178,7 +180,7 @@ module Google
         when "Rate Limit Exceeded"              then raise RateLimitExceededError, response.body
         when "Calendar usage limits exceeded."  then raise CalendarUsageLimitExceededError, response.body
         else                                    raise ForbiddenError, response.body
-      end      
+      end
     end
 
     #
