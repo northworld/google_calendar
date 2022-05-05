@@ -3,6 +3,7 @@ PATH
   specs:
     google_calendar (0.6.4)
       TimezoneParser (>= 0.3, < 1.1)
+      addressable (> 2.7.0)
       json (>= 1.8.3)
       signet (~> 0.7)
 
@@ -13,7 +14,7 @@ GEM
       insensitive_hash
       sqlite3
       tzinfo
-    addressable (2.7.0)
+    addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     ansi (1.5.0)
     builder (3.2.4)
@@ -36,10 +37,13 @@ GEM
     mocha (1.11.2)
     multi_json (1.14.1)
     multipart-post (2.1.1)
-    public_suffix (4.0.4)
+    psych (4.0.3)
+      stringio
+    public_suffix (4.0.6)
     rake (13.0.1)
     rb-fsevent (0.10.4)
-    rdoc (6.2.1)
+    rdoc (6.4.0)
+      psych (>= 4.0.0)
     ruby-progressbar (1.10.1)
     shoulda-context (2.0.0)
     signet (0.14.0)
@@ -53,6 +57,7 @@ GEM
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
     sqlite3 (1.4.2)
+    stringio (3.0.1)
     terminal-notifier-guard (1.7.0)
     tzinfo (2.0.2)
       concurrent-ruby (~> 1.0)
@@ -70,9 +75,9 @@ DEPENDENCIES
   mocha (~> 1.4)
   rake (>= 11)
   rb-fsevent (~> 0.9)
-  rdoc (>= 4.1)
+  rdoc (> 6.3.1)
   shoulda-context (~> 2.0)
   terminal-notifier-guard (~> 1.6)
 
 BUNDLED WITH
-   2.1.4
+   2.2.16

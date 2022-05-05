@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubygems_version = "2.7.6"
 
+  s.add_runtime_dependency(%q<addressable>, ["> 2.7.0"])
   s.add_runtime_dependency(%q<signet>, ["~> 0.7"])
   s.add_runtime_dependency(%q<json>, [">= 1.8.3"])
   s.add_runtime_dependency(%q<TimezoneParser>, ">= 0.3", "< 1.1")
@@ -38,7 +39,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency(%q<bundler>, [">= 1.2"])
   s.add_development_dependency(%q<mocha>, ["~> 1.4"])
   s.add_development_dependency(%q<rake>, [">= 11"])
-  s.add_development_dependency(%q<rdoc>, [">= 4.1"])
+  s.add_development_dependency(%q<rdoc>, ["> 6.3.1"])
   s.add_development_dependency(%q<dotenv>, ["~> 2.1"])
 
 end
