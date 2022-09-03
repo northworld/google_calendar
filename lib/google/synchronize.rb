@@ -7,7 +7,7 @@ module Google
     def self.synchronize_hash(response, calendar)
       events = Event.build_from_google_feed(response, calendar)
       unless events.empty?
-        events = events.length > 1 ? events : events[0]
+        events = events.length > 1 ? events : [events[0]]
       end
       result = { events: events }
       result[:next_sync_token] = response['nextSyncToken'] if response['nextSyncToken']
