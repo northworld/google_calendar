@@ -248,11 +248,11 @@ module Google
     #   a hash with a next_sync_token plus an empty [:events] array if nothing found.
     #   a hash with a next_sync_token plus an array with one element if only one event found.
     #   a hash with a next_sync_token plus an array of events if many found.
-    #   a hash with a next_sync_token and next_page_token, plus an array of events if many found.
+    #   a hash with a next_sync_token and page_token, plus an array of events if many found.
     #
     def incremental_sync(sync_token: '', page_token: nil)
-      page_token = next_page_token == nil ? nil : "&pageToken=#{next_page_token}"
-      sync_event_lookup("?syncToken=#{sync_token}#{page_token.to_s}", sync_token, next_page_token)
+      page_token_string = page_token == nil ? '' : "&pageToken=#{page_token}"
+      sync_event_lookup("?syncToken=#{sync_token}#{page_token_string}", sync_token, page_token)
     end
 
     #
