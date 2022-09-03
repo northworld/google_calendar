@@ -223,6 +223,39 @@ module Google
     end
 
     #
+    # Find all of the events associated with this calendar with the intention
+    # of future incremental syncing.
+    #
+    # This method is not useful if you do not store the returned next_sync_token.
+    #
+    #  Returns:
+    #   a hash with a next_sync_token plus an empty [:events] array if nothing found.
+    #   a hash with a next_sync_token plus an array with one element if only one event found.
+    #   a hash with a next_sync_token plus an array of events if many found.
+    #
+    def initial_sync
+      sync_event_lookup('', nil, nil)
+    end
+
+    #
+    # Find all new and updated events associated with this calendar using a
+    # sync_token. Use page tokens if the returned :events are paginated.
+    #
+    # This method is not useful if you do not store the returned
+    # next_sync_token if it does not equal the provided sync_token.
+    #
+    #  Returns:
+    #   a hash with a next_sync_token plus an empty [:events] array if nothing found.
+    #   a hash with a next_sync_token plus an array with one element if only one event found.
+    #   a hash with a next_sync_token plus an array of events if many found.
+    #   a hash with a next_sync_token and next_page_token, plus an array of events if many found.
+    #
+    def incremental_sync(sync_token: '', page_token: nil)
+      page_token = next_page_token == nil ? nil : "&pageToken=#{next_page_token}"
+      sync_event_lookup("?syncToken=#{sync_token}#{page_token.to_s}", sync_token, next_page_token)
+    end
+
+    #
     # This is equivalent to running a search in the Google calendar web application.
     # Google does not provide a way to specify what attributes you would like to
     # search (i.e. title), by default it searches everything.
@@ -473,6 +506,19 @@ module Google
         events.length > 1 ? events : [events[0]]
       rescue Google::HTTPNotFound
         return []
+      end
+    end
+
+    #
+    # Utility method used to centralize sync event lookup.
+    #
+    def sync_event_lookup(query_string = '', next_sync_token, next_page_token) #:nodoc:
+      begin
+        response = send_events_request(query_string, :get)
+        parsed_json = JSON.parse(response.body)
+        sync_events = Synchronize.synchronize_hash(parsed_json, self) || {}
+      rescue Google::HTTPNotFound
+        return { events: [], next_sync_token: next_sync_token, next_page_token: next_page_token }
       end
     end
 

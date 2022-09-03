@@ -6,4 +6,5 @@ module Google
   require 'google/connection'
   require 'google/event'
   require 'google/freebusy'
+  require 'google/synchronize'
 end
