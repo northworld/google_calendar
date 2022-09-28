@@ -13,7 +13,7 @@ module Google
     #  the +params+ paramater accepts
     # * :client_id => the client ID that you received from Google after registering your application with them (https://console.developers.google.com/). REQUIRED
     # * :client_secret => the client secret you received from Google after registering your application with them. REQUIRED
-    # * :redirect_url => the url where your users will be redirected to after they have successfully permitted access to their calendars. Use 'urn:ietf:wg:oauth:2.0:oob' if you are using an 'application'" REQUIRED
+    # * :redirect_url => the url where your users will be redirected to after they have successfully permitted access to their calendars. REQUIRED
     # * :calendar => the id of the calendar you would like to work with (see Readme.rdoc for instructions on how to find yours). REQUIRED
     # * :refresh_token => if a user has already given you access to their calendars, you can specify their refresh token here and you will be 'logged on' automatically (i.e. they don't need to authorize access again). OPTIONAL
     #
@@ -23,7 +23,7 @@ module Google
     # Google::Calendar.new(:client_id => YOUR_CLIENT_ID,
     #                      :client_secret => YOUR_SECRET,
     #                      :calendar => YOUR_CALENDAR_ID,
-    #                      :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
+    #                      :redirect_url => "http://myapplicationurl.com/"
     #                     )
     #
     def initialize(params={}, connection=nil)
@@ -36,7 +36,7 @@ module Google
     #  the +params+ paramater accepts
     # * :client_id => the client ID that you received from Google after registering your application with them (https://console.developers.google.com/). REQUIRED
     # * :client_secret => the client secret you received from Google after registering your application with them. REQUIRED
-    # * :redirect_url => the url where your users will be redirected to after they have successfully permitted access to their calendars. Use 'urn:ietf:wg:oauth:2.0:oob' if you are using an 'application'" REQUIRED
+    # * :redirect_url => the url where your users will be redirected to after they have successfully permitted access to their calendars. REQUIRED
     # * :summary => title of the calendar being created. OPTIONAL
     # * :location => geographic location of the calendar as free-form text. OPTIONAL
     # * :time_zone => the time zone of the calendar. (Formatted as an IANA Time Zone Database name, e.g. "Europe/Zurich".) OPTIONAL
@@ -53,7 +53,7 @@ module Google
     #                         :location => 'Somewhere',
     #                         :description => 'Test Calendar Description',
     #                         :time_zone => 'Europe/Zurich',
-    #                         :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
+    #                         :redirect_url => "http://myapplicationurl.com/"
     #                        )
     #
     def self.create(params={}, connection=nil)
@@ -71,7 +71,7 @@ module Google
     #  the +params+ paramater accepts
     # * :client_id => the client ID that you received from Google after registering your application with them (https://console.developers.google.com/). REQUIRED
     # * :client_secret => the client secret you received from Google after registering your application with them. REQUIRED
-    # * :redirect_url => the url where your users will be redirected to after they have successfully permitted access to their calendars. Use 'urn:ietf:wg:oauth:2.0:oob' if you are using an 'application'" REQUIRED
+    # * :redirect_url => the url where your users will be redirected to after they have successfully permitted access to their calendars. REQUIRED
     # * :calendar => the id of the calendar you would like to work with (see Readme.rdoc for instructions on how to find yours). REQUIRED
     # * :refresh_token => if a user has already given you access to their calendars, you can specify their refresh token here and you will be 'logged on' automatically (i.e. they don't need to authorize access again). OPTIONAL
     #
@@ -82,7 +82,7 @@ module Google
     #                      :client_id => YOUR_CLIENT_ID,
     #                      :client_secret => YOUR_SECRET,
     #                      :calendar => YOUR_CALENDAR_ID,
-    #                      :redirect_url => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
+    #                      :redirect_url => "http://myapplicationurl.com/"
     #                     )
     #
     def self.get(params={}, connection=nil)

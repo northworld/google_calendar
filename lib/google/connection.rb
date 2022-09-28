@@ -44,7 +44,7 @@ module Google
     #  the +params+ paramater accepts
     # * :client_id => the client ID that you received from Google after registering your application with them (https://console.developers.google.com/)
     # * :client_secret => the client secret you received from Google after registering your application with them.
-    # * :redirect_uri => the url where your users will be redirected to after they have successfully permitted access to their calendars. Use 'urn:ietf:wg:oauth:2.0:oob' if you are using an 'application'"
+    # * :redirect_uri => the url where your users will be redirected to after they have successfully permitted access to their calendars."
     # * :refresh_token => if a user has already given you access to their calendars, you can specify their refresh token here and you will be 'logged on' automatically (i.e. they don't need to authorize access again)
     # * :scope => Optional. The scope of the access request, expressed either as an Array or as a space-delimited String.
     #

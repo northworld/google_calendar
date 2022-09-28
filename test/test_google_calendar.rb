@@ -13,16 +13,16 @@ class TestGoogleCalendar < Minitest::Test
       @refresh_token = ENV['REFRESH_TOKEN']
       @calendar_id = ENV['CALENDAR_ID']
       @access_token = ENV['ACCESS_TOKEN']
-      @redirect_url = "urn:ietf:wg:oauth:2.0:oob"
+      @redirect_url = ENV['REDIRECT_URL']
 
-      @calendar = Calendar.new(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => ENV['REDIRECT_URL'], :refresh_token => @refresh_token, :calendar => @calendar_id)
+      @calendar = Calendar.new(:client_id => @client_id, :client_secret => @client_secret, :redirect_url => @redirect_url, :refresh_token => @refresh_token, :calendar => @calendar_id)
 
     end
 
     context "a calendar" do
 
       should "generate auth url" do
-        assert_equal @calendar.authorize_url.to_s, 'https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com&redirect_uri=urn:ietf:wg:oauth:2.0:oob&response_type=code&scope=https://www.googleapis.com/auth/calendar'
+        assert_equal @calendar.authorize_url.to_s, 'https://accounts.google.com/o/oauth2/auth?access_type=offline&client_id=671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com&redirect_uri=https://mytesturl.com/&response_type=code&scope=https://www.googleapis.com/auth/calendar'
       end
 
       should "login with auth code" do
@@ -665,7 +665,7 @@ class TestGoogleCalendar < Minitest::Test
       @client_id = "671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com"
       @client_secret = "roBgdbfEmJwPgrgi2mRbbO-f"
       @refresh_token = "1/eiqBWx8aj-BsdhwvlzDMFOUN1IN_HyThvYTujyksO4c"
-      @redirect_url = "urn:ietf:wg:oauth:2.0:oob"
+      @redirect_url = "https://mytesturl.com/"
 
       @calendar_list = Google::CalendarList.new(
         :client_id => @client_id,
@@ -719,7 +719,7 @@ class TestGoogleCalendar < Minitest::Test
       @client_id = "671053090364-ntifn8rauvhib9h3vnsegi6dhfglk9ue.apps.googleusercontent.com"
       @client_secret = "roBgdbfEmJwPgrgi2mRbbO-f"
       @refresh_token = "1/eiqBWx8aj-BsdhwvlzDMFOUN1IN_HyThvYTujyksO4c"
-      @redirect_url = "urn:ietf:wg:oauth:2.0:oob"
+      @redirect_url = "https://mytesturl.com/"
 
       @freebusy = Google::Freebusy.new(
         :client_id => @client_id,

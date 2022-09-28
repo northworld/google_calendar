@@ -13,7 +13,7 @@ module Google
     # The +params+ parameter accepts
     # * :client_id => the client ID that you received from Google after registering your application with them (https://console.developers.google.com/). REQUIRED
     # * :client_secret => the client secret you received from Google after registering your application with them. REQUIRED
-    # * :redirect_url => the url where your users will be redirected to after they have successfully permitted access to their calendars. Use 'urn:ietf:wg:oauth:2.0:oob' if you are using an 'application'" REQUIRED
+    # * :redirect_url => the url where your users will be redirected to after they have successfully permitted access to their calendars. REQUIRED
     # * :refresh_token => if a user has already given you access to their calendars, you can specify their refresh token here and you will be 'logged on' automatically (i.e. they don't need to authorize access again). OPTIONAL
     #
     # See Readme.rdoc or readme_code.rb for an explication on the OAuth2 authorization process.

@@ -23,7 +23,7 @@ if has_token.downcase != 'y'
   # A user needs to approve access in order to work with their calendars.
   puts "Visit the following web page in your browser and approve access."
   puts cal.authorize_url
-  puts "\nCopy the code that Google returned and paste it here:"
+  puts "\nCopy the code out of the paramters after Google redirects you to your provided redirect_url"
 
   # Pass the ONE TIME USE access code here to login and get a refresh token that you can use for access from now on.
   refresh_token = cal.login_with_auth_code( $stdin.gets.chomp )
