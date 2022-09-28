@@ -8,6 +8,8 @@ A fast lightweight and minimalist wrapper around the {Google Calendar}[https://w
 
 == Setup
 
+<b>Important Changes: Google no longer supports the 'urn:ietf:wg:oauth:2.0:oob' out-of-band OAuth method.  You must setup your OAuth Credentials with a publically accessible URL and your can grab your code from the URL paramaters after approving the OAuth request.  If your product is a Web Application, you can automate this set up by pointing the redirect_url to the appropriate method of your application.
+
 <b>Obtain a Client ID and Secret</b>
 
 1. Go to the {Google Developers Console}[https://console.developers.google.com/].
@@ -16,10 +18,10 @@ A fast lightweight and minimalist wrapper around the {Google Calendar}[https://w
 1. Type in 'Google Calendar' in the search box and click on 'Google Calendar API' in the results.
 1. Click on the 'Enable' link at the top of the page.
 1. In the sidebar on the left, select Credentials.
-1. If you haven't done so already, create your 'OAuth client ID' by clicking Create Credentials'.  Note: you need to set your 'Product name show to users' on the OAuth consent screen before you can create your client ID.
-1. Select the 'Other' option and click create.
-
-<em>Take note of the Client ID and Client Secret as you'll need to add it to your code later.</em>
+1. If you haven't done so already, create your 'OAuth client ID' by clicking 'Create Credentials -> OAuth client ID'.  Choose Web Application as the type.  
+1. You must also provide an "Authorized redirect URIs" which is a publically reachable URL which google will redirect after the OAuth approval.  Google will append the paramater 'code=<your auth code>' to this URL during redirection which will include the necessary code to authenticate the usage of this application.
+1. <em>Take note of the Client ID and Client Secret as you'll need to add it to your code later.</em>
+1. In the sidebar on the left, select "OAuth consent screen".  You must setup your Application Name, and add "Test users" if this is for personal use (i.e. you are setting up links to at limited set of known users' calendars), or "Publish" your app if this is for public use.
 
 <b>Find your calendar ID</b>
 
@@ -28,7 +30,7 @@ A fast lightweight and minimalist wrapper around the {Google Calendar}[https://w
 1. In the Calendar Address section, locate the Calendar ID listed next to the XML, ICAL and HTML buttons.
 1. Copy the Calendar ID.
 
-== Usage
+== Usage (readme_code.rb)
   require 'rubygems'
   require 'google_calendar'
 
@@ -36,7 +38,7 @@ A fast lightweight and minimalist wrapper around the {Google Calendar}[https://w
   cal = Google::Calendar.new(:client_id     => YOUR_CLIENT_ID,
                              :client_secret => YOUR_SECRET,
                              :calendar      => YOUR_CALENDAR_ID,
-                             :redirect_url  => "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
+                             :redirect_url  => YOUR_REDIRECT_URL # This must match a url you permitted in your OAuth setting
                              )
 
   puts "Do you already have a refresh token? (y/n)"
@@ -47,7 +49,7 @@ A fast lightweight and minimalist wrapper around the {Google Calendar}[https://w
     # A user needs to approve access in order to work with their calendars.
     puts "Visit the following web page in your browser and approve access."
     puts cal.authorize_url
-    puts "\nCopy the code that Google returned and paste it here:"
+    puts "\nCopy the code out of the paramters after Google redirect you to your provided redirect_url"
 
     # Pass the ONE TIME USE access code here to login and get a refresh token that you can use for access from now on.
     refresh_token = cal.login_with_auth_code( $stdin.gets.chomp )
