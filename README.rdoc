@@ -8,7 +8,7 @@ A fast lightweight and minimalist wrapper around the {Google Calendar}[https://w
 
 == Setup
 
-<b>Important Changes: Google no longer supports the 'urn:ietf:wg:oauth:2.0:oob' out-of-band OAuth method.  You must setup your OAuth Credentials with a publically accessible URL where your can grab your code from the URL paramaters after approving the OAuth request.  If your product is a Web Application, you can automate this set up by pointing the redirect_url to the appropriate method of your application.</b>
+<b>Important Changes: Google no longer supports the 'urn:ietf:wg:oauth:2.0:oob' out-of-band OAuth method.  You must setup your OAuth Credentials with a publically accessible URL where you can grab your code from the URL paramaters after approving the OAuth request.  If your product is a Web Application, you can automate this set up by pointing the redirect_url to the appropriate method of your application.</b>
 
 <b>Obtain a Client ID and Secret</b>
 
@@ -120,4 +120,4 @@ accidentally committing to the repo as +.env+ is in the +.gitignore+.
 
 == Copyright
 
-Copyright (c) 2010-2014 Steve Zich. See LICENSE.txt for further details.
+Copyright (c) 2010-2022 Northworld, LLC. See LICENSE.txt for further details.
