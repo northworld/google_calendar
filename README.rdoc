@@ -26,8 +26,9 @@ A fast lightweight and minimalist wrapper around the {Google Calendar}[https://w
 <b>Find your calendar ID</b>
 
 1. Visit {Google Calendar}[https://www.google.com/calendar/] in your web browser.
-1. In the calendar list on the left, click the down-arrow button next to the appropriate calendar, then select Calendar settings.
-1. In the Calendar Address section, locate the Calendar ID listed next to the XML, ICAL and HTML buttons.
+1. In the calendar list on the left, click the three vertical dots next to the appropriate calendar, then select 'Settings and sharing'.
+1. From the left toolbar, choose 'Integrate Calendar'.  
+1. In the Integrate Calendar section, locate the Calendar ID at the top of the section.
 1. Copy the Calendar ID.
 
 == Usage (readme_code.rb)
