@@ -32,7 +32,7 @@
 
 <p>A fast lightweight and minimalist wrapper around the <a href="https://www.google.com/calendar/">Google Calendar</a> API.</p>
 
-<p><a href="http://badge.fury.io/rb/google_calendar"><img src="https://badge.fury.io/rb/google_calendar.svg" alt="Gem Version" height="18"></a> <a href="https://travis-ci.org/northworld/google_calendar"><img src="https://travis-ci.org/northworld/google_calendar.png?branch=master" alt="Build Status"></a> <a href="https://gemnasium.com/northworld/google_calendar"><img src="https://gemnasium.com/northworld/google_calendar.png" alt="Dependency Status"></a> <a href="https://codeclimate.com/github/northworld/google_calendar"><img src="https://codeclimate.com/github/northworld/google_calendar/badges/gpa.svg" alt="Code Climate"></a> <a href="https://codeclimate.com/github/northworld/google_calendar"><img src="https://codeclimate.com/github/northworld/google_calendar/badges/coverage.svg" alt="Test Coverage"></a></p>
+<p><a href="http://badge.fury.io/rb/google_calendar"><img src="https://badge.fury.io/rb/google_calendar.svg" alt="Gem Version" height="18"></a> <a href="https://github.com/northworld/google_calendar/actions/workflows/ci.yml"><img src="https://github.com/northworld/google_calendar/actions/workflows/ci.yml/badge.svg" alt="Build Status"></a></p>
 
 <h2>
 <a id="install" class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install</h2>
@@ -43,39 +43,46 @@
 <h2>
 <a id="setup" class="anchor" href="#setup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setup</h2>
 
+<p><b>Important Changes: Google no longer supports the 'urn:ietf:wg:oauth:2.0:oob' out-of-band OAuth method. You must setup your OAuth Credentials with a publically accessible URL where you can grab your code from the URL paramaters after approving the OAuth request. If your product is a Web Application, you can automate this set up by pointing the redirect_url to the appropriate method of your application.</b></p>
+
 <p><b>Obtain a Client ID and Secret</b></p>
 
 <ol>
 <li>Go to the <a href="https://console.developers.google.com/">Google Developers Console</a>.</li>
-<li>Select a project, or create a new one.</li>
-<li>In the sidebar on the left, expand APIs &amp; auth. Next, click APIs. In the list of APIs, make sure the status is ON for the Calendar API.</li>
+<li>Select a project, or create a new one (at the top of the page).</li>
+<li>In the sidebar on the left, select Library.</li>
+<li>Type in 'Google Calendar' in the search box and click on 'Google Calendar API' in the results.</li>
+<li>Click on the 'Enable' link at the top of the page.</li>
 <li>In the sidebar on the left, select Credentials.</li>
-<li>In either case, you end up on the Credentials page and can create your project's credentials from here.</li>
-<li>If you haven't done so already, create your OAuth 2.0 credentials by clicking Create new Client ID under the OAuth heading. Next, look for your application's client ID and client secret in the relevant table. You may also create and edit redirect URIs from this page.</li>
+<li>If you haven't done so already, create your 'OAuth client ID' by clicking 'Create Credentials -&gt; OAuth client ID'. Choose Web Application as the type.</li>
+<li>You must also provide an "Authorized redirect URIs" which is a publically reachable URL where google will redirect to after the OAuth approval. Google will append the paramater 'code=&lt;your auth code&gt;' to this URL during redirection which will include the necessary code to authenticate the usage of this application.</li>
+<li>
+<em>Take note of the Client ID and Client Secret as you'll need to add it to your code later.</em>
+</li>
+<li>In the sidebar on the left, select "OAuth consent screen". You must setup your Application Name, and add "Test users" if this is for personal use (i.e. you are setting up links to a limited set of known users' calendars), or "Publish" your app if this is for public use.</li>
 </ol>
-
-<p><em>Take note of the Client ID as you'll need to add it to your code later.</em></p>
 
 <p><b>Find your calendar ID</b></p>
 
 <ol>
 <li>Visit <a href="https://www.google.com/calendar/">Google Calendar</a> in your web browser.</li>
-<li>In the calendar list on the left, click the down-arrow button next to the appropriate calendar, then select Calendar settings.</li>
-<li>In the Calendar Address section, locate the Calendar ID listed next to the XML, ICAL and HTML buttons.</li>
+<li>In the calendar list on the left, click the three vertical dots next to the appropriate calendar, then select 'Settings and sharing'.</li>
+<li>From the left toolbar, choose 'Integrate Calendar'.</li>
+<li>In the Integrate Calendar section, locate the Calendar ID at the top of the section.</li>
 <li>Copy the Calendar ID.</li>
 </ol>
 
 <h2>
-<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
+<a id="usage-readme_coderb" class="anchor" href="#usage-readme_coderb" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage (readme_code.rb)</h2>
 
 <pre><code>  require 'rubygems'
   require 'google_calendar'
 
   # Create an instance of the calendar.
-  cal = Google::Calendar.new(:client_id     =&gt; YOUR_CLIENT_ID, 
+  cal = Google::Calendar.new(:client_id     =&gt; YOUR_CLIENT_ID,
                              :client_secret =&gt; YOUR_SECRET,
                              :calendar      =&gt; YOUR_CALENDAR_ID,
-                             :redirect_url  =&gt; "urn:ietf:wg:oauth:2.0:oob" # this is what Google uses for 'applications'
+                             :redirect_url  =&gt; YOUR_REDIRECT_URL # This must match a url you permitted in your OAuth setting
                              )
 
   puts "Do you already have a refresh token? (y/n)"
@@ -86,7 +93,7 @@
     # A user needs to approve access in order to work with their calendars.
     puts "Visit the following web page in your browser and approve access."
     puts cal.authorize_url
-    puts "\nCopy the code that Google returned and paste it here:"
+    puts "\nCopy the code out of the paramters after Google redirects you to your provided redirect_url"
 
     # Pass the ONE TIME USE access code here to login and get a refresh token that you can use for access from now on.
     refresh_token = cal.login_with_auth_code( $stdin.gets.chomp )
@@ -130,7 +137,19 @@
 
 <p>This sample code is located in readme_code.rb in the root folder.</p>
 
-<p>Note: This is not a complete implementation of the calendar api, it just includes the features we needed to support our internal calendar integration.</p>
+<h2>
+<a id="ruby-support" class="anchor" href="#ruby-support" aria-hidden="true"><span class="octicon octicon-link"></span></a>Ruby Support</h2>
+
+<p>The current google_calendar gem supports Ruby 3.2 and higher &mdash; the <code>signet</code> OAuth2 dependency requires it. Older Ruby versions (1.8.7 through 2.7) are maintained on different branches.</p>
+
+<h2>
+<a id="notes" class="anchor" href="#notes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Notes</h2>
+
+<ul>
+<li>This is not a complete implementation of the calendar api, it just includes the features we needed to support our internal calendar integration. Feel free to add additional features and we will happily integrate them.</li>
+<li>Did you get an SSL exception? If so take a look at this: <a href="https://gist.github.com/fnichol/867550">https://gist.github.com/fnichol/867550</a>
+</li>
+</ul>
 
 <h2>
 <a id="contributing-to-google_calendar" class="anchor" href="#contributing-to-google_calendar" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contributing to google_calendar</h2>
@@ -146,9 +165,16 @@
 </ul>
 
 <h2>
+<a id="running-tests" class="anchor" href="#running-tests" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running Tests</h2>
+
+<p>The first time you run <code>rake test</code> Rake will copy over <code>.env.test</code> to <code>.env</code> for use by Dotenv. You can also use <code>.env.default</code> as your own starting point, just remember to copy it over to <code>.env</code> before running tests.</p>
+
+<p>You can modify <code>.env</code> with your own credentials and don't worry about accidentally committing to the repo as <code>.env</code> is in the <code>.gitignore</code>.</p>
+
+<h2>
 <a id="copyright" class="anchor" href="#copyright" aria-hidden="true"><span class="octicon octicon-link"></span></a>Copyright</h2>
 
-<p>Copyright (c) 2010-2014 Steve Zich. See LICENSE.txt for further details.</p>
+<p>Copyright (c) 2010-2022 Northworld, LLC. See LICENSE.txt for further details.</p>
       </section>
     </div>
     <footer>
@@ -156,6 +182,6 @@
       <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
     </footer>
     <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-    
+
   </body>
 </html>
