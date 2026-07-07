@@ -2,8 +2,8 @@
 
 Gem::Specification.new do |s|
   s.name = "google_calendar"
-  s.version = "0.6.4"
-  s.date = "2018-03-23"
+  s.version = "0.7.0"
+  s.date = "2026-07-07"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
 
@@ -30,6 +30,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<signet>, ["~> 0.7"])
   s.add_runtime_dependency(%q<json>, [">= 1.8.3"])
   s.add_runtime_dependency(%q<TimezoneParser>, ">= 0.3", "< 1.1")
+  s.add_runtime_dependency(%q<sorted_set>, ["~> 1.0"])
 
   s.add_development_dependency(%q<terminal-notifier-guard>, ["~> 1.6"])
   s.add_development_dependency(%q<rb-fsevent>, ["~> 0.9"])
@@ -37,9 +38,10 @@ Gem::Specification.new do |s|
   s.add_development_dependency(%q<minitest-reporters>, ["~> 1.2"])
   s.add_development_dependency(%q<shoulda-context>, "~> 2.0")
   s.add_development_dependency(%q<bundler>, [">= 1.2"])
-  s.add_development_dependency(%q<mocha>, ["~> 1.4"])
+  s.add_development_dependency(%q<mocha>, ["~> 2.0"])
   s.add_development_dependency(%q<rake>, [">= 11"])
   s.add_development_dependency(%q<rdoc>, ["> 6.3.1"])
   s.add_development_dependency(%q<dotenv>, ["~> 2.1"])
+  s.add_development_dependency(%q<simplecov>, ["~> 0.22"])
 
 end

@@ -14,7 +14,7 @@ end
 require "minitest/autorun"
 require 'minitest/reporters'
 require 'shoulda/context'
-require 'mocha/setup'
+require 'mocha/minitest'
 require 'faraday'
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))

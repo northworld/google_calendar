@@ -1,5 +1,6 @@
 require 'time'
 require 'json'
+require 'sorted_set' # TimezoneParser relies on the top-level SortedSet, removed from stdlib in Ruby 3.2+
 require 'timezone_parser'
 
 module Google
