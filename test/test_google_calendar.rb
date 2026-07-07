@@ -62,6 +62,14 @@ class TestGoogleCalendar < Minitest::Test
         assert_equal cal.summary, 'A New Calendar'
       end
 
+      should "destroy a calendar" do
+        reusable_connection = mock('Google::Connection')
+        reusable_connection.expects(:send).with("/calendars/#{@calendar_id}", :delete, '').returns(@client_mock)
+
+        calendar = Calendar.new({:calendar => @calendar_id}, reusable_connection)
+        calendar.destroy
+      end
+
       should "catch login with invalid credentials" do
         @client_mock.stubs(:status).returns(403)
         @client_mock.stubs(:body).returns( get_mock_body("403.json") )
@@ -399,6 +407,17 @@ class TestGoogleCalendar < Minitest::Test
         assert_equal event.title, 'New Event Update when id is nil'
       end
 
+      should "create an event with a specified id when none is found on the server" do
+        @client_mock.stubs(:body).returns( get_mock_body("empty_events.json") )
+
+        event = @calendar.find_or_create_event_by_id('fhru34kt6ikmr20knd2456l08n') do |e|
+          e.title = 'New Event With Predefined Id'
+        end
+
+        assert_equal event.title, 'New Event With Predefined Id'
+        assert_equal event.id, 'fhru34kt6ikmr20knd2456l08n'
+      end
+
       should "provide the calendar summary" do
         @client_mock.stubs(:body).returns( get_mock_body("events.json") )
         @calendar.events
@@ -655,6 +674,67 @@ class TestGoogleCalendar < Minitest::Test
         assert_equal correct_hash.inspect, Event.parse_recurrence_rule(rrule).inspect
       end
     end
+
+    context "visibility" do
+      should "default to 'default' when not specified" do
+        assert_equal Event.new.visibility, "default"
+      end
+
+      should "accept a valid visibility" do
+        assert_equal Event.new(:visibility => "private").visibility, "private"
+      end
+
+      should "raise an error on an invalid visibility" do
+        assert_raises(ArgumentError) { Event.new(:visibility => "bogus") }
+      end
+    end
+
+    context "default hashes" do
+      should "return an empty hash for recurrence when unset" do
+        assert_equal Event.new.recurrence, {}
+      end
+
+      should "return an empty hash for extended_properties when unset" do
+        assert_equal Event.new.extended_properties, {}
+      end
+    end
+
+    context "attribute JSON helpers" do
+      setup do
+        @event = Event.new(
+          :color_id => 5,
+          :attendees => [{'email' => 'a@example.com', 'displayName' => 'A', 'responseStatus' => 'accepted'}],
+          :reminders => { 'useDefault' => false, 'overrides' => [{'minutes' => 10, 'method' => 'popup'}] },
+          :recurrence => { freq: 'weekly' },
+          :extended_properties => { 'shared' => { 'key' => 'value' } }
+        )
+      end
+
+      should "expose colorId as a hash and as json" do
+        assert_equal @event.color_attributes, { "colorId" => "5" }
+        assert_equal JSON.parse(@event.color_json), { "colorId" => "5" }
+      end
+
+      should "expose attendees as json" do
+        assert_equal JSON.parse(@event.attendees_json)["attendees"].first["email"], 'a@example.com'
+      end
+
+      should "expose reminders as json" do
+        assert_equal JSON.parse(@event.reminders_json)["useDefault"], false
+      end
+
+      should "expose recurrence as json" do
+        assert_equal JSON.parse(@event.recurrence_json)["recurrence"], ["RRULE:FREQ=WEEKLY"]
+      end
+
+      should "expose extended properties as json" do
+        assert_equal JSON.parse(@event.extended_properties_json)["extendedProperties"]["shared"]["key"], 'value'
+      end
+
+      should "expose the local timezone as json" do
+        assert_equal JSON.parse(@event.local_timezone_json)["timeZone"], TimezoneParser::getTimezones(Time.now.getlocal.zone).last
+      end
+    end
   end
 
   context "a calendar list" do
@@ -745,6 +825,22 @@ class TestGoogleCalendar < Minitest::Test
       assert_equal ({'start' => DateTime.new(2015, 3, 6, 10, 0, 0, 0), 'end' => DateTime.new(2015, 3, 6, 11, 0, 0, 0) }), freebusy_result['busy-calendar-id'].first
       assert_equal ({'start' => DateTime.new(2015, 3, 6, 11, 30, 0, 0), 'end' => DateTime.new(2015, 3, 6, 11, 30, 0, 0) }), freebusy_result['busy-calendar-id'].last
       assert_equal [], freebusy_result['not-busy-calendar-id']
+    end
+  end
+
+  context "with a service account" do
+    setup do
+      @client_mock = setup_mock_client
+    end
+
+    should "connect and obtain an access token" do
+      connection = Google::Connection.new_with_service_account(
+        :client_id   => "the-issuer@example.iam.gserviceaccount.com",
+        :signing_key => OpenSSL::PKey::RSA.new(2048),
+        :person      => "user@example.com"
+      )
+
+      assert_equal connection.access_token, ENV['ACCESS_TOKEN']
     end
   end
 

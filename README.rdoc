@@ -2,7 +2,7 @@
 
 A fast lightweight and minimalist wrapper around the {Google Calendar}[https://www.google.com/calendar/] api.
 
-{<img src="https://badge.fury.io/rb/google_calendar.svg" alt="Gem Version" />}[http://badge.fury.io/rb/google_calendar] {<img src="https://travis-ci.org/northworld/google_calendar.png?branch=master" alt="Build Status" />}[https://travis-ci.org/northworld/google_calendar] {<img src="https://codeclimate.com/github/northworld/google_calendar/badges/gpa.svg" />}[https://codeclimate.com/github/northworld/google_calendar] {<img src="https://codeclimate.com/github/northworld/google_calendar/badges/coverage.svg" />}[https://codeclimate.com/github/northworld/google_calendar]
+{<img src="https://badge.fury.io/rb/google_calendar.svg" alt="Gem Version" />}[http://badge.fury.io/rb/google_calendar] {<img src="https://github.com/northworld/google_calendar/actions/workflows/ci.yml/badge.svg" alt="Build Status" />}[https://github.com/northworld/google_calendar/actions/workflows/ci.yml]
 == Install
   [sudo] gem install 'google_calendar'
 
@@ -94,7 +94,7 @@ A fast lightweight and minimalist wrapper around the {Google Calendar}[https://w
 This sample code is located in readme_code.rb in the root folder.
 
 == Ruby Support
-The current google_calendar gem supports Ruby 2.1 and higher -- because of the json gem dependency.  We maintain support for Ruby 1.8.7, 1.9.3 and 2.0 on different branches.
+The current google_calendar gem supports Ruby 3.2 and higher -- the +signet+ OAuth2 dependency requires it.  Older Ruby versions (1.8.7 through 2.7) are maintained on different branches.
 
 == Notes
 * This is not a complete implementation of the calendar api, it just includes the features we needed to support our internal calendar integration. Feel free to add additional features and we will happily integrate them.
