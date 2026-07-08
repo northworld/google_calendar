@@ -493,6 +493,18 @@ class TestGoogleCalendar < Minitest::Test
           assert !@event.all_day?
         end
       end
+      # Regression test for issue #38: all_day? used to raise when @start_time
+      # was a Time (not a String), e.g. after the start_time reader ran.
+      context "when start_time and end_time are Time objects" do
+        should "not raise and return the correct result" do
+          @event = Event.new(:start_time => Time.parse("2012-03-31"), :end_time => Time.parse("2012-04-01"))
+          @event.start_time # exercise the reader before calling all_day?
+          assert @event.all_day?
+
+          @event = Event.new(:start_time => Time.parse("2012-03-27T10:00:00"), :end_time => Time.parse("2012-03-27T10:30:00"))
+          assert !@event.all_day?
+        end
+      end
     end
 
     context "#all_day=" do
@@ -545,12 +557,45 @@ class TestGoogleCalendar < Minitest::Test
         @event = Event.new(:transparency => 'transparent')
         assert @event.transparent?
       end
+
+      # Regression test for issue #298: the Google API omits the transparency
+      # field for opaque events, so events built from a feed arrive with it
+      # nil. Those must be treated as opaque, not transparent.
+      context "when built from a google feed" do
+        should "be opaque when the feed omits the transparency field" do
+          feed = { "items" => [
+            { "id" => "aaaaa11111", "summary" => "Busy meeting",
+              "start" => { "dateTime" => "2023-01-01T10:00:00Z" },
+              "end"   => { "dateTime" => "2023-01-01T11:00:00Z" } }
+          ]}
+          event = Event.build_from_google_feed(feed, nil).first
+          assert event.opaque?
+          refute event.transparent?
+        end
+
+        should "be transparent when the feed marks the event transparent" do
+          feed = { "items" => [
+            { "id" => "bbbbb22222", "summary" => "Free time", "transparency" => "transparent",
+              "start" => { "dateTime" => "2023-01-01T12:00:00Z" },
+              "end"   => { "dateTime" => "2023-01-01T13:00:00Z" } }
+          ]}
+          event = Event.build_from_google_feed(feed, nil).first
+          assert event.transparent?
+        end
+      end
     end
 
     context "event json" do
       should "include ID key when ID specified" do
         @event = Event.new(id: "nfej9pqigzneknf8llso0iehlv")
         assert_equal JSON.parse(@event.to_json)["id"], "nfej9pqigzneknf8llso0iehlv"
+      end
+
+      # Regression test for issue #81: newlines in the description must be JSON
+      # escaped so they round-trip instead of producing a parse error.
+      should "preserve newlines in the description" do
+        @event = Event.new(description: "line one\nline two\nline three")
+        assert_equal JSON.parse(@event.to_json)["description"], "line one\nline two\nline three"
       end
 
       should "be correct format without ID specified" do
